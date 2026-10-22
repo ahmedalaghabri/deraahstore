@@ -1,0 +1,17 @@
+/* Apply the gloss treatment to the product cutouts only; the category circles
+   keep their original neutral background and proportions. */
+.store-home [data-category-card] > span > img {
+  filter: contrast(1.08) saturate(1.16) brightness(1.03) !important;
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .5s ease;
+}
+
+.store-home [data-category-card]:hover > span > img {
+  filter: contrast(1.1) saturate(1.2) brightness(1.05) !important;
+  transform: scale(1.06) translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-home [data-category-card] > span > img {
+    transition: none;
+  }
+}

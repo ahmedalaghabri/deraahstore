@@ -1,0 +1,91 @@
+.depth-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: var(--dc-perspective, 1400px);
+  perspective-origin: 50% 50%;
+  touch-action: pan-y;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.depth-carousel:active { cursor: grabbing; }
+.depth-carousel:focus-visible { outline: 2px solid rgba(255, 255, 255, .55); outline-offset: 4px; border-radius: 16px; }
+
+.depth-carousel__stage { position: absolute; inset: 0; margin-top: -33px; margin-bottom: -9px; transform-style: preserve-3d; }
+
+.depth-carousel__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  overflow: hidden;
+  background: #0b0d12;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .65), 0 8px 20px -10px rgba(0, 0, 0, .5);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  cursor: pointer;
+}
+
+.depth-carousel__img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.depth-carousel__tint { position: absolute; inset: 0; opacity: 0; pointer-events: none; mix-blend-mode: multiply; }
+.depth-carousel__product { position: absolute; left: 50%; bottom: 6%; z-index: 2; width: auto; height: 70%; max-width: 76%; transform: translateX(-50%); object-fit: contain; pointer-events: none; filter: drop-shadow(0 18px 14px rgba(0, 0, 0, .34)); }
+.depth-carousel__badge { position: absolute; top: 16px; left: 16px; z-index: 3; border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; background: rgba(12, 12, 12, .22); padding: 6px 9px; color: #fff; font-size: 8px; font-weight: 600; letter-spacing: .16em; line-height: 1; text-transform: uppercase; backdrop-filter: blur(5px); }
+
+.depth-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3000;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  background: rgba(18, 20, 26, .62);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.depth-carousel__arrow:hover { background: rgba(28, 31, 40, .9); border-color: rgba(255, 255, 255, .45); }
+.depth-carousel__arrow:active { transform: translateY(-50%) scale(.94); }
+.depth-carousel__arrow--prev { left: 12px; }
+.depth-carousel__arrow--next { right: 12px; }
+
+.depth-carousel__dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  z-index: 3000;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(14, 16, 22, .5);
+  backdrop-filter: blur(6px);
+}
+
+.depth-carousel__dot { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .35); cursor: pointer; transition: width .25s ease, background .25s ease; }
+.depth-carousel__dot.is-active { width: 20px; background: #fff; }
+
+@media (max-width: 639px) {
+  .depth-carousel__arrow { width: 36px; height: 36px; font-size: 24px; }
+  .depth-carousel__arrow--prev { left: 4px; }
+  .depth-carousel__arrow--next { right: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .depth-carousel__card, .depth-carousel__arrow, .depth-carousel__dot { transition: none; will-change: auto; }
+}
