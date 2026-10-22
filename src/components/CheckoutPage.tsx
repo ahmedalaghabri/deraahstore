@@ -113,6 +113,7 @@ function PaymentMethodIcon({ id }: { id: string }) {
   if (id === "cod") mark = <Banknote size={21} className="text-[#171a1f]" aria-hidden="true" />;
   if (id === "tamara") mark = <img src="/product-assets/payment-logos/Tamara-attached.svg" alt="Tamara" className="h-8 w-8 object-contain" />;
   if (id === "tabby") mark = <img src="/product-assets/payment-logos/Tabby-attached.svg" alt="Tabby" className="h-8 w-9 object-contain" />;
+  if (id === "mukafaati") mark = <Gift size={21} className="text-[#d51678]" aria-hidden="true" />;
   return <span className="flex h-7 w-12 shrink-0 items-center justify-center overflow-visible" aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
 }
 
@@ -121,7 +122,7 @@ function PaymentMethodOption({ id, title, description, selected, onSelect }: { i
   return <div className={`checkout-payment-option flex w-full min-w-0 items-center gap-3 rounded-xl p-4 text-left transition-colors ${selected ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}><button type="button" onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button><button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className="flex h-7 w-12 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50"><PaymentMethodIcon id={id} /></button><button type="button" onClick={onSelect} className="min-w-0 flex-1 text-left"><strong className="block text-sm">{title}</strong><small className={`mt-1 block leading-4 text-[#6d7178] ${descriptionSize}`}>{description}</small></button></div>;
 }
 
-type PaymentId = "card" | "apple" | "cod" | "tamara" | "tabby";
+type PaymentId = "card" | "apple" | "cod" | "tamara" | "tabby" | "mukafaati";
 type CardDetails = { holder: string; number: string; expiry: string; cvv: string };
 
 function CardPaymentPanel({ details, onChange }: { details: CardDetails; onChange: (field: keyof CardDetails, value: string) => void }) {
@@ -144,9 +145,20 @@ function InstallmentPaymentPanel({ provider, total }: { provider: "tamara" | "ta
   </div>;
 }
 
-function PaymentDetailsPanel({ payment, total, cardDetails, onCardChange }: { payment: PaymentId; total: number; cardDetails: CardDetails; onCardChange: (field: keyof CardDetails, value: string) => void }) {
+function MukafaatiPaymentPanel({ balance, enabled, feedback, onToggle, onAddPoints }: { balance: number; enabled: boolean; feedback: string; onToggle: (enabled: boolean) => void; onAddPoints: () => void }) {
+  return <div role="region" aria-label="Mukafaati wallet" className="checkout-mukafaati-panel rounded-xl border border-[#f1c1da] bg-[#fffafd] p-4">
+    <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#d51678] text-white"><Gift size={19} /></span><div className="min-w-0"><strong className="block text-sm font-semibold">Mukafaati wallet</strong><p className="mt-1 text-[11px] text-[#6d7178]">Use your points to pay for this order.</p></div></div><RiyalPrice value={money(balance)} className="shrink-0 text-sm font-semibold text-[#208447]" /></div>
+    <label className="mt-4 flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#f3d7e6] bg-white px-3"><span className="flex min-w-0 items-center gap-2"><input type="checkbox" checked={enabled} onChange={event => onToggle(event.target.checked)} className="h-5 w-5 shrink-0 accent-[#d51678]" /><span className="min-w-0"><strong className="block truncate text-[12px] font-semibold">Use my Mukafaati balance</strong><small className="mt-0.5 block truncate text-[10px] text-[#7b818a]">Apply the available balance to this order</small></span></span><RiyalPrice value={money(balance)} className="shrink-0 text-xs font-semibold text-[#208447]" /></label>
+    <button type="button" onClick={onAddPoints} className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#d51678] bg-white text-[11px] font-semibold text-[#b01869] transition-colors hover:bg-[#fff0f8]"><Plus size={15} /> Add points from another loyalty program</button>
+    {feedback && <p role="status" className="mt-3 rounded-lg bg-[#ecfdf1] px-3 py-2 text-[11px] font-medium text-[#208447]">{feedback}</p>}
+    {!balance && <p className="mt-3 text-[10px] leading-4 text-[#7b818a]">Add points from Resal, Qitaf, Mokafaa or Mobily to activate Mukafaati payment.</p>}
+  </div>;
+}
+
+function PaymentDetailsPanel({ payment, total, cardDetails, onCardChange, loyaltyBalance, useMukafaatiPoints, loyaltyFeedback, onToggleMukafaati, onAddMukafaatiPoints }: { payment: PaymentId; total: number; cardDetails: CardDetails; onCardChange: (field: keyof CardDetails, value: string) => void; loyaltyBalance: number; useMukafaatiPoints: boolean; loyaltyFeedback: string; onToggleMukafaati: (enabled: boolean) => void; onAddMukafaatiPoints: () => void }) {
   if (payment === "card") return <CardPaymentPanel details={cardDetails} onChange={onCardChange} />;
   if (payment === "tamara" || payment === "tabby") return <InstallmentPaymentPanel provider={payment} total={total} />;
+  if (payment === "mukafaati") return <MukafaatiPaymentPanel balance={loyaltyBalance} enabled={useMukafaatiPoints} feedback={loyaltyFeedback} onToggle={onToggleMukafaati} onAddPoints={onAddMukafaatiPoints} />;
   return null;
 }
 
@@ -1003,7 +1015,7 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     : 0;
   const shipping = delivery === "shipping" ? shippingMethod === "redbox" ? (discountedSubtotal >= 96 ? 0 : 25) : 20 : 0;
   const beforeLoyaltyTotal = discountedSubtotal - couponDiscount + shipping;
-  const loyaltyDiscount = useMukafaatiPoints ? Math.min(loyaltyBalance, beforeLoyaltyTotal) : 0;
+  const loyaltyDiscount = payment === "mukafaati" && useMukafaatiPoints ? Math.min(loyaltyBalance, beforeLoyaltyTotal) : 0;
   const total = beforeLoyaltyTotal - loyaltyDiscount;
   const selectedBranch = storeBranches.find(branch => branch.id === selectedBranchId) ?? null;
   const giftPickerCartItem = giftPickerItem ? items.find(item => item.id === giftPickerItem) ?? null : null;
@@ -1026,6 +1038,8 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
       window.localStorage.setItem("deraah-mukafaati-balance", String(nextBalance));
       return nextBalance;
     });
+    setPayment("mukafaati");
+    setUseMukafaatiPoints(true);
     setLoyaltyFeedback(`${amount} SAR added from ${provider.title} to your Mukafaati wallet.`);
     setPointsModalOpen(false);
   };
@@ -1043,13 +1057,13 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   };
   const isShippingStep = step === "shipping";
   const cardReady = cardDetails.holder.trim().length > 1 && cardDetails.number.replace(/\s/g, "").length >= 12 && cardDetails.expiry.length >= 4 && cardDetails.cvv.length >= 3;
-  const paymentReady = payment !== "card" || cardReady;
+  const paymentReady = (payment !== "card" || cardReady) && (payment !== "mukafaati" || (useMukafaatiPoints && loyaltyBalance > 0));
   const deliveryReady = delivery === "shipping" ? Boolean(selectedAddressId) : delivery === "pickup" && Boolean(selectedBranch);
   const canContinue = Boolean(items.length) && (isShippingStep ? paymentReady : deliveryReady);
   const continueLabel = isShippingStep
     ? payment === "apple" ? "Pay with Apple Pay" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Place order"
     : payment === "apple" ? "Continue to Apple Pay" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Continue to payment";
-  const paymentMethods: Array<[PaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["apple", "Apple Pay", "Fast and secure payment"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", "Split your purchase into 4 payments"], ["tabby", "Tabby", "Pay in 4 interest-free payments"]];
+  const paymentMethods: Array<[PaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["mukafaati", "Mukafaati", "Pay with your loyalty wallet"], ["apple", "Apple Pay", "Fast and secure payment"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", "Split your purchase into 4 payments"], ["tabby", "Tabby", "Pay in 4 interest-free payments"]];
   const continueToShipping = () => {
     if (!isShippingStep && !deliveryReady) {
       setPaymentError("Select a delivery method and destination to continue.");
@@ -1072,6 +1086,8 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   };
   const selectPayment = (nextPayment: PaymentId) => {
     setPayment(nextPayment);
+    if (nextPayment === "mukafaati") setUseMukafaatiPoints(loyaltyBalance > 0);
+    else setUseMukafaatiPoints(false);
     setPaymentError("");
   };
   const updateCardDetails = (field: keyof CardDetails, value: string) => {
@@ -1244,7 +1260,7 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
             </div>}
             {delivery === "pickup" && <button type="button" onClick={() => setBranchPickerOpen(true)} className="mt-4 flex min-h-14 w-full items-center justify-between rounded-lg border border-[#dfe4e8] px-3 text-left"><span className="min-w-0"><strong className="block truncate text-sm">{selectedBranch?.name ?? "Choose a Deraah branch"}</strong><small className="mt-1 block truncate text-xs text-[#6d7178]">{selectedBranch ? `${selectedBranch.distance} · ${availabilityCopy(selectedBranch.availability).label}` : "Select a branch to see availability"}</small></span><ChevronRight size={17} className="shrink-0 text-[#6d7178]" /></button>}
           </section>}
-          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2><div className="mt-5 space-y-3">{paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} selected={payment === id} onSelect={() => selectPayment(id)} />{payment === id && <div className="mt-3"><PaymentDetailsPanel payment={id} total={total} cardDetails={cardDetails} onCardChange={updateCardDetails} /></div>}</div>)}</div>{paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}<section className="checkout-loyalty-bar mt-4 overflow-hidden rounded-xl border border-[#f1c1da] bg-white text-left"><div className="flex items-center justify-between gap-3 bg-[#fff6fb] p-4"><div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#d51678] text-white"><Gift size={19} /></span><span className="min-w-0"><strong className="block truncate font-semibold">Mukafaati</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Your balance now</small></span></div><button type="button" onClick={() => { setLoyaltyFeedback(""); setPointsModalOpen(true); }} className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-[#d51678] bg-white px-3 text-[10px] font-semibold text-[#b01869] transition-colors hover:bg-[#fff0f8]"><Plus size={14} /> Add points</button></div><div className="border-t border-[#f6d7e7] p-4"><label className="flex min-h-11 cursor-pointer items-center justify-between gap-3"><span className="flex min-w-0 items-center gap-3"><input type="checkbox" checked={useMukafaatiPoints} onChange={event => { setUseMukafaatiPoints(event.target.checked); setLoyaltyFeedback(""); }} className="h-5 w-5 shrink-0 accent-[#d51678]" /><span className="min-w-0"><strong className="block truncate text-[13px] font-semibold">Use my balance for this order</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Apply your available points at checkout</small></span></span><RiyalPrice value={money(loyaltyBalance)} className="shrink-0 text-sm font-semibold text-[#208447]" /></label>{loyaltyFeedback && <p role="status" className="mt-3 rounded-lg bg-[#ecfdf1] px-3 py-2 text-[11px] font-medium text-[#208447]">{loyaltyFeedback}</p>}</div></section></section>
+          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2><div className="mt-5 space-y-3">{paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} selected={payment === id} onSelect={() => selectPayment(id)} />{payment === id && <div className="mt-3"><PaymentDetailsPanel payment={id} total={total} cardDetails={cardDetails} onCardChange={updateCardDetails} loyaltyBalance={loyaltyBalance} useMukafaatiPoints={useMukafaatiPoints} loyaltyFeedback={loyaltyFeedback} onToggleMukafaati={enabled => { setUseMukafaatiPoints(enabled); setLoyaltyFeedback(""); }} onAddMukafaatiPoints={() => { setLoyaltyFeedback(""); setPointsModalOpen(true); }} /></div>}</div>)}</div>{paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}</section>
         </div>
         {isShippingStep && <ShippingCartSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} className="desktop-shipping-cart-summary" />}
         <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}{loyaltyDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>Mukafaati points</span><span>- <RiyalPrice value={money(loyaltyDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div><button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac]`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button><p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
