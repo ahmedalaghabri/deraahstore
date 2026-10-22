@@ -113,8 +113,8 @@ function PaymentMethodIcon({ id, large = false }: { id: string; large?: boolean 
   if (id === "cod") mark = <Banknote size={21} className="text-[#171a1f]" aria-hidden="true" />;
   if (id === "tamara") mark = <img src="/product-assets/payment-logos/Tamara-attached.svg" alt="Tamara" className="h-8 w-8 object-contain" />;
   if (id === "tabby") mark = <img src="/product-assets/payment-logos/Tabby-attached.svg" alt="Tabby" className="h-8 w-9 object-contain" />;
-  if (id === "mukafaati") mark = <Gift size={large ? 36 : 21} className="text-[#d51678]" aria-hidden="true" />;
-  return <span className={`flex shrink-0 items-center justify-center overflow-visible ${large ? "h-9 w-9" : "h-7 w-12"}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
+  if (id === "mukafaati") mark = <Gift size={large ? 24 : 21} className="text-[#d51678]" aria-hidden="true" />;
+  return <span className={`flex shrink-0 items-center justify-center overflow-visible ${large ? "h-6 w-6" : "h-7 w-12"}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
 }
 
 function PaymentMethodOption({ id, title, description, selected, balance, onSelect, onToggleWallet }: { id: string; title: string; description: string; selected: boolean; balance?: number; onSelect: () => void; onToggleWallet?: (enabled: boolean) => void }) {
@@ -122,7 +122,7 @@ function PaymentMethodOption({ id, title, description, selected, balance, onSele
   const isWallet = id === "mukafaati";
   return <div className={`checkout-payment-option relative flex w-full min-w-0 items-center gap-3 rounded-xl p-4 text-left transition-colors ${selected ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}>
     {isWallet ? <button type="button" role="switch" aria-checked={selected} aria-label={`${selected ? "Disable" : "Enable"} ${title}`} onClick={() => onToggleWallet?.(!selected)} className={`relative flex h-6 w-11 shrink-0 items-center rounded-full p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c8b4b]/35 ${selected ? "justify-end bg-[#2c8b4b]" : "justify-start bg-[#c8d0d9]"}`}><span className="h-4 w-4 rounded-full bg-white shadow-sm transition-transform" /></button> : <button type="button" onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button>}
-    <button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className={`${isWallet ? "flex h-12 w-12 rounded-xl border border-[#e5e9ee] bg-white" : "flex h-7 w-12 rounded-md"} shrink-0 items-center justify-center transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50`}><PaymentMethodIcon id={id} large={isWallet} /></button>
+    <button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className={`${isWallet ? "flex h-9 w-9 rounded-lg border border-[#e5e9ee] bg-white shadow-none" : "flex h-7 w-12 rounded-md"} shrink-0 items-center justify-center transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50`}><PaymentMethodIcon id={id} large={isWallet} /></button>
     <button type="button" onClick={onSelect} className={`min-w-0 flex-1 text-left ${isWallet ? "max-w-[159px]" : ""}`}><strong className="block text-sm">{title}</strong><small className={`mt-1 block leading-4 text-[#6d7178] ${descriptionSize}`}>{description}</small></button>
     {isWallet && <div className="pointer-events-none absolute right-4 top-3"><RiyalPrice value={money(balance ?? 0)} className="text-[18px] font-bold leading-5 text-[#208447]" /></div>}
   </div>;
