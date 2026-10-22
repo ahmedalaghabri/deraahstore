@@ -810,6 +810,106 @@ const samples = [
 
 const money = (value: number) => value.toLocaleString("en-US");
 
+type LoyaltyProviderId = "resal" | "qitaf" | "mokafaa" | "mobily";
+type LoyaltyProvider = { id: LoyaltyProviderId; label: string; title: string; tone: string; background: string };
+
+const loyaltyProviders: LoyaltyProvider[] = [
+  { id: "resal", label: "resal", title: "Resal Card", tone: "text-[#2056f5]", background: "bg-[#eef3ff]" },
+  { id: "qitaf", label: "قطاف", title: "Qitaf points", tone: "text-[#9d55c7]", background: "bg-[#fbf1ff]" },
+  { id: "mokafaa", label: "مكافأة", title: "Mokafaa points", tone: "text-[#1590c7]", background: "bg-[#eefaff]" },
+  { id: "mobily", label: "موبايلي", title: "Mobily points", tone: "text-[#2f63e8]", background: "bg-[#f0f4ff]" },
+];
+
+function readMukafaatiBalance() {
+  if (typeof window === "undefined") return 49;
+  const raw = window.localStorage.getItem("deraah-mukafaati-balance");
+  const saved = raw === null ? Number.NaN : Number(raw);
+  return Number.isFinite(saved) && saved >= 0 ? saved : 49;
+}
+
+function LoyaltyProviderMark({ provider }: { provider: LoyaltyProvider }) {
+  return <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${provider.background} ${provider.tone}`}><strong className="text-[9px] font-bold leading-3">{provider.label}</strong></span>;
+}
+
+function MukafaatiPointsModal({ open, onClose, onPointsAdded }: { open: boolean; onClose: () => void; onPointsAdded: (amount: number, provider: LoyaltyProvider) => void }) {
+  const [step, setStep] = useState<"choose" | "verify">("choose");
+  const [providerId, setProviderId] = useState<LoyaltyProviderId>("resal");
+  const [cardNumber, setCardNumber] = useState("");
+  const [amount, setAmount] = useState("20");
+  const [useAll, setUseAll] = useState(true);
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [error, setError] = useState("");
+  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const provider = loyaltyProviders.find(item => item.id === providerId) ?? loyaltyProviders[0];
+  const availableAmount = 20;
+
+  useEffect(() => {
+    if (!open) return;
+    setStep("choose");
+    setProviderId("resal");
+    setCardNumber("");
+    setAmount(String(availableAmount));
+    setUseAll(true);
+    setOtp(["", "", "", ""]);
+    setError("");
+  }, [open]);
+
+  if (!open) return null;
+
+  const continueToVerification = () => {
+    if (cardNumber.replace(/\s/g, "").length < 6) {
+      setError(`Enter your ${provider.title} number to continue.`);
+      return;
+    }
+    setError("");
+    setStep("verify");
+  };
+
+  const updateOtp = (index: number, value: string) => {
+    const digit = value.replace(/[^0-9]/g, "").slice(-1);
+    setOtp(current => current.map((item, itemIndex) => itemIndex === index ? digit : item));
+    if (digit && index < otp.length - 1) otpRefs.current[index + 1]?.focus();
+  };
+
+  const confirmPoints = () => {
+    if (otp.join("").length !== 4) {
+      setError("Enter the 4-digit verification code.");
+      return;
+    }
+    const points = Math.min(availableAmount, Math.max(1, Number(amount) || availableAmount));
+    onPointsAdded(points, provider);
+  };
+
+  return <div role="dialog" aria-modal="true" aria-labelledby="mukafaati-points-title" className="fixed inset-0 z-[145] flex items-end justify-center bg-[#0f172a]/35 p-0 md:items-center md:p-6" onClick={onClose}>
+    <section className="flex max-h-[calc(100dvh-16px)] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] bg-white md:max-h-[min(720px,calc(100dvh-48px))] md:rounded-[24px]" onClick={event => event.stopPropagation()}>
+      <header className="flex shrink-0 items-center justify-between gap-4 bg-[#d51678] px-5 py-4 text-white md:px-6">
+        <div className="flex min-w-0 items-center gap-2"><Gift size={18} /><div><h2 id="mukafaati-points-title" className="text-sm font-semibold">Mukafaati</h2><p className="mt-0.5 text-[10px] text-white/80">Add points from another loyalty program</p></div></div>
+        <button type="button" onClick={onClose} aria-label="Close Mukafaati points" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/15"><X size={16} /></button>
+      </header>
+      <div className="min-h-0 overflow-y-auto p-5 md:p-6">
+        {step === "choose" ? <>
+          <div className="text-center"><h3 className="text-lg font-semibold text-[#171a1f]">Add points from</h3><p className="mt-1 text-xs leading-5 text-[#7b818a]">Convert your points to Mukafaati points and use them to pay.</p></div>
+          <div className="mt-5 grid grid-cols-4 gap-2">
+            {loyaltyProviders.map(item => <button key={item.id} type="button" onClick={() => { setProviderId(item.id); setError(""); }} aria-pressed={providerId === item.id} className={`flex min-h-[70px] flex-col items-center justify-center gap-2 rounded-xl border px-1.5 py-2 transition-colors ${providerId === item.id ? "border-[#287cf0] bg-[#f5f8ff]" : "border-[#e5e9ee] bg-white hover:border-[#b9d2ff]"}`}><LoyaltyProviderMark provider={item} /><span className="truncate text-[9px] font-semibold text-[#555b63]">{item.title}</span></button>)}
+          </div>
+          <p className="mt-5 text-center text-xs text-[#555b63]">Use your {provider.title} balance and add it to your Mukafaati wallet.</p>
+          <label className="mt-4 block text-[11px] font-semibold text-[#4c5560]">Enter {provider.title} number<input value={cardNumber} onChange={event => { setCardNumber(event.target.value); setError(""); }} placeholder="Enter card number" inputMode="numeric" className="mt-2 h-12 w-full rounded-xl border border-[#dfe4e8] px-4 text-sm outline-none transition-colors focus:border-[#287cf0]" /></label>
+          {error && <p role="alert" className="mt-3 text-xs font-semibold text-[#b42318]">{error}</p>}
+          <button type="button" onClick={continueToVerification} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Continue <ChevronRight size={17} /></button>
+          <p className="mt-4 text-center text-[10px] leading-4 text-[#9aa1ac]">Your loyalty card details are used only to verify the points transfer.</p>
+        </> : <>
+          <button type="button" onClick={() => { setStep("choose"); setError(""); }} className="inline-flex items-center gap-1 text-xs font-semibold text-[#6d7178] hover:text-[#171a1f]"><ArrowLeft size={15} /> Back</button>
+          <div className="mt-5 flex items-center gap-3"><LoyaltyProviderMark provider={provider} /><div><h3 className="text-base font-semibold text-[#171a1f]">{provider.label} balance found</h3><p className="mt-1 text-xs text-[#7b818a]">You have {availableAmount} SAR available to transfer.</p></div></div>
+          <div className="mt-5 rounded-xl border border-[#dfe4e8] bg-[#fbfcfd] p-4"><div className="flex items-center justify-between gap-3"><label className="text-[11px] font-semibold text-[#4c5560]">Points to add<input value={amount} onChange={event => { setAmount(event.target.value.replace(/[^0-9]/g, "").slice(0, 2)); setUseAll(false); }} inputMode="numeric" className="mt-2 h-11 w-[150px] rounded-lg border border-[#dfe4e8] bg-white px-3 text-center text-lg font-semibold outline-none focus:border-[#287cf0]" /></label><button type="button" onClick={() => { setAmount(String(availableAmount)); setUseAll(true); }} aria-pressed={useAll} className={`mt-5 h-8 rounded-full px-3 text-[10px] font-semibold transition-colors ${useAll ? "bg-[#ecfdf1] text-[#208447]" : "bg-[#f1f3f5] text-[#6d7178]"}`}>Use all points</button></div><p className="mt-3 text-[10px] text-[#9aa1ac]">1 SAR = 1 Mukafaati point value in this preview.</p></div>
+          <div className="mt-5 text-center"><p className="text-xs text-[#6d7178]">A 4-digit code was sent to the mobile linked to this card.</p><div className="mt-4 flex justify-center gap-2">{otp.map((digit, index) => <input key={index} ref={element => { otpRefs.current[index] = element; }} value={digit} onChange={event => updateOtp(index, event.target.value)} onKeyDown={event => { if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus(); }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" maxLength={1} className="h-12 w-12 rounded-lg border border-[#dfe4e8] text-center text-lg font-semibold outline-none focus:border-[#287cf0]" />)}</div><button type="button" className="mt-3 text-[10px] font-semibold text-[#287cf0]">Resend code · 55:00</button></div>
+          {error && <p role="alert" className="mt-3 text-center text-xs font-semibold text-[#b42318]">{error}</p>}
+          <button type="button" onClick={confirmPoints} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Use now <Check size={17} /></button>
+        </>}
+      </div>
+    </section>
+  </div>;
+}
+
 function getFreeUnitsByItem(items: StoreCartItem[]) {
   const units = items.filter(item => !isGiftCustomizationItem(item)).flatMap(item => Array.from({ length: item.quantity }, () => ({ id: item.id, price: Number(item.price.replace(/[^0-9]/g, "")) })));
   const freeUnits = new Map<string, number>();
@@ -881,6 +981,9 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   const [couponsOpen, setCouponsOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [useMukafaatiPoints, setUseMukafaatiPoints] = useState(false);
+  const [loyaltyBalance, setLoyaltyBalance] = useState(readMukafaatiBalance);
+  const [pointsModalOpen, setPointsModalOpen] = useState(false);
+  const [loyaltyFeedback, setLoyaltyFeedback] = useState("");
   const [isGiftOrder, setIsGiftOrder] = useState(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem(GIFT_ORDER_KEY) === "true") return true;
     return items.some(isGiftCustomizationItem);
@@ -899,7 +1002,9 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
       : activeCouponOffer.discountValue
     : 0;
   const shipping = delivery === "shipping" ? shippingMethod === "redbox" ? (discountedSubtotal >= 96 ? 0 : 25) : 20 : 0;
-  const total = discountedSubtotal - couponDiscount + shipping;
+  const beforeLoyaltyTotal = discountedSubtotal - couponDiscount + shipping;
+  const loyaltyDiscount = useMukafaatiPoints ? Math.min(loyaltyBalance, beforeLoyaltyTotal) : 0;
+  const total = beforeLoyaltyTotal - loyaltyDiscount;
   const selectedBranch = storeBranches.find(branch => branch.id === selectedBranchId) ?? null;
   const giftPickerCartItem = giftPickerItem ? items.find(item => item.id === giftPickerItem) ?? null : null;
   const giftPickerOffer = giftPickerCartItem ? getGiftOfferForProduct(giftPickerCartItem.name) : null;
@@ -914,6 +1019,15 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     window.localStorage.removeItem(GIFT_CUSTOMIZATION_KEY);
     window.localStorage.setItem(GIFT_ORDER_KEY, "false");
     setGiftCustomization(defaultGiftCustomization);
+  };
+  const addLoyaltyPoints = (amount: number, provider: LoyaltyProvider) => {
+    setLoyaltyBalance(current => {
+      const nextBalance = current + amount;
+      window.localStorage.setItem("deraah-mukafaati-balance", String(nextBalance));
+      return nextBalance;
+    });
+    setLoyaltyFeedback(`${amount} SAR added from ${provider.title} to your Mukafaati wallet.`);
+    setPointsModalOpen(false);
   };
   const toggleGift = (item: StoreCartItem, giftId: string) => {
     const offer = getGiftOfferForProduct(item.name);
@@ -1130,16 +1244,17 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
             </div>}
             {delivery === "pickup" && <button type="button" onClick={() => setBranchPickerOpen(true)} className="mt-4 flex min-h-14 w-full items-center justify-between rounded-lg border border-[#dfe4e8] px-3 text-left"><span className="min-w-0"><strong className="block truncate text-sm">{selectedBranch?.name ?? "Choose a Deraah branch"}</strong><small className="mt-1 block truncate text-xs text-[#6d7178]">{selectedBranch ? `${selectedBranch.distance} · ${availabilityCopy(selectedBranch.availability).label}` : "Select a branch to see availability"}</small></span><ChevronRight size={17} className="shrink-0 text-[#6d7178]" /></button>}
           </section>}
-          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2><div className="mt-5 space-y-3">{paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} selected={payment === id} onSelect={() => selectPayment(id)} />{payment === id && <div className="mt-3"><PaymentDetailsPanel payment={id} total={total} cardDetails={cardDetails} onCardChange={updateCardDetails} /></div>}</div>)}</div>{paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}<label className="checkout-loyalty-bar mt-4 flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-[#dfe4e8] bg-[#f8fafc] p-4 text-left text-sm"><span className="flex min-w-0 items-center gap-3"><input type="checkbox" checked={useMukafaatiPoints} onChange={event => setUseMukafaatiPoints(event.target.checked)} className="h-5 w-5 shrink-0 accent-[#2c8b4b]" /><span className="min-w-0"><strong className="block truncate font-semibold">Use Mukafaati loyalty points</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Apply your available rewards balance</small></span></span><RiyalPrice value="49" className="shrink-0 text-sm font-semibold text-[#2c8b4b]" /></label></section>
+          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2><div className="mt-5 space-y-3">{paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} selected={payment === id} onSelect={() => selectPayment(id)} />{payment === id && <div className="mt-3"><PaymentDetailsPanel payment={id} total={total} cardDetails={cardDetails} onCardChange={updateCardDetails} /></div>}</div>)}</div>{paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}<section className="checkout-loyalty-bar mt-4 overflow-hidden rounded-xl border border-[#f1c1da] bg-white text-left"><div className="flex items-center justify-between gap-3 bg-[#fff6fb] p-4"><div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#d51678] text-white"><Gift size={19} /></span><span className="min-w-0"><strong className="block truncate font-semibold">Mukafaati</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Your balance now</small></span></div><button type="button" onClick={() => { setLoyaltyFeedback(""); setPointsModalOpen(true); }} className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-[#d51678] bg-white px-3 text-[10px] font-semibold text-[#b01869] transition-colors hover:bg-[#fff0f8]"><Plus size={14} /> Add points</button></div><div className="border-t border-[#f6d7e7] p-4"><label className="flex min-h-11 cursor-pointer items-center justify-between gap-3"><span className="flex min-w-0 items-center gap-3"><input type="checkbox" checked={useMukafaatiPoints} onChange={event => { setUseMukafaatiPoints(event.target.checked); setLoyaltyFeedback(""); }} className="h-5 w-5 shrink-0 accent-[#d51678]" /><span className="min-w-0"><strong className="block truncate text-[13px] font-semibold">Use my balance for this order</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Apply your available points at checkout</small></span></span><RiyalPrice value={money(loyaltyBalance)} className="shrink-0 text-sm font-semibold text-[#208447]" /></label>{loyaltyFeedback && <p role="status" className="mt-3 rounded-lg bg-[#ecfdf1] px-3 py-2 text-[11px] font-medium text-[#208447]">{loyaltyFeedback}</p>}</div></section></section>
         </div>
         {isShippingStep && <ShippingCartSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} className="desktop-shipping-cart-summary" />}
-        <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6 md:p-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div><button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac]`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button><p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
+        <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}{loyaltyDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>Mukafaati points</span><span>- <RiyalPrice value={money(loyaltyDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div><button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac]`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button><p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
       </div>
       <CouponOffersDrawer open={couponsOpen} onClose={() => setCouponsOpen(false)} onUse={code => { applyCouponCode(code); setCouponsOpen(false); }} />
       {addressPickerOpen && <AddressPickerModal addresses={addresses} selectedAddressId={selectedAddressId} draft={addressDraft} onSelect={selectAddress} onEdit={startEditAddress} onRemove={removeAddress} onAdd={startNewAddress} onDraftChange={updateAddressDraft} onSave={saveAddress} onCancel={() => setAddressDraft(null)} onClose={() => setAddressPickerOpen(false)} />}
       {branchPickerOpen && <BranchPickerModal items={items} selectedBranchId={selectedBranchId} onSelect={selectBranch} onClose={() => setBranchPickerOpen(false)} />}
       <GiftCustomizationModal open={giftCustomizationOpen} initial={giftCustomization} onClose={() => setGiftCustomizationOpen(false)} onSave={customization => { syncGiftCustomizationCart(customization); setGiftCustomization(customization); setIsGiftOrder(true); setGiftCustomizationOpen(false); }} />
       {giftPickerCartItem && giftPickerOffer && <StoreGiftPicker item={giftPickerCartItem} offer={giftPickerOffer} selectedGiftIds={giftSelections[giftPickerCartItem.id] ?? []} onToggle={giftId => toggleGift(giftPickerCartItem, giftId)} onClose={() => setGiftPickerItem(null)} />}
+      <MukafaatiPointsModal open={pointsModalOpen} onClose={() => setPointsModalOpen(false)} onPointsAdded={addLoyaltyPoints} />
     </main>
     <div className="md:hidden"><StoreMobileNav collapsed={false} onOpenCategories={() => window.dispatchEvent(new Event("store:open-menu"))} onOpenCart={() => window.dispatchEvent(new Event("store:open-cart"))} onOpenAccount={() => window.dispatchEvent(new Event("store:open-mobile-account"))} onOpenRewards={() => window.dispatchEvent(new Event("store:open-rewards"))} onOpenHome={() => window.location.assign("/")} cartItemCount={cartItemCount} /></div>
   </div>;
