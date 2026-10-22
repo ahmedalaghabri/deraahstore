@@ -363,6 +363,72 @@
   border-radius: 10px !important;
 }
 
+/* Keep the desktop mini cart compact and focused on the items and checkout actions. */
+@media (min-width: 768px) {
+  body .cart-drawer-panel .cart-drawer-products-card {
+    margin-bottom: 12px !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid #e5e9ee !important;
+    background: transparent !important;
+    padding: 0 0 8px !important;
+    box-shadow: none !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-products-card > div:first-child {
+    display: none !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-products-list {
+    margin-top: 0 !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-row {
+    position: relative;
+    padding: 16px 0 !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-row-content {
+    align-items: center !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-image {
+    align-self: flex-start !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    width: 56px !important;
+    border-radius: 12px !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-image > img {
+    max-height: 46px !important;
+    max-width: 46px !important;
+    transform: none !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-price {
+    position: absolute;
+    right: 0;
+    bottom: 16px;
+    margin-top: 0 !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-product-quantity {
+    width: 76px !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-products-card + section.rounded-2xl.bg-white {
+    display: none !important;
+  }
+
+  body .cart-drawer-panel .cart-drawer-footer {
+    display: none !important;
+  }
+
+  body .cart-drawer-panel .mini-cart-footer {
+    flex: 0 0 auto;
+  }
+}
+
 /* Turn the desktop add-to-cart drawer into a compact floating confirmation card. */
 @media (min-width: 768px) {
   .quick-cart-panel {
@@ -4125,7 +4191,7 @@ body.store-page b,
     margin: 24px 0 0 !important;
     transform: none !important;
     border-radius: 10px !important;
-    box-shadow: 0 10px 28px rgba(23, 26, 31, .16) !important;
+    box-shadow: none !important;
   }
 
   /* Keep the shipping/payment step on the same desktop rails as the cart
@@ -4153,7 +4219,7 @@ body.store-page b,
     margin: 0 !important;
     transform: none !important;
     border-radius: 10px !important;
-    box-shadow: 0 10px 28px rgba(23, 26, 31, .16) !important;
+    box-shadow: none !important;
   }
 }
 
@@ -4171,6 +4237,12 @@ body.store-page b,
   display: flex !important;
 }
 
+/* Coupons are applied in the cart. Keep the shipping/payment summary focused
+   on order totals by removing only the coupon block from this step. */
+.checkout-step-shipping .checkout-layout > aside > div:first-child {
+  display: none !important;
+}
+
 /* Fixed and sticky purchase actions stay flat and crisp across every
    responsive checkout/product layout. Keep this override after the older
    breakpoint rules so no viewport-specific shadow or blur can leak back in. */
@@ -4183,6 +4255,63 @@ body.store-page b,
   filter: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* Apple Pay's web button uses Apple's native rendering in Safari. The
+   fallback keeps the same official type and black style visible in browsers
+   that do not expose the Apple Pay CSS appearance. */
+.apple-pay-action-button {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 140px;
+  min-height: 44px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px !important;
+  background-color: #000;
+  color: #fff;
+  box-shadow: none !important;
+  cursor: pointer;
+  line-height: 1;
+  -webkit-appearance: -apple-pay-button;
+  -apple-pay-button-type: continue;
+  -apple-pay-button-style: black;
+}
+
+.apple-pay-action-button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.apple-pay-action-button > * {
+  display: none;
+}
+
+@supports not (-webkit-appearance: -apple-pay-button) {
+  .apple-pay-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    font: 600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .apple-pay-action-button .apple-pay-button-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .apple-pay-action-button .apple-pay-button-fallback img {
+    display: block;
+    width: 48px;
+    height: auto;
+    filter: invert(1);
+  }
 }
 
 /* Keep the product gallery actions together in their intended upper-left
@@ -4263,7 +4392,7 @@ body.store-page b,
     margin: 24px 0 0 !important;
     transform: none !important;
     border-radius: 10px !important;
-    box-shadow: 0 10px 28px rgba(23, 26, 31, .16) !important;
+    box-shadow: none !important;
   }
 }
 

@@ -361,6 +361,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountView, setAccountView] = useState<AccountEmptyView | null>(null);
   const [isScrolled, setIsScrolled] = useState(() => typeof window !== "undefined" && overlay && window.scrollY > 36);
+  const cartCloseTimer = useRef<number | null>(null);
   const openSearch = (mode: "search" | "ai" = "search") => {
     setSearchAiMode(mode === "ai");
     setSearchOpen(true);
@@ -434,7 +435,8 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
   }, [searchOpen]);
 
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen || searchOpen || cartDrawerOpen || notificationsOpen || authOpen || countryPanelOpen || Boolean(accountView) ? "hidden" : "";
+    const shouldLockCartScroll = cartDrawerOpen && window.matchMedia("(max-width: 767px)").matches;
+    document.body.style.overflow = mobileMenuOpen || searchOpen || shouldLockCartScroll || notificationsOpen || authOpen || countryPanelOpen || Boolean(accountView) ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -522,7 +524,27 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
     };
   }, [mobileMenuOpen, searchOpen, cartDrawerOpen, notificationsOpen, authOpen, countryPanelOpen, accountView]);
 
-  const openCart = () => setCartDrawerOpen(true);
+  const cancelCartClose = () => {
+    if (cartCloseTimer.current !== null) {
+      window.clearTimeout(cartCloseTimer.current);
+      cartCloseTimer.current = null;
+    }
+  };
+  const openCart = () => {
+    cancelCartClose();
+    setCartDrawerOpen(true);
+  };
+  const closeCart = () => {
+    cancelCartClose();
+    setCartDrawerOpen(false);
+  };
+  const scheduleCartClose = () => {
+    cancelCartClose();
+    cartCloseTimer.current = window.setTimeout(() => {
+      setCartDrawerOpen(false);
+      cartCloseTimer.current = null;
+    }, 280);
+  };
   const selectLocale = (nextCountry: StoreCountry, nextLanguage: StoreLanguage) => {
     setLocale(nextCountry, nextLanguage);
     setCountryPanelOpen(false);
@@ -587,7 +609,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
           <div className="hidden shrink-0 items-center gap-2 md:flex">
               <div className="relative hidden md:block"><button type="button" aria-label="Change country and language" aria-expanded={countryPanelOpen} onClick={() => { setTopMenu(null); setCountryPanelOpen(true); }} className="grid h-10 w-10 place-items-center rounded-full text-[#171717] transition-colors hover:bg-[#f1f2f3]"><Globe2 size={18} strokeWidth={1.5} /></button></div>
               <button type="button" onClick={() => setNotificationsOpen(true)} aria-label="Notifications" title="Notifications" className="grid h-10 w-10 place-items-center rounded-full text-[#171717] transition-colors hover:bg-[#f1f2f3]"><Bell size={18} strokeWidth={1.5} /></button>
-              <a href="/checkout" onClick={event => { event.preventDefault(); openCart(); }} aria-label={`Shopping cart, ${cartItemCount} items`} className="relative grid h-10 w-10 place-items-center text-[#171717] no-underline transition-opacity hover:opacity-60"><img src="/product-assets/icons/cart.svg" alt="" className="h-[18px] w-[18px]" />{cartItemCount > 0 && <span className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#cd1a76] px-1 text-[9px] font-bold text-white">{cartItemCount}</span>}</a>
+              <a href="/checkout" onMouseEnter={openCart} onMouseLeave={scheduleCartClose} onFocus={openCart} onClick={event => { event.preventDefault(); openCart(); }} aria-expanded={cartDrawerOpen} aria-label={`Shopping cart, ${cartItemCount} items`} className="relative grid h-10 w-10 place-items-center text-[#171717] no-underline transition-opacity hover:opacity-60"><img src="/product-assets/icons/cart.svg" alt="" className="h-[18px] w-[18px]" />{cartItemCount > 0 && <span className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#cd1a76] px-1 text-[9px] font-bold text-white">{cartItemCount}</span>}</a>
               {isAuthenticated ? <HeaderAccountMenu authenticated open={accountMenuOpen} onToggle={() => { setTopMenu(null); setAccountMenuOpen(open => !open); }} onOpenAuth={mode => { setAccountMenuOpen(false); setAuthMode(mode); setAuthOpen(true); }} onOpenView={view => { setAccountMenuOpen(false); if (view === "account") window.location.assign("/account"); else setAccountView(view); }} onLogout={() => { setAccountMenuOpen(false); setIsAuthenticated(false); window.localStorage.removeItem("deraah-store-auth"); }} /> : <button type="button" onClick={() => { setAuthMode("login"); setAuthOpen(true); }} className="hidden h-10 rounded-none border-s border-[#e6e2de] ps-3 text-[12px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3] md:inline-flex md:items-center">Sign in</button>}
           </div>
           <button type="button" onClick={() => openSearch()} aria-label="Search products" className="grid h-10 w-10 place-items-center text-[#171717] md:hidden"><img src="/product-assets/icons/search.svg" alt="" className="h-5 w-5" /></button>
@@ -639,7 +661,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
       <FavoriteSuccessToast product={favoriteSuccessProduct} onClose={() => setFavoriteSuccessProduct(null)} onViewFavorites={() => { setFavoriteSuccessProduct(null); setAccountView("favorites"); }} />
       <NotificationsPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
       <AccountEmptyPanel view={accountView} onClose={() => setAccountView(null)} onOpenAuth={mode => { setAccountView(null); setAuthMode(mode); setAuthOpen(true); }} />
-      <StoreCartDrawer open={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
+      <StoreCartDrawer open={cartDrawerOpen} onClose={closeCart} onPanelMouseEnter={openCart} onPanelMouseLeave={scheduleCartClose} />
     </header>
   );
 }

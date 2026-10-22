@@ -1,10 +1,12 @@
+import { createPortal } from "react-dom";
 import { Fragment, type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, ArrowLeft, Banknote, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Copy, CreditCard, Eye, Gift, Link2, List, Map as MapIcon, MapPin, MoreVertical, Music2, PackageOpen, PenLine, Phone, Play, Plus, Search, ShieldCheck, ShoppingCart, Tag, TicketPercent, Trash2, Truck, UserRound, Video, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Copy, CreditCard, Eye, Gift, Link2, List, Map as MapIcon, MapPin, MoreVertical, Music2, PackageOpen, PenLine, Phone, Play, Plus, Search, ShieldCheck, ShoppingCart, Tag, TicketPercent, Trash2, Truck, UserRound, Video, X } from "lucide-react";
 import QRCode from "qrcode";
 import { RiyalPrice } from "./RiyalPrice";
 import CouponOffersDrawer, { couponOffers } from "./CouponOffersDrawer";
 import StoreHeader from "./StoreHeader";
 import StoreMobileNav from "./StoreMobileNav";
+import { useStoreLocale } from "./StoreLocaleContext";
 import { isGiftCustomizationItem, STORE_GIFT_CUSTOMIZATION_PREFIX, useStoreCart, type StoreCartItem } from "./StoreCartContext";
 import { useStoreOrders } from "./StoreOrdersContext";
 import CartBundleProgress from "./CartBundleProgress";
@@ -108,30 +110,38 @@ function giftSelectionSummary(customization: GiftCustomization) {
 }
 
 function PaymentMethodIcon({ id, large = false }: { id: string; large?: boolean }) {
-  let mark = <CreditCard size={22} className="text-[#171a1f]" aria-hidden="true" />;
-  if (id === "apple") mark = <img src="/product-assets/payment-logos/Apple-Pay.svg" alt="Apple Pay" className="h-[17px] w-[31px] origin-center scale-[2.1] object-fill" />;
-  if (id === "cod") mark = <Banknote size={22} className="text-[#171a1f]" aria-hidden="true" />;
-  if (id === "tamara") mark = <span className="grid h-[22px] w-[39px] place-items-center rounded-[4px] bg-gradient-to-br from-[#ffc4b7] via-[#e8d1ef] to-[#a9ddff] px-0.5"><img src="/product-assets/payment-logos/Tamara-custom.svg" alt="Tamara" className="h-[14px] w-[34px] object-contain" /></span>;
-  if (id === "tabby") mark = <span className="grid h-[22px] w-[39px] place-items-center rounded-[4px] bg-[#37eda4] px-0.5 text-[8px] font-extrabold tracking-[-.04em] text-[#171a1f]">tabby</span>;
-  if (id === "mukafaati") mark = <Gift size={large ? 17 : 15} className="text-[#d51678]" aria-hidden="true" />;
-  const iconSize = id === "mukafaati" ? "h-[17px] w-[17px]" : id === "card" || id === "cod" ? "h-[22px] w-[22px]" : "h-5 w-8";
-  return <span className={`flex shrink-0 items-center justify-center overflow-visible ${iconSize}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}><span className="origin-center scale-50">{mark}</span></span>;
+  let mark = <img src="/product-assets/payment-logos/circum-credit-card-1.svg" alt="Credit or debit card" className="h-auto w-[22px] object-contain" />;
+  if (id === "apple") mark = <img src="/product-assets/payment-logos/Apple-Pay.svg" alt="Apple Pay" className="h-8 w-8 object-contain" />;
+  if (id === "cod") mark = <img src="/product-assets/payment-logos/hugeicons_cash-02.svg" alt="Cash on delivery" className="h-auto w-[22px] translate-y-px object-contain" />;
+  if (id === "tamara") mark = <span className="grid w-8 place-items-center rounded-[4px] px-0.5 py-1"><img src="/product-assets/payment-logos/Tamara-custom.svg" alt="Tamara" className="h-auto w-7 object-contain" /></span>;
+  if (id === "tabby") mark = <span className="grid w-8 place-items-center rounded-[4px] px-0.5 py-1 text-[7px] font-extrabold tracking-[-.04em] text-[#171a1f]">tabby</span>;
+  if (id === "mukafaati") mark = <img src="/product-assets/payment-logos/andrsrxn_star-circle.svg" alt="Mukafaati" className="h-auto w-[22px] object-contain" />;
+  const iconSize = "h-8 w-8";
+  return <span className={`flex shrink-0 items-center justify-center overflow-hidden ${iconSize}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
 }
 
-function PaymentMethodOption({ id, title, description, selected, balance, onSelect, onToggleWallet }: { id: string; title: string; description: string; selected: boolean; balance?: number; onSelect: () => void; onToggleWallet?: (enabled: boolean) => void }) {
-  const descriptionSize = id === "mukafaati" ? "text-[11px]" : id === "tamara" ? "text-[10px] sm:text-xs" : id === "tabby" ? "text-[11px] sm:text-xs" : "text-xs";
-  const displayDescription = id === "card" ? "Last used card" : description;
+function PaymentMethodOption({ id, title, description, cardDescription, selected, balance, disabled = false, onSelect, onToggleWallet }: { id: string; title: string; description: string; cardDescription?: string; selected: boolean; balance?: number; disabled?: boolean; onSelect: () => void; onToggleWallet?: (enabled: boolean) => void }) {
+  const descriptionSize = "text-[10px]";
+  const displayDescription = id === "card" ? cardDescription ?? "Last used card" : description;
   const isWallet = id === "mukafaati";
-  const iconFrame = isWallet ? "flex h-[34px] w-[45px] rounded-md border-0 bg-transparent shadow-none hover:bg-transparent" : "flex h-[34px] w-[45px] rounded-md border border-[#e3e7ec] bg-white transition-colors hover:bg-[#fbfcfd]";
-  return <div className={`checkout-payment-option relative grid w-full min-w-0 grid-cols-[20px_45px_minmax(0,1fr)] items-center gap-x-3 rounded-xl p-4 text-left transition-colors ${selected ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}>
-    {isWallet ? <button type="button" role="checkbox" aria-checked={selected} aria-label={`${selected ? "Disable" : "Enable"} ${title}`} onClick={() => onToggleWallet?.(!selected)} className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c8b4b]/35 ${selected ? "border-[#2c8b4b] bg-[#2c8b4b] text-white" : "border-[#c8d0d9] bg-white text-transparent"}`}>{selected && <Check size={13} strokeWidth={3} />}</button> : <button type="button" onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button>}
-    <button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className={`${iconFrame} shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50`}><PaymentMethodIcon id={id} large={isWallet} /></button>
-    <button type="button" onClick={onSelect} className={`min-w-0 flex-1 text-left ${isWallet ? "max-w-[159px]" : ""}`}><strong className="block text-sm">{title}</strong><small className={`mt-1 block leading-4 text-[#6d7178] ${descriptionSize}`}>{displayDescription}</small></button>
-    {isWallet && <div className="pointer-events-none absolute right-4 top-3"><RiyalPrice value={money(balance ?? 0)} className="text-[18px] font-bold leading-5 text-[#208447]" /></div>}
+  const iconFrame = id === "tamara" ? "flex h-8 w-10 rounded-md border-0 bg-gradient-to-br from-[#ffc4b7] via-[#e8d1ef] to-[#a9ddff] transition-colors hover:brightness-[.98]" : id === "tabby" ? "flex h-8 w-10 rounded-md border-0 bg-[#37eda4] transition-colors hover:brightness-[.98]" : "flex h-8 w-10 rounded-md border border-[#e3e7ec] bg-white transition-colors hover:bg-[#fbfcfd]";
+  return <div className={`checkout-payment-option relative grid w-full min-w-0 grid-cols-[20px_40px_minmax(0,1fr)] items-center gap-x-2 rounded-xl p-3 text-left transition-colors ${selected ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}>
+    {isWallet ? <button type="button" role="checkbox" aria-checked={selected} aria-label={`${selected ? "Disable" : "Enable"} ${title}`} onClick={() => onToggleWallet?.(!selected)} className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c8b4b]/35 ${selected ? "border-[#2c8b4b] bg-[#2c8b4b] text-white" : "border-[#c8d0d9] bg-white text-transparent"}`}>{selected && <Check size={13} strokeWidth={3} />}</button> : <button type="button" disabled={disabled} onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"} ${disabled ? "cursor-not-allowed opacity-40" : ""}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button>}
+    <button type="button" disabled={disabled} onClick={onSelect} aria-label={`Select ${title} icon`} className={`${iconFrame} shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50 ${disabled ? "cursor-not-allowed opacity-40" : ""}`}><PaymentMethodIcon id={id} large={isWallet} /></button>
+    <button type="button" disabled={disabled} onClick={onSelect} className={`min-w-0 flex-1 text-left ${isWallet ? "max-w-[159px]" : ""} ${disabled ? "cursor-not-allowed opacity-40" : ""}`}><strong className="block text-sm">{title}</strong><small className={`mt-0.5 block leading-3 text-[#6d7178] ${descriptionSize}`}>{displayDescription}</small></button>
+    {isWallet && <div className="pointer-events-none absolute right-3 top-2.5"><RiyalPrice value={money(balance ?? 0)} className="text-[14px] font-bold leading-4 text-[#208447]" /></div>}
   </div>;
 }
 
+function ApplePayActionButton({ disabled, onClick, className = "" }: { disabled: boolean; onClick: () => void; className?: string }) {
+  return <button type="button" lang="en" disabled={disabled} onClick={onClick} aria-label="Continue with Apple Pay" className={`apple-pay-action-button ${className}`}>
+    <span className="apple-pay-button-fallback" aria-hidden="true"><span>Continue with</span><img src="/product-assets/payment-logos/Apple-Pay.svg" alt="" /></span>
+    <span className="sr-only">Continue with Apple Pay</span>
+  </button>;
+}
+
 type PaymentId = "card" | "apple" | "cod" | "tamara" | "tabby" | "mukafaati";
+type CheckoutPaymentId = Exclude<PaymentId, "mukafaati">;
 type CardDetails = { holder: string; number: string; expiry: string; cvv: string };
 
 function CardPaymentPanel({ details, onChange }: { details: CardDetails; onChange: (field: keyof CardDetails, value: string) => void }) {
@@ -145,30 +155,19 @@ function CardPaymentPanel({ details, onChange }: { details: CardDetails; onChang
   </div>;
 }
 
-function InstallmentPaymentPanel({ provider, total }: { provider: "tamara" | "tabby"; total: number }) {
-  const name = provider === "tamara" ? "Tamara" : "Tabby";
-  const parts = provider === "tamara" ? 4 : 4;
-  return <div role="region" aria-label={`${name} installment widget`} className="checkout-installment-panel rounded-xl border border-[#d7e4f8] bg-[#f5f8ff] p-4">
-    <div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white"><PaymentMethodIcon id={provider} /></span><div className="min-w-0"><strong className="block text-sm">Pay with {name}</strong><p className="mt-1 text-xs text-[#6d7178]">Your order will be split into {parts} interest-free payments.</p></div></div>
-    <div className="checkout-installment-summary mt-4 rounded-lg border border-[#dfe8f5] bg-white p-3"><div className="flex items-center justify-between gap-3 text-xs"><span className="font-semibold text-[#4c5560]">Today</span><RiyalPrice value={Math.ceil(total / parts)} className="font-semibold" /></div><div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] text-[#7b818a]"><span className="rounded-md bg-[#f5f8ff] px-2 py-2">Today</span><span className="rounded-md bg-[#f5f8ff] px-2 py-2">In 30 days</span><span className="rounded-md bg-[#f5f8ff] px-2 py-2">In 60 days</span></div><p className="mt-3 flex items-center gap-1.5 text-[11px] text-[#2c8b4b]"><ShieldCheck size={14} /> No interest or hidden fees</p></div>
-  </div>;
-}
-
-function MukafaatiPaymentPanel({ balance, feedback, selectedProviderId, onSelectProvider, onAddPoints }: { balance: number; feedback: string; selectedProviderId: LoyaltyProviderId; onSelectProvider: (providerId: LoyaltyProviderId) => void; onAddPoints: () => void }) {
-  const [addPointsOpen, setAddPointsOpen] = useState(false);
-  const selectedProvider = loyaltyProviders.find(provider => provider.id === selectedProviderId) ?? loyaltyProviders[0];
-  return <div role="region" aria-label="Mukafaati wallet" className="checkout-mukafaati-panel rounded-xl border border-[#dfe4e8] bg-[#f8fafc] p-3">
-    <div className="flex min-h-12 items-center justify-between gap-3 rounded-xl bg-white p-3"><span className="min-w-0"><strong className="block truncate text-[13px] font-semibold">Mukafaati balance</strong><small className="mt-0.5 block truncate text-[11px] text-[#6d7178]">Applied to this order when the wallet is enabled</small></span><RiyalPrice value={money(balance)} className="shrink-0 text-sm font-semibold text-[#208447]" /></div>
-    <button type="button" aria-expanded={addPointsOpen} onClick={() => setAddPointsOpen(open => !open)} className="mt-3 flex min-h-14 w-full items-center justify-between gap-3 rounded-xl bg-[#eef4ff] px-3 text-left transition-colors hover:bg-[#e7efff]"><span className="flex min-w-0 items-center gap-2"><AlertCircle size={16} className="shrink-0 text-[#555b63]" /><span className="text-xs font-medium text-[#555b63]">You can add credit via</span></span><span className="flex shrink-0 items-center gap-1.5"><LoyaltyProviderMark provider={loyaltyProviders[0]} compact /><LoyaltyProviderMark provider={loyaltyProviders[2]} compact /><ChevronDown size={16} className={`ml-1 text-[#6d7178] transition-transform ${addPointsOpen ? "rotate-180" : ""}`} /></span></button>
-    {addPointsOpen && <div className="mt-3 rounded-xl border border-[#dfe4e8] bg-white p-3"><p className="text-[11px] font-semibold text-[#4c5560]">Choose a loyalty program</p><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">{loyaltyProviders.map(provider => <button key={provider.id} type="button" onClick={() => onSelectProvider(provider.id)} aria-pressed={selectedProviderId === provider.id} className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 transition-colors ${selectedProviderId === provider.id ? "border-[#2c8b4b] bg-[#ecfdf1]" : "border-[#e5e9ee] bg-white hover:border-[#b9d2c0]"}`}><LoyaltyProviderMark provider={provider} compact /><span className="truncate text-[9px] font-semibold text-[#555b63]">{provider.title}</span></button>)}</div><button type="button" onClick={onAddPoints} className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#171a1f] text-[11px] font-semibold text-white transition-colors hover:bg-[#252525]"><Plus size={15} /> Add points from {selectedProvider.title}</button></div>}
+function MukafaatiPaymentPanel({ feedback, onSelectProvider }: { feedback: string; onSelectProvider: (provider: LoyaltyProvider) => void }) {
+  return <>
+    <p className="mb-3 text-center text-[11px] leading-4 text-[#6d7178]">You can add and use your other points to pay.</p>
+    <div className="grid grid-cols-4 gap-2 p-0 lg:pr-[278px]">
+      <span className="sr-only">Choose a loyalty program to add points</span>
+      {loyaltyProviders.map(provider => <button key={provider.id} type="button" onClick={() => onSelectProvider(provider)} aria-label={`Add points from ${provider.title}`} className="flex aspect-square w-full max-w-[92px] min-w-0 min-h-0 items-center justify-center justify-self-center rounded-xl border border-[#e5e9ee] bg-white p-1 transition-colors hover:border-[#b9d2ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50"><LoyaltyProviderMark provider={provider} square /></button>)}
+    </div>
     {feedback && <p role="status" className="mt-3 rounded-lg bg-[#ecfdf1] px-3 py-2 text-[11px] font-medium text-[#208447]">{feedback}</p>}
-  </div>;
+  </>;
 }
 
-function PaymentDetailsPanel({ payment, total, cardDetails, onCardChange, loyaltyBalance, loyaltyFeedback, selectedLoyaltyProviderId, onSelectLoyaltyProvider, onAddMukafaatiPoints }: { payment: PaymentId; total: number; cardDetails: CardDetails; onCardChange: (field: keyof CardDetails, value: string) => void; loyaltyBalance: number; loyaltyFeedback: string; selectedLoyaltyProviderId: LoyaltyProviderId; onSelectLoyaltyProvider: (providerId: LoyaltyProviderId) => void; onAddMukafaatiPoints: () => void }) {
+function PaymentDetailsPanel({ payment, cardDetails, onCardChange }: { payment: CheckoutPaymentId; cardDetails: CardDetails; onCardChange: (field: keyof CardDetails, value: string) => void }) {
   if (payment === "card") return <CardPaymentPanel details={cardDetails} onChange={onCardChange} />;
-  if (payment === "tamara" || payment === "tabby") return <InstallmentPaymentPanel provider={payment} total={total} />;
-  if (payment === "mukafaati") return <MukafaatiPaymentPanel balance={loyaltyBalance} feedback={loyaltyFeedback} selectedProviderId={selectedLoyaltyProviderId} onSelectProvider={onSelectLoyaltyProvider} onAddPoints={onAddMukafaatiPoints} />;
   return null;
 }
 
@@ -832,14 +831,14 @@ const samples = [
 
 const money = (value: number) => value.toLocaleString("en-US");
 
-type LoyaltyProviderId = "resal" | "qitaf" | "mokafaa" | "mobily";
-type LoyaltyProvider = { id: LoyaltyProviderId; label: string; title: string; tone: string; background: string };
+type LoyaltyProviderId = "yogift" | "qitaf" | "mokafaa" | "mobily";
+type LoyaltyProvider = { id: LoyaltyProviderId; label: string; title: string; tone: string; background: string; asset: string };
 
 const loyaltyProviders: LoyaltyProvider[] = [
-  { id: "resal", label: "resal", title: "Resal Card", tone: "text-[#2056f5]", background: "bg-[#eef3ff]" },
-  { id: "qitaf", label: "قطاف", title: "Qitaf points", tone: "text-[#9d55c7]", background: "bg-[#fbf1ff]" },
-  { id: "mokafaa", label: "مكافأة", title: "Mokafaa points", tone: "text-[#1590c7]", background: "bg-[#eefaff]" },
-  { id: "mobily", label: "موبايلي", title: "Mobily points", tone: "text-[#2f63e8]", background: "bg-[#f0f4ff]" },
+  { id: "yogift", label: "Yo GotaGift", title: "Yo GotaGift", tone: "text-[#c000c8]", background: "bg-[#fff1ff]", asset: "/product-assets/payment-logos/loyalty-yogift.webp?v=1" },
+  { id: "qitaf", label: "قطاف", title: "Qitaf points", tone: "text-[#9d55c7]", background: "bg-[#fbf1ff]", asset: "/product-assets/payment-logos/loyalty-qitaf.svg?v=4" },
+  { id: "mokafaa", label: "مكافأة", title: "Mokafaa points", tone: "text-[#1590c7]", background: "bg-[#eefaff]", asset: "/product-assets/payment-logos/loyalty-mokafaa.svg?v=4" },
+  { id: "mobily", label: "موبايلي", title: "Mobily points", tone: "text-[#2f63e8]", background: "bg-[#f0f4ff]", asset: "/product-assets/payment-logos/loyalty-mobily.svg?v=4" },
 ];
 
 function readMukafaatiBalance() {
@@ -849,19 +848,25 @@ function readMukafaatiBalance() {
   return Number.isFinite(saved) && saved >= 0 ? saved : 49;
 }
 
-function LoyaltyProviderMark({ provider, compact = false }: { provider: LoyaltyProvider; compact?: boolean }) {
-  return <span className={`grid shrink-0 place-items-center rounded-lg ${compact ? "h-8 w-10" : "h-10 w-10"} ${provider.background} ${provider.tone}`}><strong className={`${compact ? "text-[8px]" : "text-[9px]"} font-bold leading-3`}>{provider.label}</strong></span>;
+function LoyaltyProviderMark({ provider, compact = false, square = false }: { provider: LoyaltyProvider; compact?: boolean; square?: boolean }) {
+  // Keep the established visual scale for the existing providers; Yo GotaGift
+  // has different asset proportions and keeps its own dedicated treatment.
+  const logoScale = compact || square ? provider.id === "yogift" ? "scale-[1.05]" : "scale-[1.3]" : "";
+  const compactLogoWidth = provider.id === "qitaf" ? "w-[68px]" : provider.id === "mokafaa" ? "w-[80px]" : provider.id === "mobily" ? "w-[89px]" : "w-full";
+  const markSize = square && provider.id === "yogift" ? "mt-[1px] mr-[8px] h-[29px] w-[42.25px] ml-[5px] pl-[6px]" : compact ? `h-full ${compactLogoWidth}` : "h-full w-full";
+  return <span className={`grid shrink-0 place-items-center ${square ? "h-10 w-14" : compact ? "h-14 w-16 sm:h-16 sm:w-24" : "h-10 w-12"}`}><img src={provider.asset} alt={provider.title} className={`${markSize} object-contain mix-blend-multiply ${logoScale}`} /></span>;
 }
 
-function MukafaatiPointsModal({ open, initialProviderId = "resal", onClose, onPointsAdded }: { open: boolean; initialProviderId?: LoyaltyProviderId; onClose: () => void; onPointsAdded: (amount: number, provider: LoyaltyProvider) => void }) {
-  const [step, setStep] = useState<"choose" | "verify">("choose");
-  const [providerId, setProviderId] = useState<LoyaltyProviderId>("resal");
-  const [cardNumber, setCardNumber] = useState("");
+function MukafaatiPointsModal({ open, initialProviderId = "yogift", onClose, onPointsAdded }: { open: boolean; initialProviderId?: LoyaltyProviderId; onClose: () => void; onPointsAdded: (amount: number, provider: LoyaltyProvider) => void }) {
+  const { direction } = useStoreLocale();
+  const [step, setStep] = useState<"choose" | "verify" | "amount">("choose");
+  const [providerId, setProviderId] = useState<LoyaltyProviderId>("yogift");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [amount, setAmount] = useState("20");
-  const [useAll, setUseAll] = useState(true);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const mobileDrag = useMobileSheetDrag(onClose);
   const provider = loyaltyProviders.find(item => item.id === providerId) ?? loyaltyProviders[0];
   const availableAmount = 20;
 
@@ -869,9 +874,8 @@ function MukafaatiPointsModal({ open, initialProviderId = "resal", onClose, onPo
     if (!open) return;
     setStep("choose");
     setProviderId(initialProviderId);
-    setCardNumber("");
+    setMobileNumber("");
     setAmount(String(availableAmount));
-    setUseAll(true);
     setOtp(["", "", "", ""]);
     setError("");
   }, [open, initialProviderId]);
@@ -879,8 +883,8 @@ function MukafaatiPointsModal({ open, initialProviderId = "resal", onClose, onPo
   if (!open) return null;
 
   const continueToVerification = () => {
-    if (cardNumber.replace(/\s/g, "").length < 6) {
-      setError(`Enter your ${provider.title} number to continue.`);
+    if (mobileNumber.replace(/\D/g, "").length < 9) {
+      setError("Enter a valid mobile number to continue.");
       return;
     }
     setError("");
@@ -893,43 +897,52 @@ function MukafaatiPointsModal({ open, initialProviderId = "resal", onClose, onPo
     if (digit && index < otp.length - 1) otpRefs.current[index + 1]?.focus();
   };
 
-  const confirmPoints = () => {
+  const continueToAmount = () => {
     if (otp.join("").length !== 4) {
       setError("Enter the 4-digit verification code.");
       return;
     }
-    const points = Math.min(availableAmount, Math.max(1, Number(amount) || availableAmount));
+    setError("");
+    setStep("amount");
+  };
+
+  const confirmPoints = () => {
+    const points = Number(amount);
+    if (!Number.isFinite(points) || points < 1 || points > availableAmount) {
+      setError(`Enter an amount between 1 and ${availableAmount} SAR.`);
+      return;
+    }
     onPointsAdded(points, provider);
   };
 
-  return <div role="dialog" aria-modal="true" aria-labelledby="mukafaati-points-title" className="fixed inset-0 z-[145] flex items-end justify-center bg-[#0f172a]/35 p-0 md:items-center md:p-6" onClick={onClose}>
-    <section className="flex max-h-[calc(100dvh-16px)] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] bg-white md:max-h-[min(720px,calc(100dvh-48px))] md:rounded-[24px]" onClick={event => event.stopPropagation()}>
-      <header className="flex shrink-0 items-center justify-between gap-4 bg-[#d51678] px-5 py-4 text-white md:px-6">
-        <div className="flex min-w-0 items-center gap-2"><Gift size={18} /><div><h2 id="mukafaati-points-title" className="text-sm font-semibold">Mukafaati</h2><p className="mt-0.5 text-[10px] text-white/80">Add points from another loyalty program</p></div></div>
-        <button type="button" onClick={onClose} aria-label="Close Mukafaati points" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/15"><X size={16} /></button>
-      </header>
-      <div className="min-h-0 overflow-y-auto p-5 md:p-6">
+  return createPortal(<div dir={direction} role="dialog" aria-modal="true" aria-labelledby="mukafaati-points-title" className="store-side-overlay fixed inset-0 z-[140] flex justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end" onClick={onClose}>
+    <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-auth-panel store-side-panel-right flex h-dvh w-full max-w-[440px] flex-col overflow-y-auto bg-white px-7 pb-7 pt-5 text-start shadow-2xl max-md:h-[min(92dvh,760px)] max-md:max-w-none max-md:rounded-t-[28px] max-md:px-5">
+      <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
+      <div className="flex shrink-0 items-center justify-between gap-4"><span className="inline-flex items-center gap-2 text-[11px] text-[#9a9da3]"><Gift size={17} /> Mukafaati</span><button type="button" onClick={onClose} aria-label="Close Mukafaati points" className="grid h-9 w-9 place-items-center rounded-full bg-[#f4f6f8] text-[#69717a] transition-colors hover:bg-[#e9edf1]"><X size={18} /></button></div>
+      <div className="mx-auto flex min-h-0 w-full max-w-[420px] flex-1 flex-col justify-start py-8">
         {step === "choose" ? <>
           <div className="text-center"><h3 className="text-lg font-semibold text-[#171a1f]">Add points from</h3><p className="mt-1 text-xs leading-5 text-[#7b818a]">Convert your points to Mukafaati points and use them to pay.</p></div>
-          <div className="mt-5 grid grid-cols-4 gap-2">
-            {loyaltyProviders.map(item => <button key={item.id} type="button" onClick={() => { setProviderId(item.id); setError(""); }} aria-pressed={providerId === item.id} className={`flex min-h-[70px] flex-col items-center justify-center gap-2 rounded-xl border px-1.5 py-2 transition-colors ${providerId === item.id ? "border-[#287cf0] bg-[#f5f8ff]" : "border-[#e5e9ee] bg-white hover:border-[#b9d2ff]"}`}><LoyaltyProviderMark provider={item} /><span className="truncate text-[9px] font-semibold text-[#555b63]">{item.title}</span></button>)}
+          <div className="mx-auto mt-5 grid w-full max-w-[360px] grid-cols-4 gap-2">
+            {loyaltyProviders.map(item => <button key={item.id} type="button" onClick={() => { setProviderId(item.id); setError(""); }} aria-label={`Choose ${item.title}`} aria-pressed={providerId === item.id} className={`flex aspect-square w-full max-w-[82px] min-h-0 items-center justify-center justify-self-center rounded-xl border p-1 transition-colors ${providerId === item.id ? "border-[#287cf0] bg-[#f5f8ff]" : "border-[#e5e9ee] bg-white hover:border-[#b9d2ff]"}`}><LoyaltyProviderMark provider={item} square={item.id === "yogift"} compact={item.id !== "yogift"} /></button>)}
           </div>
           <p className="mt-5 text-center text-xs text-[#555b63]">Use your {provider.title} balance and add it to your Mukafaati wallet.</p>
-          <label className="mt-4 block text-[11px] font-semibold text-[#4c5560]">Enter {provider.title} number<input value={cardNumber} onChange={event => { setCardNumber(event.target.value); setError(""); }} placeholder="Enter card number" inputMode="numeric" className="mt-2 h-12 w-full rounded-xl border border-[#dfe4e8] px-4 text-sm outline-none transition-colors focus:border-[#287cf0]" /></label>
+          <label className="mt-4 block text-[11px] font-semibold text-[#4c5560]">Enter mobile number<input type="tel" value={mobileNumber} onChange={event => { setMobileNumber(event.target.value.replace(/[^0-9+ ]/g, "").slice(0, 16)); setError(""); }} placeholder="05xxxxxxxx" inputMode="tel" autoComplete="tel" className="mt-2 h-12 w-full rounded-xl border border-[#dfe4e8] px-4 text-sm outline-none transition-colors focus:border-[#287cf0]" /></label>
           {error && <p role="alert" className="mt-3 text-xs font-semibold text-[#b42318]">{error}</p>}
-          <button type="button" onClick={continueToVerification} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Continue <ChevronRight size={17} /></button>
-          <p className="mt-4 text-center text-[10px] leading-4 text-[#9aa1ac]">Your loyalty card details are used only to verify the points transfer.</p>
-        </> : <>
+          <button type="button" onClick={continueToVerification} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Send verification code <ChevronRight size={17} /></button>
+          <p className="mt-4 text-center text-[10px] leading-4 text-[#9aa1ac]">We’ll send a verification code to this mobile number.</p>
+        </> : step === "verify" ? <>
           <button type="button" onClick={() => { setStep("choose"); setError(""); }} className="inline-flex items-center gap-1 text-xs font-semibold text-[#6d7178] hover:text-[#171a1f]"><ArrowLeft size={15} /> Back</button>
-          <div className="mt-5 flex items-center gap-3"><LoyaltyProviderMark provider={provider} /><div><h3 className="text-base font-semibold text-[#171a1f]">{provider.label} balance found</h3><p className="mt-1 text-xs text-[#7b818a]">You have {availableAmount} SAR available to transfer.</p></div></div>
-          <div className="mt-5 rounded-xl border border-[#dfe4e8] bg-[#fbfcfd] p-4"><div className="flex items-center justify-between gap-3"><label className="text-[11px] font-semibold text-[#4c5560]">Points to add<input value={amount} onChange={event => { setAmount(event.target.value.replace(/[^0-9]/g, "").slice(0, 2)); setUseAll(false); }} inputMode="numeric" className="mt-2 h-11 w-[150px] rounded-lg border border-[#dfe4e8] bg-white px-3 text-center text-lg font-semibold outline-none focus:border-[#287cf0]" /></label><button type="button" onClick={() => { setAmount(String(availableAmount)); setUseAll(true); }} aria-pressed={useAll} className={`mt-5 h-8 rounded-full px-3 text-[10px] font-semibold transition-colors ${useAll ? "bg-[#ecfdf1] text-[#208447]" : "bg-[#f1f3f5] text-[#6d7178]"}`}>Use all points</button></div><p className="mt-3 text-[10px] text-[#9aa1ac]">1 SAR = 1 Mukafaati point value in this preview.</p></div>
-          <div className="mt-5 text-center"><p className="text-xs text-[#6d7178]">A 4-digit code was sent to the mobile linked to this card.</p><div className="mt-4 flex justify-center gap-2">{otp.map((digit, index) => <input key={index} ref={element => { otpRefs.current[index] = element; }} value={digit} onChange={event => updateOtp(index, event.target.value)} onKeyDown={event => { if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus(); }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" maxLength={1} className="h-12 w-12 rounded-lg border border-[#dfe4e8] text-center text-lg font-semibold outline-none focus:border-[#287cf0]" />)}</div><button type="button" className="mt-3 text-[10px] font-semibold text-[#287cf0]">Resend code · 55:00</button></div>
+          <div className="mx-auto mt-5 max-w-[320px] text-center"><LoyaltyProviderMark provider={provider} square /><div className="mt-4"><h3 className="text-base font-semibold text-[#171a1f]">Verify your mobile number</h3><p className="mx-auto mt-1 max-w-[280px] text-xs leading-5 text-[#7b818a]">A 4-digit verification code was sent to {mobileNumber}.</p></div></div>
+          <div className="mt-5 text-center"><p className="text-xs text-[#6d7178]">Enter the code to view your available balance.</p><div className="mt-4 flex justify-center gap-2">{otp.map((digit, index) => <input key={index} ref={element => { otpRefs.current[index] = element; }} value={digit} onChange={event => updateOtp(index, event.target.value)} onKeyDown={event => { if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus(); }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" maxLength={1} className="h-12 w-12 rounded-lg border border-[#dfe4e8] text-center text-lg font-semibold outline-none focus:border-[#287cf0]" />)}</div><button type="button" className="mt-3 text-[10px] font-semibold text-[#287cf0]">Resend code · 55:00</button></div>
           {error && <p role="alert" className="mt-3 text-center text-xs font-semibold text-[#b42318]">{error}</p>}
-          <button type="button" onClick={confirmPoints} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Use now <Check size={17} /></button>
+          <button type="button" onClick={continueToAmount} className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Verify code and continue <ChevronRight size={17} /></button>
+        </> : <>
+          <button type="button" onClick={() => { setStep("verify"); setError(""); }} className="inline-flex items-center gap-1 text-xs font-semibold text-[#6d7178] hover:text-[#171a1f]"><ArrowLeft size={15} /> Back</button>
+          <div className="mt-5 rounded-2xl bg-[#f4f8ff] p-4"><div className="text-center"><p className="text-xs font-semibold text-[#6d7178]">Available {provider.label} balance</p><strong className="mt-1 block text-3xl font-bold text-[#287cf0]">{availableAmount} SAR</strong></div><div className="mt-4 rounded-xl bg-white/75 p-3"><p className="text-xs leading-5 text-[#555b63]">Your full balance is selected by default. Change the amount below if you want to use only part of your {availableAmount} SAR balance.</p><label className="mt-3 block text-[11px] font-semibold text-[#4c5560]">Amount to withdraw<div className="mt-2 flex items-center gap-2 rounded-lg border border-[#287cf0] bg-white px-3"><input aria-label="Amount to withdraw" value={amount} onChange={event => { setAmount(event.target.value.replace(/[^0-9]/g, "").slice(0, 2)); setError(""); }} inputMode="numeric" className="h-11 min-w-0 flex-1 bg-transparent text-center text-lg font-semibold outline-none" /><span className="text-xs font-semibold text-[#6d7178]">SAR</span></div></label></div>{error && <p role="alert" className="mt-3 text-center text-xs font-semibold text-[#b42318]">{error}</p>}<button type="button" onClick={confirmPoints} className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#287cf0] text-sm font-semibold text-white transition-colors hover:bg-[#1768d4]">Withdraw points <Check size={17} /></button></div>
         </>}
       </div>
     </section>
-  </div>;
+  </div>, document.body);
 }
 
 function getFreeUnitsByItem(items: StoreCartItem[]) {
@@ -987,7 +1000,7 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     const initialSelectedId = loadLastUsedAddressId(initialAddresses);
     return initialAddresses.find(address => address.id === initialSelectedId)?.addressType === "redbox" ? "redbox" : "standard";
   });
-  const [payment, setPayment] = useState<PaymentId>("card");
+  const [payment, setPayment] = useState<CheckoutPaymentId>("card");
   const [cardDetails, setCardDetails] = useState<CardDetails>({ holder: "", number: "", expiry: "", cvv: "" });
   const [paymentError, setPaymentError] = useState("");
   const [addresses, setAddresses] = useState<Address[]>(() => loadAddresses());
@@ -1003,7 +1016,8 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   const [couponsOpen, setCouponsOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [loyaltyBalance, setLoyaltyBalance] = useState(readMukafaatiBalance);
-  const [selectedLoyaltyProviderId, setSelectedLoyaltyProviderId] = useState<LoyaltyProviderId>("resal");
+  const [useLoyaltyBalance, setUseLoyaltyBalance] = useState(false);
+  const [selectedLoyaltyProviderId, setSelectedLoyaltyProviderId] = useState<LoyaltyProviderId>("yogift");
   const [pointsModalOpen, setPointsModalOpen] = useState(false);
   const [loyaltyFeedback, setLoyaltyFeedback] = useState("");
   const [isGiftOrder, setIsGiftOrder] = useState(() => {
@@ -1025,7 +1039,9 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     : 0;
   const shipping = delivery === "shipping" ? shippingMethod === "redbox" ? (discountedSubtotal >= 96 ? 0 : 25) : 20 : 0;
   const beforeLoyaltyTotal = discountedSubtotal - couponDiscount + shipping;
-  const loyaltyDiscount = payment === "mukafaati" ? Math.min(loyaltyBalance, beforeLoyaltyTotal) : 0;
+  const loyaltyCoversTotal = beforeLoyaltyTotal > 0 && loyaltyBalance >= beforeLoyaltyTotal;
+  const walletEnabled = useLoyaltyBalance || loyaltyCoversTotal;
+  const loyaltyDiscount = walletEnabled ? Math.min(loyaltyBalance, beforeLoyaltyTotal) : 0;
   const total = beforeLoyaltyTotal - loyaltyDiscount;
   const selectedBranch = storeBranches.find(branch => branch.id === selectedBranchId) ?? null;
   const giftPickerCartItem = giftPickerItem ? items.find(item => item.id === giftPickerItem) ?? null : null;
@@ -1048,11 +1064,13 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
       window.localStorage.setItem("deraah-mukafaati-balance", String(nextBalance));
       return nextBalance;
     });
-    setPayment("mukafaati");
     setSelectedLoyaltyProviderId(provider.id);
     setLoyaltyFeedback(`${amount} SAR added from ${provider.title} to your Mukafaati wallet.`);
     setPointsModalOpen(false);
   };
+  useEffect(() => {
+    if (loyaltyCoversTotal) setUseLoyaltyBalance(true);
+  }, [loyaltyCoversTotal]);
   const toggleGift = (item: StoreCartItem, giftId: string) => {
     const offer = getGiftOfferForProduct(item.name);
     if (!offer) return;
@@ -1067,13 +1085,15 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   };
   const isShippingStep = step === "shipping";
   const cardReady = cardDetails.holder.trim().length > 1 && cardDetails.number.replace(/\s/g, "").length >= 12 && cardDetails.expiry.length >= 4 && cardDetails.cvv.length >= 3;
-  const paymentReady = (payment !== "card" || cardReady) && (payment !== "mukafaati" || loyaltyBalance > 0);
+  const paymentReady = walletEnabled || payment !== "card" || cardReady;
   const deliveryReady = delivery === "shipping" ? Boolean(selectedAddressId) : delivery === "pickup" && Boolean(selectedBranch);
   const canContinue = Boolean(items.length) && (isShippingStep ? paymentReady : deliveryReady);
+  const effectivePayment = loyaltyCoversTotal ? "mukafaati" : payment;
   const continueLabel = isShippingStep
-    ? payment === "apple" ? "Pay with Apple Pay" : payment === "mukafaati" ? "Pay with Mukafaati" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Place order"
-    : payment === "apple" ? "Continue to Apple Pay" : payment === "mukafaati" ? "Continue with Mukafaati" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Continue to payment";
-  const paymentMethods: Array<[PaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["apple", "Apple Pay", "Fast and secure payment"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", "Split your purchase into 4 payments"], ["tabby", "Tabby", "Pay in 4 interest-free payments"], ["mukafaati", "Mukafaati", "Pay with your loyalty wallet"]];
+    ? effectivePayment === "apple" ? "Continue with Apple Pay" : effectivePayment === "tamara" ? "Continue with Tamara" : effectivePayment === "tabby" ? "Continue with Tabby" : "Place order"
+    : effectivePayment === "apple" ? "Continue with Apple Pay" : effectivePayment === "tamara" ? "Continue with Tamara" : effectivePayment === "tabby" ? "Continue with Tabby" : "Continue to payment";
+  const lastUsedCardHint = "Visa •••• 4242";
+  const paymentMethods: Array<[CheckoutPaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["apple", "Apple Pay", "Easy and secure way to pay"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", `Pay 4 installments of SAR ${money(Math.ceil(total / 4))}`], ["tabby", "Tabby", `Pay 4 installments of SAR ${money(Math.ceil(total / 4))}`]];
   const continueToShipping = () => {
     if (!isShippingStep && !deliveryReady) {
       setPaymentError("Select a delivery method and destination to continue.");
@@ -1086,7 +1106,7 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     if (isShippingStep) {
       const selectedAddress = addresses.find(address => address.id === selectedAddressId) ?? null;
       const orderId = `DRH-${String(Date.now()).slice(-8)}`;
-      const orderSnapshot = { id: orderId, placedAt: new Date().toISOString(), items, subtotal, promotionDiscount, couponDiscount, shipping, total, payment, delivery, shippingMethod, address: selectedAddress, branch: selectedBranch, isGiftOrder, giftCustomization: isGiftOrder ? giftCustomization : null };
+      const orderSnapshot = { id: orderId, placedAt: new Date().toISOString(), items, subtotal, promotionDiscount, couponDiscount, loyaltyDiscount, useLoyaltyBalance: walletEnabled, shipping, total, payment: effectivePayment, delivery, shippingMethod, address: selectedAddress, branch: selectedBranch, isGiftOrder, giftCustomization: isGiftOrder ? giftCustomization : null };
       window.localStorage.setItem("deraah-last-order", JSON.stringify(orderSnapshot));
       addOrder(orderSnapshot);
       window.location.assign("/payment-summary");
@@ -1094,7 +1114,8 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     }
     window.location.assign("/shipping-payment");
   };
-  const selectPayment = (nextPayment: PaymentId) => {
+  const selectPayment = (nextPayment: CheckoutPaymentId) => {
+    if (loyaltyCoversTotal) return;
     setPayment(nextPayment);
     setPaymentError("");
   };
@@ -1268,10 +1289,20 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
             </div>}
             {delivery === "pickup" && <button type="button" onClick={() => setBranchPickerOpen(true)} className="mt-4 flex min-h-14 w-full items-center justify-between rounded-lg border border-[#dfe4e8] px-3 text-left"><span className="min-w-0"><strong className="block truncate text-sm">{selectedBranch?.name ?? "Choose a Deraah branch"}</strong><small className="mt-1 block truncate text-xs text-[#6d7178]">{selectedBranch ? `${selectedBranch.distance} · ${availabilityCopy(selectedBranch.availability).label}` : "Select a branch to see availability"}</small></span><ChevronRight size={17} className="shrink-0 text-[#6d7178]" /></button>}
           </section>}
-          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2><div className="mt-5 space-y-3">{paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} balance={id === "mukafaati" ? loyaltyBalance : undefined} selected={payment === id} onSelect={() => selectPayment(id)} onToggleWallet={id === "mukafaati" ? enabled => { if (enabled) selectPayment(id); else { setPayment("card"); setLoyaltyFeedback(""); } } : undefined} />{payment === id && <div className="mt-3"><PaymentDetailsPanel payment={id} total={total} cardDetails={cardDetails} onCardChange={updateCardDetails} loyaltyBalance={loyaltyBalance} loyaltyFeedback={loyaltyFeedback} selectedLoyaltyProviderId={selectedLoyaltyProviderId} onSelectLoyaltyProvider={setSelectedLoyaltyProviderId} onAddMukafaatiPoints={() => { setLoyaltyFeedback(""); setPointsModalOpen(true); }} /></div>}</div>)}</div>{paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}</section>
+          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
+            <h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2>
+            <div className="mt-5 space-y-3">
+              <div>
+                <PaymentMethodOption id="mukafaati" title="Mukafaati" description="Use Mukafaati points to pay" balance={loyaltyBalance} selected={walletEnabled} onSelect={() => { if (!loyaltyCoversTotal) setUseLoyaltyBalance(enabled => !enabled); }} onToggleWallet={enabled => { if (!loyaltyCoversTotal) setUseLoyaltyBalance(enabled); }} />
+                {walletEnabled && <div className="mt-3"><MukafaatiPaymentPanel feedback={loyaltyFeedback} onSelectProvider={provider => { setSelectedLoyaltyProviderId(provider.id); setLoyaltyFeedback(""); setPointsModalOpen(true); }} /></div>}
+              </div>
+              {paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} cardDescription={id === "card" ? lastUsedCardHint : undefined} selected={payment === id && !loyaltyCoversTotal} disabled={loyaltyCoversTotal} onSelect={() => selectPayment(id)} />{payment === id && id === "card" && !loyaltyCoversTotal && <div className="mt-3"><PaymentDetailsPanel payment={id} cardDetails={cardDetails} onCardChange={updateCardDetails} /></div>}</div>)}
+            </div>
+            {paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}
+          </section>
         </div>
         {isShippingStep && <ShippingCartSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} className="desktop-shipping-cart-summary" />}
-        <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}{loyaltyDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>Mukafaati points</span><span>- <RiyalPrice value={money(loyaltyDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div><button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac]`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button><p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
+        <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}{loyaltyDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>Mukafaati points</span><span>- <RiyalPrice value={money(loyaltyDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div>{effectivePayment === "apple" ? <ApplePayActionButton disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 w-full`} /> : <button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac] shadow-none`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button>}<p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
       </div>
       <CouponOffersDrawer open={couponsOpen} onClose={() => setCouponsOpen(false)} onUse={code => { applyCouponCode(code); setCouponsOpen(false); }} />
       {addressPickerOpen && <AddressPickerModal addresses={addresses} selectedAddressId={selectedAddressId} draft={addressDraft} onSelect={selectAddress} onEdit={startEditAddress} onRemove={removeAddress} onAdd={startNewAddress} onDraftChange={updateAddressDraft} onSave={saveAddress} onCancel={() => setAddressDraft(null)} onClose={() => setAddressPickerOpen(false)} />}
