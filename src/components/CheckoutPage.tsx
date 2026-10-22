@@ -1066,7 +1066,7 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   const continueLabel = isShippingStep
     ? payment === "apple" ? "Pay with Apple Pay" : payment === "mukafaati" ? "Pay with Mukafaati" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Place order"
     : payment === "apple" ? "Continue to Apple Pay" : payment === "mukafaati" ? "Continue with Mukafaati" : payment === "tamara" ? "Continue with Tamara" : payment === "tabby" ? "Continue with Tabby" : "Continue to payment";
-  const paymentMethods: Array<[PaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["mukafaati", "Mukafaati", "Pay with your loyalty wallet"], ["apple", "Apple Pay", "Fast and secure payment"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", "Split your purchase into 4 payments"], ["tabby", "Tabby", "Pay in 4 interest-free payments"]];
+  const paymentMethods: Array<[PaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["apple", "Apple Pay", "Fast and secure payment"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", "Split your purchase into 4 payments"], ["tabby", "Tabby", "Pay in 4 interest-free payments"], ["mukafaati", "Mukafaati", "Pay with your loyalty wallet"]];
   const continueToShipping = () => {
     if (!isShippingStep && !deliveryReady) {
       setPaymentError("Select a delivery method and destination to continue.");
