@@ -4,7 +4,6 @@ import App from './App.tsx';
 import bootstrapStylesUrl from 'bootstrap/dist/css/bootstrap.min.css?url';
 import './designSystemTokens.css';
 import './index.css';
-import './visual-editor.generated.css';
 
 // Product details still uses the Bootstrap grid for its desktop two-column layout.
 // Keep that stylesheet scoped to the product route so the independent home page
@@ -15,12 +14,6 @@ if (pathname === '/product-details' || new URLSearchParams(window.location.searc
   stylesheet.rel = 'stylesheet';
   stylesheet.href = bootstrapStylesUrl;
   document.head.prepend(stylesheet);
-}
-
-if (import.meta.env.DEV) {
-  import('./visual-editor-runtime').then(({ startVisualEditor }) => {
-    startVisualEditor(49160);
-  });
 }
 
 createRoot(document.getElementById('root')!).render(
