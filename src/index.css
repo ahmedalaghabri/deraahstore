@@ -4171,6 +4171,20 @@ body.store-page b,
   display: flex !important;
 }
 
+/* Fixed and sticky purchase actions stay flat and crisp across every
+   responsive checkout/product layout. Keep this override after the older
+   breakpoint rules so no viewport-specific shadow or blur can leak back in. */
+.checkout-page .checkout-layout > aside > button,
+.checkout-step-shipping .shipping-place-order,
+.product-detail-page .product-sticky-cart,
+.product-detail-page .product-sticky-cart > button,
+.product-detail-page .product-sticky-cart > div {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* Keep the product gallery actions together in their intended upper-left
    position on both responsive layouts. The watcher row remains directly
    beneath the image controls at the lower-left edge. */
