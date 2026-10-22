@@ -108,22 +108,25 @@ function giftSelectionSummary(customization: GiftCustomization) {
 }
 
 function PaymentMethodIcon({ id, large = false }: { id: string; large?: boolean }) {
-  let mark = <CreditCard size={21} className="text-[#2c8b4b]" aria-hidden="true" />;
+  let mark = <CreditCard size={32} className="text-[#171a1f]" aria-hidden="true" />;
   if (id === "apple") mark = <img src="/product-assets/payment-logos/Apple-Pay.svg" alt="Apple Pay" className="h-6 w-11 origin-center scale-[3] object-fill" />;
-  if (id === "cod") mark = <Banknote size={21} className="text-[#171a1f]" aria-hidden="true" />;
+  if (id === "cod") mark = <Banknote size={32} className="text-[#171a1f]" aria-hidden="true" />;
   if (id === "tamara") mark = <img src="/product-assets/payment-logos/Tamara-attached.svg" alt="Tamara" className="h-8 w-8 object-contain" />;
   if (id === "tabby") mark = <img src="/product-assets/payment-logos/Tabby-attached.svg" alt="Tabby" className="h-8 w-9 object-contain" />;
   if (id === "mukafaati") mark = <Gift size={large ? 24 : 21} className="text-[#d51678]" aria-hidden="true" />;
-  return <span className={`flex shrink-0 items-center justify-center overflow-visible ${large ? "h-6 w-6" : "h-7 w-12"}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
+  const iconSize = id === "mukafaati" ? "h-6 w-6" : id === "card" || id === "cod" ? "h-8 w-8" : "h-7 w-12";
+  return <span className={`flex shrink-0 items-center justify-center overflow-visible ${iconSize}`} aria-hidden={id !== "apple" && id !== "tamara" && id !== "tabby"}>{mark}</span>;
 }
 
 function PaymentMethodOption({ id, title, description, selected, balance, onSelect, onToggleWallet }: { id: string; title: string; description: string; selected: boolean; balance?: number; onSelect: () => void; onToggleWallet?: (enabled: boolean) => void }) {
   const descriptionSize = id === "mukafaati" ? "text-[11px]" : id === "tamara" ? "text-[10px] sm:text-xs" : id === "tabby" ? "text-[11px] sm:text-xs" : "text-xs";
+  const displayDescription = id === "card" ? "Last used card" : description;
   const isWallet = id === "mukafaati";
+  const iconFrame = isWallet ? "flex h-9 w-9 rounded-lg border-0 bg-transparent shadow-none hover:bg-transparent" : id === "card" || id === "cod" ? "flex h-8 w-8 rounded-md transition-colors hover:bg-white" : "flex h-7 w-12 rounded-md transition-colors hover:bg-white";
   return <div className={`checkout-payment-option relative flex w-full min-w-0 items-center gap-3 rounded-xl p-4 text-left transition-colors ${selected ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}>
-    {isWallet ? <button type="button" role="switch" aria-checked={selected} aria-label={`${selected ? "Disable" : "Enable"} ${title}`} onClick={() => onToggleWallet?.(!selected)} className={`relative flex h-6 w-11 shrink-0 items-center rounded-full p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c8b4b]/35 ${selected ? "justify-end bg-[#2c8b4b]" : "justify-start bg-[#c8d0d9]"}`}><span className="h-4 w-4 rounded-full bg-white shadow-sm transition-transform" /></button> : <button type="button" onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button>}
-    <button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className={`${isWallet ? "flex h-9 w-9 rounded-lg border border-[#e5e9ee] bg-transparent shadow-none hover:bg-transparent" : "flex h-7 w-12 rounded-md transition-colors hover:bg-white"} shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50`}><PaymentMethodIcon id={id} large={isWallet} /></button>
-    <button type="button" onClick={onSelect} className={`min-w-0 flex-1 text-left ${isWallet ? "max-w-[159px]" : ""}`}><strong className="block text-sm">{title}</strong><small className={`mt-1 block leading-4 text-[#6d7178] ${descriptionSize}`}>{description}</small></button>
+    {isWallet ? <button type="button" role="checkbox" aria-checked={selected} aria-label={`${selected ? "Disable" : "Enable"} ${title}`} onClick={() => onToggleWallet?.(!selected)} className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c8b4b]/35 ${selected ? "border-[#2c8b4b] bg-[#2c8b4b] text-white" : "border-[#c8d0d9] bg-white text-transparent"}`}>{selected && <Check size={13} strokeWidth={3} />}</button> : <button type="button" onClick={onSelect} aria-label={`Select ${title}`} aria-pressed={selected} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-[#2c8b4b]" : "border-[#c8d0d9]"}`}>{selected && <span className="h-2.5 w-2.5 rounded-full bg-[#2c8b4b]" />}</button>}
+    <button type="button" onClick={onSelect} aria-label={`Select ${title} icon`} className={`${iconFrame} shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6ea8ff]/50`}><PaymentMethodIcon id={id} large={isWallet} /></button>
+    <button type="button" onClick={onSelect} className={`min-w-0 flex-1 text-left ${isWallet ? "max-w-[159px]" : ""}`}><strong className="block text-sm">{title}</strong><small className={`mt-1 block leading-4 text-[#6d7178] ${descriptionSize}`}>{displayDescription}</small></button>
     {isWallet && <div className="pointer-events-none absolute right-4 top-3"><RiyalPrice value={money(balance ?? 0)} className="text-[18px] font-bold leading-5 text-[#208447]" /></div>}
   </div>;
 }
