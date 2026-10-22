@@ -3019,6 +3019,7 @@ body .product-card-media .store-offer-badge {
   max-width: 120px !important;
   transform: translateX(-50%) !important;
   animation: none !important;
+  text-transform: uppercase !important;
 }
 
 body .product-card-media .store-offer-badge-track {
