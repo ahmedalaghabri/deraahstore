@@ -6,6 +6,7 @@ import { useStoreCart } from "./StoreCartContext";
 import { cartRewardStages, formatPrice, freeSampleOptions, getCartItemOriginalPrice, getCartItemSize, getGiftOfferForProduct, getGiftSelectionLimit } from "./storeCartData";
 import StoreGiftPicker, { SelectedGiftsCard } from "./StoreGiftPicker";
 import { MobileSheetHandle, useMobileSheetDrag } from "./MobileSheet";
+import { useStoreLocale } from "./StoreLocaleContext";
 
 type StoreCartDrawerProps = {
   mode?: "drawer" | "page";
@@ -22,6 +23,7 @@ function CartCoupon({ code, applied, onChange, onApply, insideCard = false }: { 
 
 export default function StoreCartDrawer({ mode = "drawer", open, onClose, onBack, onPanelMouseEnter, onPanelMouseLeave }: StoreCartDrawerProps) {
   const { cartItems: items, cartItemCount: itemCount, subtotal, updateQuantity, removeItem, giftSelections, setGiftSelections } = useStoreCart();
+  const { direction } = useStoreLocale();
   const [selectedSample, setSelectedSample] = useState(() => {
     if (typeof window === "undefined") return 0;
     const savedValue = window.localStorage.getItem("deraah-selected-sample");
@@ -66,7 +68,7 @@ export default function StoreCartDrawer({ mode = "drawer", open, onClose, onBack
 
   if (!open) return null;
 
-  return createPortal(<div dir="ltr" role={pageMode ? undefined : "dialog"} aria-modal={pageMode ? undefined : true} aria-labelledby="shopping-cart-title" className={pageMode ? "min-h-screen bg-white" : "cart-drawer-overlay store-mobile-sheet-overlay fixed inset-0 z-[140] flex items-center justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end md:pointer-events-none md:items-start md:bg-transparent md:backdrop-blur-none md:pe-6 md:pt-[84px]"} onClick={pageMode ? undefined : onClose}>
+  return createPortal(<div dir={direction} role={pageMode ? undefined : "dialog"} aria-modal={pageMode ? undefined : true} aria-labelledby="shopping-cart-title" className={pageMode ? "min-h-screen bg-white" : "cart-drawer-overlay store-mobile-sheet-overlay fixed inset-0 z-[140] flex items-center justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end md:pointer-events-none md:items-start md:bg-transparent md:backdrop-blur-none md:pe-6 md:pt-[84px]"} onClick={pageMode ? undefined : onClose}>
     <aside onClick={event => event.stopPropagation()} onMouseEnter={!pageMode ? onPanelMouseEnter : undefined} onMouseLeave={!pageMode ? onPanelMouseLeave : undefined} style={!pageMode ? mobileDrag.dragStyle : undefined} className={pageMode ? "cart-page-content mx-auto flex min-h-screen w-full max-w-[760px] flex-col overflow-y-auto bg-[#F3F7FF] px-8 pb-8 pt-7 text-left max-md:px-5 max-md:pt-5" : "cart-drawer-panel store-mobile-sheet pointer-events-auto flex h-auto max-h-[calc(100dvh-24px)] w-[min(100%,420px)] max-w-[420px] flex-col overflow-hidden rounded-[24px] border border-[#e5e9ee] bg-[#FAFCFF] px-5 pb-5 pt-5 text-left shadow-[0_20px_60px_rgba(15,23,42,.18)] max-md:h-[calc(100dvh-12px)] max-md:max-h-[calc(100dvh-12px)] max-md:w-full max-md:max-w-none max-md:rounded-b-none max-md:rounded-l-none max-md:rounded-t-[24px] max-md:border-x-0 max-md:border-b-0 max-md:px-4 max-md:pt-5"}>
       {!pageMode && <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />}
       <div className={`flex shrink-0 items-center justify-between border-b border-[#e5e9ee] ${pageMode ? "pb-3" : "pb-4"}`}><div className="flex items-baseline gap-2"><h2 id="shopping-cart-title" className={`${pageMode ? "text-[22px]" : "text-[18px]"} font-semibold text-[#171a1f]`}>{pageMode ? "Cart" : "Your cart"}</h2><p className={`${pageMode ? "mt-1 text-[14px]" : "text-[12px]"} text-[#6d7178]`}>{itemCount} {itemCount === 1 ? "item" : "items"}</p></div><button type="button" onClick={pageMode ? (onBack ?? onClose) : onClose} aria-label={pageMode ? "Back to shopping" : "Close mini cart"} className="grid h-8 w-8 place-items-center rounded-full text-[#171a1f] transition-colors hover:bg-[#f4f6f8]">{pageMode ? <ArrowLeft size={18} strokeWidth={1.8} /> : <X size={16} strokeWidth={1.8} />}</button></div>

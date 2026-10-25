@@ -1,8 +1,99 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+@font-face {
+  font-family: 'Thmanyah Serif Text';
+  src: url('/fonts/thmanyah/thmanyahseriftext-Light.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Serif Text';
+  src: url('/fonts/thmanyah/thmanyahseriftext-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Serif Text';
+  src: url('/fonts/thmanyah/thmanyahseriftext-Medium.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Serif Text';
+  src: url('/fonts/thmanyah/thmanyahseriftext-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Serif Text';
+  src: url('/fonts/thmanyah/thmanyahseriftext-Black.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html[dir='rtl'] body.store-page,
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page input,
+html[dir='rtl'] body.store-page textarea,
+html[dir='rtl'] body.store-page select {
+  font-family: 'Thmanyah Serif Text', system-ui, sans-serif;
+}
+
+html[dir='rtl'] body.store-page {
+  text-align: right;
+  letter-spacing: 0;
+}
+
+html[dir='rtl'] body.store-page .text-left {
+  text-align: right;
+}
+
+html[dir='rtl'] body.store-page .text-right {
+  text-align: left;
+}
+
+html[dir='rtl'] body.store-page .text-start {
+  text-align: right;
+}
+
+html[dir='rtl'] body.store-page .text-end {
+  text-align: left;
+}
+
+html[dir='rtl'] body.store-page [dir='ltr'] {
+  font-family: 'Thmanyah Serif Text', system-ui, sans-serif;
+}
+
+html[dir='rtl'] body.store-page .store-header-nav,
+html[dir='rtl'] body.store-page .product-story-directional,
+html[dir='rtl'] body.store-page [data-ltr-content='true'] {
+  direction: ltr;
+}
+
+html[dir='rtl'] body.store-page .checkout-page,
+html[dir='rtl'] body.store-page .payment-summary-page,
+html[dir='rtl'] body.store-page .cart-page-content,
+html[dir='rtl'] body.store-page .cart-drawer-panel {
+  direction: rtl;
+}
+
+html[dir='rtl'] body.store-page input::placeholder,
+html[dir='rtl'] body.store-page textarea::placeholder {
+  text-align: right;
+}
 
 /* The gifting hero illustrations use a quiet, editorial motion instead of heavy GIFs. */
 @keyframes gift-hero-float {
@@ -282,6 +373,16 @@
 
 /* Keep the desktop product action aligned with the left edge of Bought often together. */
 @media (min-width: 768px) {
+  /* Bootstrap's .row gutter margins are useful inside padded containers, but
+     this product layout intentionally uses a full-width max container. Reset
+     them here so the RTL details column cannot slip outside the viewport at
+     medium desktop widths. */
+  .product-detail-page > .container-fluid > .store-layout-row {
+    width: 100%;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
   .product-sticky-cart {
     left: auto !important;
     right: max(16px, calc((100vw - 1400px) / 2 - 16px)) !important;
@@ -3417,6 +3518,113 @@ body [role="dialog"][aria-labelledby="all-reviews-title"] > .reviews-drawer > bu
   }
 }
 
+/* Product pages share the homepage's overlay header. Keep the product-page
+   sticky fallback above, but let the shared overlay variant retain the same
+   fixed position, transparency, and scroll behavior as the homepage. */
+.product-detail-page header[data-store-overlay='true'] {
+  position: fixed !important;
+  inset-inline: 0 !important;
+  top: 22px !important;
+  z-index: 40 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Product pages load Bootstrap for the product grid. Its important spacing
+   utilities otherwise override the shared header's Tailwind utilities, so
+   keep the shared shell's geometry identical to the homepage at every width. */
+.product-detail-page header[data-store-overlay='true'] > [data-store-header-shell] {
+  gap: 1rem !important;
+  padding-inline: 0.75rem !important;
+}
+
+/* Bootstrap also overrides the shared header's logical padding and small
+   utility sizes on this route. Reset only the header-owned elements so the
+   product grid can continue using Bootstrap independently. */
+.product-detail-page header[data-store-overlay='true'] nav[aria-label='Main navigation'] {
+  padding-left: 0 !important;
+  padding-right: 0.75rem !important;
+}
+
+.product-detail-page header[data-store-overlay='true'] [data-store-header-search-switch] {
+  padding-left: 0 !important;
+  padding-right: 0.75rem !important;
+}
+
+.product-detail-page header[data-store-overlay='true'][dir='ltr'] nav[aria-label='Main navigation'],
+.product-detail-page header[data-store-overlay='true'][dir='ltr'] [data-store-header-search-switch] {
+  padding-left: 0.75rem !important;
+  padding-right: 0 !important;
+}
+
+.product-detail-page header[data-store-overlay='true'] [class~='px-3'] {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+.product-detail-page header[data-store-overlay='true'] [class~='text-[9px]'] {
+  font-size: 9px !important;
+  line-height: 13.5px !important;
+}
+
+.product-detail-page header[data-store-overlay='true'] [class~='min-w-4'][class~='text-[9px]'] {
+  width: 1rem !important;
+  min-width: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  .product-detail-page header[data-store-overlay='true'] > [data-store-header-shell] {
+    padding-inline: 0 !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'] nav[aria-label='Main navigation'] {
+    padding-left: 0 !important;
+    padding-right: 68px !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'] [data-store-header-search-switch] {
+    padding-left: 0 !important;
+    padding-right: 12px !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'][dir='ltr'] nav[aria-label='Main navigation'] {
+    padding-left: 68px !important;
+    padding-right: 0 !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'][dir='ltr'] [data-store-header-search-switch] {
+    padding-left: 12px !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-detail-page header[data-store-overlay='true'] nav[aria-label='Main navigation'],
+  .product-detail-page header[data-store-overlay='true'] [data-store-header-search-switch] {
+    padding-left: 0 !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'][dir='ltr'] nav[aria-label='Main navigation'],
+  .product-detail-page header[data-store-overlay='true'][dir='ltr'] [data-store-header-search-switch] {
+    padding-left: 0.75rem !important;
+    padding-right: 0 !important;
+  }
+
+  .product-detail-page header[data-store-overlay='true'] > [data-store-header-shell][class*='max-md:gap-0'] {
+    gap: 0 !important;
+    padding-inline: 0.5rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  /* The overlay header leaves document flow, so preserve the same breathing
+     room the product page had when the shared header was in normal flow. */
+  .product-detail-page > .container-fluid {
+    padding-top: 98px !important;
+  }
+}
+
 .product-detail-page .product-card-original-image {
   width: 86px !important;
   height: 168px !important;
@@ -4871,5 +5079,268 @@ body.store-page b,
   .fragrance-story-carousel-panel {
     min-height: clamp(481px, calc(102.4vw - 17px), 588px) !important;
   }
+}
+
+/* Unified checkout flow: keep the order summary anchored left while the
+   right column swaps between cart, address, and payment in place. */
+.checkout-unified-flow .checkout-layout {
+  align-items: start;
+  background: #eef3fb;
+}
+
+.checkout-unified-flow .checkout-flow-column {
+  min-width: 0;
+}
+
+.checkout-unified-flow .desktop-shipping-cart-summary {
+  display: none !important;
+}
+
+.checkout-unified-flow .checkout-layout > aside > button {
+  display: flex !important;
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 24px 0 0 !important;
+  transform: none !important;
+}
+
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-delivery-section,
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-payment-section,
+.checkout-unified-flow.checkout-flow-stage-address .checkout-products-stack,
+.checkout-unified-flow.checkout-flow-stage-address .checkout-payment-section,
+.checkout-unified-flow.checkout-flow-stage-payment .checkout-products-stack,
+.checkout-unified-flow.checkout-flow-stage-payment .checkout-delivery-section {
+  display: none !important;
+}
+
+.checkout-unified-flow .checkout-flow-stage-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* The cart stage is nested inside the unified flow panel. Stretch its stack
+   and each card to the full left-column width so the stage has one clean edge
+   instead of a narrow card followed by an empty strip. */
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+  gap: 20px !important;
+}
+
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .cart-bundle-progress,
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-products-card,
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-sample-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.checkout-stage-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 16px;
+  background: rgb(243 247 255 / 0.76);
+  color: #687386;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.checkout-stage-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #dbe6f4;
+  border-top-color: #2c8b4b;
+  border-radius: 999px;
+  animation: checkout-stage-spin .65s linear infinite;
+}
+
+@keyframes checkout-stage-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 1024px) {
+  .checkout-unified-flow .checkout-layout {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
+    grid-template-rows: auto !important;
+    column-gap: 20px !important;
+  }
+
+  .checkout-unified-flow .checkout-layout > .checkout-flow-column {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    min-width: 0 !important;
+  }
+
+  .checkout-unified-flow .checkout-layout > aside {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    position: sticky !important;
+    top: 24px !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .checkout-unified-flow .checkout-layout {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .checkout-unified-flow .checkout-flow-column,
+  .checkout-unified-flow .checkout-layout > aside {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.payment-summary-main-column > .payment-summary-order-details {
+  order: 1;
+}
+
+.payment-summary-main-column > .payment-summary-receiving {
+  order: 2;
+}
+
+.payment-summary-page aside > section:last-child {
+  display: none;
+}
+
+.payment-summary-shopping-button {
+  display: flex;
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .payment-summary-shopping-button {
+    width: 100%;
+  }
+}
+
+/* Restore the mobile checkout action bar after the unified desktop layout
+   normalizes the summary button to static flow. Keep it above the fixed
+   bottom navigation on phones, as in the original mobile checkout. */
+@media (max-width: 767px) {
+  .checkout-unified-flow .checkout-layout > aside > button,
+  .checkout-unified-flow .shipping-place-order {
+    position: fixed !important;
+    right: auto !important;
+    bottom: calc(78px + env(safe-area-inset-bottom) + 8px) !important;
+    left: 50% !important;
+    z-index: 80 !important;
+    width: calc(100% - 32px) !important;
+    max-width: 414px !important;
+    height: 48px !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Match desktop cart product artwork to the compact phone treatment so the
+   image tile and the product details keep the same visual scale at every
+   checkout breakpoint. */
+@media (min-width: 768px) {
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-product-image {
+    width: 96px !important;
+    height: 117px !important;
+    min-height: 0 !important;
+    align-self: flex-start !important;
+    border-radius: 10px !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-product-image-asset {
+    width: auto !important;
+    height: auto !important;
+    max-width: 84px !important;
+    max-height: 75px !important;
+    object-fit: contain !important;
+  }
+}
+
+/* Arabic typography: keep the Thmanyah family above the legacy store-wide
+   Poppins rule, and reserve the heavier weights for hierarchy and actions. */
+html[dir='rtl'] body.store-page,
+html[dir='rtl'] body.store-page * {
+  /* Poppins owns Latin letters and numerals; Arabic glyphs fall through to
+     Thmanyah because Poppins has no Arabic character coverage. This keeps
+     mixed Arabic/English values visually consistent without changing English
+     routes. */
+  font-family: 'Saudi Riyal', 'Poppins', 'Thmanyah Serif Text', system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+html[dir='rtl'] body.store-page [dir='ltr'],
+html[dir='rtl'] body.store-page [data-ltr-content='true'] {
+  font-family: 'Saudi Riyal', 'Poppins', 'Thmanyah Serif Text', system-ui, sans-serif;
+}
+
+html[dir='rtl'] body.store-page {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+html[dir='rtl'] body.store-page h1,
+html[dir='rtl'] body.store-page h2,
+html[dir='rtl'] body.store-page h3,
+html[dir='rtl'] body.store-page h4,
+html[dir='rtl'] body.store-page h5,
+html[dir='rtl'] body.store-page h6 {
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+html[dir='rtl'] body.store-page p,
+html[dir='rtl'] body.store-page label,
+html[dir='rtl'] body.store-page input,
+html[dir='rtl'] body.store-page select,
+html[dir='rtl'] body.store-page textarea {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page a {
+  letter-spacing: 0;
+}
+
+html[dir='rtl'] body.store-page .font-light { font-weight: 300 !important; }
+html[dir='rtl'] body.store-page .font-normal { font-weight: 400 !important; }
+html[dir='rtl'] body.store-page .font-medium { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page .font-semibold { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page strong,
+html[dir='rtl'] body.store-page b { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page .font-bold { font-weight: 700 !important; }
+html[dir='rtl'] body.store-page .font-extrabold,
+html[dir='rtl'] body.store-page .font-black { font-weight: 900 !important; }
+
+/* Full-bleed product sections should be centered from the viewport rather
+   than from the inline start edge. The latter can resolve differently under
+   RTL and push reviews/story content outside the visible page. */
+.product-detail-page .w-screen {
+  left: auto !important;
+  right: auto !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  transform: none !important;
 }
 

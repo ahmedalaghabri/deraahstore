@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useArabicUi } from "./ArabicLocale";
 
 export type StoreLanguage = "English" | "العربية" | "বাংলা";
 export type StoreDirection = "ltr" | "rtl";
@@ -15,6 +16,8 @@ type StoreLocaleContextValue = {
 
 const COUNTRY_STORAGE_KEY = "deraah-store-country";
 const LANGUAGE_STORAGE_KEY = "deraah-store-language";
+const LOCALE_VERSION_KEY = "deraah-store-locale-v2";
+const EXPLICIT_LANGUAGE_KEY = "deraah-store-language-explicit";
 const StoreLocaleContext = createContext<StoreLocaleContextValue | null>(null);
 
 const countrySlugs: Record<StoreCountry, string> = {
@@ -55,10 +58,12 @@ function readInitialLanguage(): StoreLanguage {
   if (urlLanguage === "en") return "English";
   try {
     const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    return savedLanguage === "العربية" || savedLanguage === "বাংলা" ? savedLanguage : "English";
+    if (savedLanguage === "العربية" || savedLanguage === "বাংলা") return savedLanguage;
+    if (savedLanguage === "English" && window.localStorage.getItem(EXPLICIT_LANGUAGE_KEY) === "1") return "English";
   } catch {
-    return "English";
+    // Use the English default when storage is unavailable.
   }
+  return "English";
 }
 
 export function StoreLocaleProvider({ children }: { children: React.ReactNode }) {
@@ -72,6 +77,8 @@ export function StoreLocaleProvider({ children }: { children: React.ReactNode })
     try {
       window.localStorage.setItem(COUNTRY_STORAGE_KEY, nextCountry);
       window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+      window.localStorage.setItem(LOCALE_VERSION_KEY, "1");
+      window.localStorage.setItem(EXPLICIT_LANGUAGE_KEY, "1");
     } catch {
       // UI state and URL still update if storage is unavailable.
     }
@@ -79,7 +86,10 @@ export function StoreLocaleProvider({ children }: { children: React.ReactNode })
       const url = new URL(window.location.href);
       url.searchParams.set("country", countrySlugs[nextCountry]);
       url.searchParams.set("language", languageCodes[nextLanguage]);
-      window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      const nextLocation = `${url.pathname}${url.search}${url.hash}`;
+      if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextLocation) {
+        window.location.replace(nextLocation);
+      }
     }
   };
 
@@ -92,6 +102,7 @@ export function StoreLocaleProvider({ children }: { children: React.ReactNode })
     const previousDirection = document.documentElement.dir;
     document.documentElement.lang = direction === "rtl" ? "ar" : language === "বাংলা" ? "bn" : "en";
     document.documentElement.dir = direction;
+    document.title = language === "العربية" ? "متجر درعه" : "Deraah Store";
     document.body.classList.add("store-page");
     return () => {
       document.body.classList.remove("store-page");
@@ -99,6 +110,8 @@ export function StoreLocaleProvider({ children }: { children: React.ReactNode })
       document.documentElement.dir = previousDirection || "ltr";
     };
   }, [direction, language]);
+
+  useArabicUi(language === "العربية");
 
   const value = useMemo(() => ({ country, language, direction, setCountry, setLanguage, setLocale }), [country, language, direction]);
   return <StoreLocaleContext.Provider value={value}>{children}</StoreLocaleContext.Provider>;

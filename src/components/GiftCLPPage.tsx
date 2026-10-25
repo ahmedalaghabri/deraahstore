@@ -7,6 +7,7 @@ import { useStoreCart, type StoreCartItem } from "./StoreCartContext";
 import { useStoreFavorites } from "./StoreFavoritesContext";
 import { ProductCard, ProductCarousel, QuickCartDrawer, type Product as StoreProduct } from "./ProductDetailsPage";
 import { formatPrice } from "./storeCartData";
+import { useStoreLocale } from "./StoreLocaleContext";
 
 type GiftProduct = {
   id: string;
@@ -206,6 +207,7 @@ function GiftRail({ eyebrow, title, description, products, favoriteNames, onFavo
 }
 
 export default function GiftCLPPage() {
+  const { direction } = useStoreLocale();
   const { favoriteNames, toggleFavorite } = useStoreFavorites();
   const { addToCart, cartItems, cartItemCount } = useStoreCart();
   const [occasion, setOccasion] = useState("");
@@ -265,7 +267,7 @@ export default function GiftCLPPage() {
   const homeProducts = useMemo(() => giftProducts.filter(product => product.categories.includes("Home gifts") || product.categories.includes("Oud")).map(toStoreProduct), []);
   const luxuryProducts = useMemo(() => giftProducts.filter(product => product.styles.includes("Luxury")).map(toStoreProduct), []);
 
-  return <div dir="ltr" className="min-h-screen bg-[#fcfaf9] font-sans text-[#211a1d]">
+  return <div dir={direction} className="min-h-screen bg-[#fcfaf9] font-sans text-[#211a1d]">
     <StoreHeader />
     <QuickCartDrawer open={quickCartOpen} item={lastAddedCartItem} items={cartItems} onViewCart={() => { setQuickCartOpen(false); window.location.assign("/checkout"); }} onClose={() => setQuickCartOpen(false)} />
     <main className="bg-[#fffff9]">

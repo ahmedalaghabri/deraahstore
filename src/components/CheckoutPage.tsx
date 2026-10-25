@@ -10,7 +10,7 @@ import { useStoreLocale } from "./StoreLocaleContext";
 import { isGiftCustomizationItem, STORE_GIFT_CUSTOMIZATION_PREFIX, useStoreCart, type StoreCartItem } from "./StoreCartContext";
 import { useStoreOrders } from "./StoreOrdersContext";
 import CartBundleProgress from "./CartBundleProgress";
-import { getCartItemOriginalPrice, getGiftOfferForProduct, getGiftSelectionLimit } from "./storeCartData";
+import { getCartItemOriginalPrice, getFreeUnitsByItem, getGiftOfferForProduct, getGiftSelectionLimit } from "./storeCartData";
 import StoreGiftPicker, { SelectedGiftsCard } from "./StoreGiftPicker";
 import { MobileSheetHandle, useMobileSheetDrag } from "./MobileSheet";
 
@@ -20,6 +20,7 @@ const checkoutCouponOffers = [
 ];
 
 export type Address = { id: string; label: string; recipient: string; phone: string; city: string; street: string; code?: string; nationalCode?: string; latitude?: number; longitude?: number; otherLabel?: string; recipientDifferent?: boolean; isDefault?: boolean; addressType?: "home" | "redbox" };
+type CheckoutStage = "cart" | "address" | "payment";
 type GiftCustomization = { cardId: string; recipient: string; message: string; signature: string; mediaUrl: string; packagingId: string };
 
 const defaultGiftCustomization: GiftCustomization = { cardId: "classic", recipient: "", message: "", signature: "", mediaUrl: "", packagingId: "red" };
@@ -823,6 +824,26 @@ function DeliveryAddressSummary({ address, shipping }: { address: Address; shipp
   </article>;
 }
 
+function CheckoutProductsSummary({ items, orderItemCount, subtotal, onEdit }: { items: StoreCartItem[]; orderItemCount: number; subtotal: number; onEdit: () => void }) {
+  return <section className="rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <h2 className="text-[18px] font-semibold md:text-xl">Order details</h2>
+        <p className="mt-1 text-xs text-[#6d7178]">{items.length} {items.length === 1 ? "product" : "products"} in your order</p>
+      </div>
+      <button type="button" onClick={onEdit} className="min-h-9 rounded-lg px-2 text-xs font-semibold text-[#2c8b4b] transition-colors hover:bg-[#f0fbf4]">Edit</button>
+    </div>
+    <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#edf0f3] bg-[#f8fafc] p-3">
+      <div className="flex min-w-0 items-center gap-1.5">
+        {items.slice(0, 3).map(item => <span key={item.id} className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-white"><img src={item.image} alt="" className="h-9 w-9 object-contain" /></span>)}
+        {items.length > 3 && <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-white text-xs font-semibold text-[#6d7178]">+{items.length - 3}</span>}
+      </div>
+      <span className="min-w-0 flex-1 text-xs text-[#6d7178]">{orderItemCount} items in your cart</span>
+      <RiyalPrice value={money(subtotal)} className="shrink-0 text-sm font-semibold" />
+    </div>
+  </section>;
+}
+
 const samples = [
   { name: "Small deraah art packaging set RED", image: "https://www.deraahstore.com/dw/image/v2/BJFS_PRD/on/demandware.static/-/Sites-deraah-master/default/dw3c159d0c/images/10211221053000-2006-1.png?q=50&sh=920&sw=920" },
   { name: "Medium Deraah Art Packaging Set Blue", image: "https://www.deraahstore.com/dw/image/v2/BJFS_PRD/on/demandware.static/-/Sites-deraah-master/default/dwb3d3decf/images/10211221053000-2008-1.png?sh=920&sw=920" },
@@ -945,16 +966,6 @@ function MukafaatiPointsModal({ open, initialProviderId = "yogift", onClose, onP
   </div>, document.body);
 }
 
-function getFreeUnitsByItem(items: StoreCartItem[]) {
-  const units = items.filter(item => !isGiftCustomizationItem(item)).flatMap(item => Array.from({ length: item.quantity }, () => ({ id: item.id, price: Number(item.price.replace(/[^0-9]/g, "")) })));
-  const freeUnits = new Map<string, number>();
-  units.sort((a, b) => b.price - a.price);
-  for (let index = 0; index + 2 < units.length; index += 3) {
-    for (const unit of [units[index + 1], units[index + 2]]) freeUnits.set(unit.id, (freeUnits.get(unit.id) ?? 0) + 1);
-  }
-  return freeUnits;
-}
-
 function loadSelectedSample() {
   const fallback = samples[0];
   if (typeof window === "undefined") return fallback;
@@ -991,16 +1002,23 @@ function AvailableCouponsDrawer({ open, onClose, onUse }: { open: boolean; onClo
 }
 
 export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipping" }) {
+  const { direction } = useStoreLocale();
   const { cartItems: items, addToCart, updateQuantity, removeItem, giftSelections, setGiftSelections } = useStoreCart();
   const { addOrder } = useStoreOrders();
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const [checkoutStage, setCheckoutStage] = useState<CheckoutStage>(() => step === "shipping" ? "payment" : "cart");
+  const stageTransitionTimer = useRef<number | null>(null);
+  const [stageLoading, setStageLoading] = useState(false);
+  useEffect(() => () => {
+    if (stageTransitionTimer.current !== null) window.clearTimeout(stageTransitionTimer.current);
+  }, []);
   const [delivery, setDelivery] = useState<"shipping" | "pickup" | null>(() => loadLastUsedAddressId(loadAddresses()) ? "shipping" : null);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>(() => {
     const initialAddresses = loadAddresses();
     const initialSelectedId = loadLastUsedAddressId(initialAddresses);
     return initialAddresses.find(address => address.id === initialSelectedId)?.addressType === "redbox" ? "redbox" : "standard";
   });
-  const [payment, setPayment] = useState<CheckoutPaymentId>("card");
+  const [payment, setPayment] = useState<CheckoutPaymentId>("cod");
   const [cardDetails, setCardDetails] = useState<CardDetails>({ holder: "", number: "", expiry: "", cvv: "" });
   const [paymentError, setPaymentError] = useState("");
   const [addresses, setAddresses] = useState<Address[]>(() => loadAddresses());
@@ -1083,36 +1101,63 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
         : current.length < selectionLimit ? [...current, giftId] : current;
     setGiftSelections(item.id, next);
   };
-  const isShippingStep = step === "shipping";
+  const isCartStage = checkoutStage === "cart";
+  const isAddressStage = checkoutStage === "address";
+  const isPaymentStage = checkoutStage === "payment";
+  const isShippingStep = isPaymentStage;
   const cardReady = cardDetails.holder.trim().length > 1 && cardDetails.number.replace(/\s/g, "").length >= 12 && cardDetails.expiry.length >= 4 && cardDetails.cvv.length >= 3;
   const paymentReady = walletEnabled || payment !== "card" || cardReady;
   const deliveryReady = delivery === "shipping" ? Boolean(selectedAddressId) : delivery === "pickup" && Boolean(selectedBranch);
-  const canContinue = Boolean(items.length) && (isShippingStep ? paymentReady : deliveryReady);
+  const canContinue = Boolean(items.length) && (isCartStage ? true : isAddressStage ? deliveryReady : paymentReady);
   const effectivePayment = loyaltyCoversTotal ? "mukafaati" : payment;
-  const continueLabel = isShippingStep
+  const paymentActionLabel = isPaymentStage
     ? effectivePayment === "apple" ? "Continue with Apple Pay" : effectivePayment === "tamara" ? "Continue with Tamara" : effectivePayment === "tabby" ? "Continue with Tabby" : "Place order"
-    : effectivePayment === "apple" ? "Continue with Apple Pay" : effectivePayment === "tamara" ? "Continue with Tamara" : effectivePayment === "tabby" ? "Continue with Tabby" : "Continue to payment";
+    : "Place order";
+  const continueLabel = isCartStage ? "Continue to address" : isAddressStage ? "Continue to payment" : paymentActionLabel;
   const lastUsedCardHint = "Visa •••• 4242";
   const paymentMethods: Array<[CheckoutPaymentId, string, string]> = [["card", "Credit or debit card", "Visa, Mastercard and Mada"], ["apple", "Apple Pay", "Easy and secure way to pay"], ["cod", "Cash on delivery", "Pay when your order arrives"], ["tamara", "Tamara", `Pay 4 installments of SAR ${money(Math.ceil(total / 4))}`], ["tabby", "Tabby", `Pay 4 installments of SAR ${money(Math.ceil(total / 4))}`]];
+  const transitionToStage = (nextStage: CheckoutStage) => {
+    if (checkoutStage === nextStage) return;
+    if (stageTransitionTimer.current !== null) window.clearTimeout(stageTransitionTimer.current);
+    setPaymentError("");
+    setStageLoading(true);
+    stageTransitionTimer.current = window.setTimeout(() => {
+      setCheckoutStage(nextStage);
+      setStageLoading(false);
+      stageTransitionTimer.current = null;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 180);
+  };
   const continueToShipping = () => {
-    if (!isShippingStep && !deliveryReady) {
+    if (!items.length) {
+      setPaymentError("Your cart is empty.");
+      return;
+    }
+    if (isCartStage) {
+      transitionToStage("address");
+      return;
+    }
+    if (isAddressStage && !deliveryReady) {
       setPaymentError("Select a delivery method and destination to continue.");
       return;
     }
-    if (isShippingStep && !paymentReady) {
+    if (isAddressStage) {
+      transitionToStage("payment");
+      return;
+    }
+    if (isPaymentStage && !paymentReady) {
       setPaymentError("Enter your card details to continue securely.");
       return;
     }
-    if (isShippingStep) {
+    if (isPaymentStage) {
       const selectedAddress = addresses.find(address => address.id === selectedAddressId) ?? null;
       const orderId = `DRH-${String(Date.now()).slice(-8)}`;
-      const orderSnapshot = { id: orderId, placedAt: new Date().toISOString(), items, subtotal, promotionDiscount, couponDiscount, loyaltyDiscount, useLoyaltyBalance: walletEnabled, shipping, total, payment: effectivePayment, delivery, shippingMethod, address: selectedAddress, branch: selectedBranch, isGiftOrder, giftCustomization: isGiftOrder ? giftCustomization : null };
+      const orderSnapshot = { id: orderId, placedAt: new Date().toISOString(), items, giftSelections: Object.fromEntries(Object.entries(giftSelections).filter(([, giftIds]) => giftIds.length > 0).map(([itemId, giftIds]) => [itemId, [...giftIds]])), freeSample: selectedSample, subtotal, promotionDiscount, couponDiscount, loyaltyDiscount, useLoyaltyBalance: walletEnabled, shipping, total, payment: effectivePayment, delivery, shippingMethod, address: selectedAddress, branch: selectedBranch, isGiftOrder, giftCustomization: isGiftOrder ? giftCustomization : null };
       window.localStorage.setItem("deraah-last-order", JSON.stringify(orderSnapshot));
       addOrder(orderSnapshot);
       window.location.assign("/payment-summary");
       return;
     }
-    window.location.assign("/shipping-payment");
   };
   const selectPayment = (nextPayment: CheckoutPaymentId) => {
     if (loyaltyCoversTotal) return;
@@ -1197,15 +1242,17 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
     setCouponApplied(false);
     setCouponFeedback("");
   };
-  return <div dir="ltr" className={`checkout-page checkout-step-${step} min-h-screen bg-[#F3F7FF] text-[#171a1f]`}>
+  return <div dir={direction} className={`checkout-page checkout-unified-flow checkout-flow-stage-${checkoutStage} checkout-step-${isCartStage ? "cart" : "shipping"} min-h-screen bg-[#EEF3FB] text-[#171a1f]`}>
     <StoreHeader />
-    <main className="mx-auto max-w-[1240px] px-5 py-7 md:px-8 md:py-10">
-    <div className="mb-6"><button type="button" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign("/product-details#details"); }} className="flex items-center gap-2 text-sm font-medium text-[#555b63]"><ArrowLeft size={18} /> Back to cart</button></div>
+    <main className="mx-auto max-w-[1240px] px-5 py-6 md:px-8 md:py-8">
+    <div className="mb-6"><button type="button" onClick={() => { if (isCartStage) { if (window.history.length > 1) window.history.back(); else window.location.assign("/product-details#details"); } else transitionToStage(isAddressStage ? "cart" : "address"); }} className="flex items-center gap-2 text-sm font-medium text-[#555b63]"><ArrowLeft size={18} /> {isCartStage ? "Back to cart" : "Back"}</button></div>
       {placed && <div role="status" className="mb-6 flex items-center gap-3 rounded-xl bg-[#ecfdf1] px-4 py-4 text-sm font-medium text-[#208447]"><Check size={19} /> Order received. We will confirm the delivery details shortly.</div>}
-      <div className="checkout-layout grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
-          {isShippingStep && <div className="shipping-cart-summary rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><div className="flex items-center justify-between gap-4"><div className="flex min-w-0 items-center gap-3"><span className="text-xl leading-none text-[#171a1f]">▸</span><div><h2 className="text-[18px] font-semibold">Order details</h2><p className="mt-1 text-xs text-[#6d7178]">Review your products before payment</p></div></div><button type="button" onClick={() => window.location.assign("/checkout")} aria-label="Edit cart details" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#dfe4e8] text-lg text-[#171a1f] transition-colors hover:bg-[#f5f7f8]">✎</button></div><div className="mt-5 flex items-center gap-3"><div className="flex min-w-0 items-center gap-1.5">{items.slice(0, 3).map(item => <span key={item.id} className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#f5f6f7]"><img src={item.image} alt="" className="h-8 w-8 object-contain" /></span>)}{items.length > 3 && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#f5f6f7] text-xs font-semibold text-[#6d7178]">+{items.length - 3}</span>}</div><span className="min-w-0 flex-1 text-sm text-[#6d7178]">{orderItemCount} items in your cart</span><RiyalPrice value={money(subtotal)} className="shrink-0 text-base font-semibold" /></div><button type="button" onClick={() => window.location.assign("/checkout")} className="mt-4 text-xs font-semibold text-[#2c8b4b]">Edit cart details</button></div>}
-          <div className="checkout-products-stack">
+      <div className="checkout-layout grid gap-5 lg:grid-cols-2">
+        <div className="checkout-flow-column space-y-5">
+          <div className="relative checkout-flow-stage-panel">
+            {stageLoading && <div className="checkout-stage-loader" role="status" aria-live="polite"><span className="checkout-stage-spinner" aria-hidden="true" /><span>Loading…</span></div>}
+            {paymentError && !isPaymentStage && <p role="alert" className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}
+          {isCartStage && <div className="checkout-products-stack">
           {items.length > 0 && <CartBundleProgress items={items} compact className="w-full" />}
           <section className="checkout-products-card rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
             <div className="flex items-center justify-between"><div><h2 className="text-[18px] font-semibold md:text-xl">Your products</h2><p className="mt-1 text-xs text-[#6d7178]">{orderItemCount} items in your order</p></div></div>
@@ -1271,8 +1318,9 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
           </section>}
           <GiftCustomizationFreeItems customization={giftCustomization} enabled={isGiftOrder} />
           <SelectedGiftsCard items={items} giftSelections={giftSelections} />
-          </div>
-          {!isShippingStep && <section className="checkout-delivery-section rounded-2xl bg-white p-4 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
+          </div>}
+          {isAddressStage && <CheckoutProductsSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} onEdit={() => transitionToStage("cart")} />}
+          {isAddressStage && <section className="checkout-delivery-section rounded-2xl bg-white p-4 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
             <h2 className="text-[19px] font-semibold md:text-xl">Order delivery</h2>
             <div className="mt-3 grid grid-cols-2 gap-3 md:mt-5">
               <button type="button" aria-pressed={delivery === "shipping"} onClick={() => setDelivery("shipping")} className={`delivery-method-option flex min-h-[76px] min-w-0 items-center gap-3 rounded-xl p-3 text-left transition-colors md:min-h-[84px] ${delivery === "shipping" ? "bg-[#ecfdf1] ring-2 ring-[#2c8b4b]" : "bg-[#f8fafc]"}`}>
@@ -1289,7 +1337,24 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
             </div>}
             {delivery === "pickup" && <button type="button" onClick={() => setBranchPickerOpen(true)} className="mt-4 flex min-h-14 w-full items-center justify-between rounded-lg border border-[#dfe4e8] px-3 text-left"><span className="min-w-0"><strong className="block truncate text-sm">{selectedBranch?.name ?? "Choose a Deraah branch"}</strong><small className="mt-1 block truncate text-xs text-[#6d7178]">{selectedBranch ? `${selectedBranch.distance} · ${availabilityCopy(selectedBranch.availability).label}` : "Select a branch to see availability"}</small></span><ChevronRight size={17} className="shrink-0 text-[#6d7178]" /></button>}
           </section>}
-          <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
+          {isPaymentStage && <div className="checkout-payment-context space-y-3">
+            <CheckoutProductsSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} onEdit={() => transitionToStage("cart")} />
+            <section className="rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-[18px] font-semibold md:text-xl">Delivery details</h2>
+                </div>
+                <button type="button" onClick={() => transitionToStage("address")} className="min-h-9 rounded-lg px-2 text-xs font-semibold text-[#2c8b4b] transition-colors hover:bg-[#f0fbf4]">Change</button>
+              </div>
+              <div className="mt-4">
+                {delivery === "shipping" && addresses.filter(address => address.id === selectedAddressId).map(address => <div key={address.id} className="flex items-center gap-3 rounded-xl border border-[#cfe9d7] bg-[#ecfdf1]/60 p-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#2c8b4b]"><MapPin size={17} /></span><span className="min-w-0 flex-1"><strong className="block truncate text-sm">{address.label}</strong><span className="mt-1 block truncate text-xs text-[#6d7178]">{address.city} · {address.street}</span></span><span className="shrink-0 text-right text-[11px]"><strong className="block">Home delivery</strong><span className="mt-1 block text-[#2c8b4b]">{shipping === 0 ? "Free" : <RiyalPrice value={money(shipping)} />}</span></span></div>)}
+                {delivery === "shipping" && !selectedAddressId && <p className="rounded-xl border border-dashed border-[#dfe4e8] bg-[#f8fafc] px-3 py-4 text-sm text-[#6d7178]">No delivery address selected.</p>}
+                {delivery === "pickup" && selectedBranch && <div className="flex items-center gap-3 rounded-xl border border-[#cfe9d7] bg-[#ecfdf1]/60 p-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#2c8b4b]"><MapPin size={17} /></span><span className="min-w-0 flex-1"><strong className="block truncate text-sm">{selectedBranch.name}</strong><span className="mt-1 block truncate text-xs text-[#6d7178]">{selectedBranch.address}</span></span><span className="shrink-0 text-right text-[11px]"><strong className="block">Pickup</strong><span className="mt-1 block text-[#2c8b4b]">{selectedBranch.distance}</span></span></div>}
+                {!delivery && <p className="rounded-xl border border-dashed border-[#dfe4e8] bg-[#f8fafc] px-3 py-4 text-sm text-[#6d7178]">No delivery method selected.</p>}
+              </div>
+            </section>
+          </div>}
+          {isPaymentStage && <section className="checkout-payment-section rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
             <h2 className="text-[18px] font-semibold md:text-xl">Payment method</h2>
             <div className="mt-5 space-y-3">
               <div>
@@ -1298,10 +1363,9 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
               </div>
               {paymentMethods.map(([id, title, description]) => <div key={id}><PaymentMethodOption id={id} title={title} description={description} cardDescription={id === "card" ? lastUsedCardHint : undefined} selected={payment === id && !loyaltyCoversTotal} disabled={loyaltyCoversTotal} onSelect={() => selectPayment(id)} />{payment === id && id === "card" && !loyaltyCoversTotal && <div className="mt-3"><PaymentDetailsPanel payment={id} cardDetails={cardDetails} onCardChange={updateCardDetails} /></div>}</div>)}
             </div>
-            {paymentError && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}
-          </section>
-        </div>
-        {isShippingStep && <ShippingCartSummary items={items} orderItemCount={orderItemCount} subtotal={discountedSubtotal} className="desktop-shipping-cart-summary" />}
+            {paymentError && isPaymentStage && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#b42318]"><AlertCircle size={15} />{paymentError}</p>}
+          </section>}
+        </div></div>
         <aside className="h-fit rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.07)] lg:sticky lg:top-6"><div className="mb-5 border-b border-[#edf0f3] pb-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f8ef] text-[#2c8b4b]"><Tag size={21} /></span><div className="min-w-0 flex-1"><strong className="block whitespace-nowrap text-[13px] font-semibold sm:text-sm">Do you have a discount coupon?</strong><button type="button" onClick={() => setCouponsOpen(true)} className="mt-1 inline-flex whitespace-nowrap items-center gap-0 text-[11px] font-semibold text-[#2c8b4b] hover:underline sm:text-xs"><span>View available discount coupons</span><ChevronDown size={16} /></button></div></div><div className="mt-3 flex h-11 min-w-0 items-center gap-2 rounded-lg border border-[#dfe4e8] bg-white px-2"><input value={coupon} disabled={couponApplied} onChange={event => { setCoupon(event.target.value); setCouponApplied(false); setCouponFeedback(""); }} onKeyDown={event => { if (event.key === "Enter") applyCoupon(); }} placeholder="Enter coupon code" className={`min-w-0 flex-1 bg-transparent px-2 text-xs outline-none ${couponApplied ? "cursor-not-allowed text-[#6d7178]" : ""}`} /><button type="button" onClick={couponApplied ? removeCoupon : applyCoupon} className={`h-8 shrink-0 rounded-md px-3 text-[11px] font-semibold text-white ${couponApplied ? "bg-[#687386] hover:bg-[#4d5869]" : "bg-[#171a1f] hover:bg-[#252525]"}`}>{couponApplied ? "Remove" : "Apply"}</button></div>{couponFeedback && <p className={`mt-2 text-xs font-medium ${couponApplied ? "text-[#2c8b4b]" : "text-[#b42318]"}`}>{couponFeedback}</p>}</div><h2 className="mb-4 text-[18px] font-semibold md:text-xl">Order summary</h2><div className="space-y-3 border-b border-[#edf0f3] pb-5 text-sm"><div className="flex justify-between"><span className="text-[#6d7178]">Subtotal</span><RiyalPrice value={money(subtotal)} /></div>{promotionDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>1+2 Free</span><span>- <RiyalPrice value={money(promotionDiscount)} /></span></div>}{couponApplied && activeCouponOffer && <div className="flex justify-between text-[#2c8b4b]"><span>{activeCouponOffer.code} · {activeCouponOffer.discountType === "percent" ? `${activeCouponOffer.discountValue}% off` : `${activeCouponOffer.discountValue} off`}</span><span>- <RiyalPrice value={money(couponDiscount)} /></span></div>}{loyaltyDiscount > 0 && <div className="flex justify-between text-[#2c8b4b]"><span>Mukafaati points</span><span>- <RiyalPrice value={money(loyaltyDiscount)} /></span></div>}<div className="flex justify-between"><span className="text-[#6d7178]">Shipping</span><span className={shipping === 0 ? "font-semibold text-[#2c8b4b]" : ""}>{shipping ? <RiyalPrice value={money(shipping)} /> : "Free"}</span></div><div className="flex justify-between"><span className="text-[#6d7178]">Free sample</span><span className="font-semibold text-[#2c8b4b]">Free</span></div></div><div className="mt-5 flex justify-between text-lg font-semibold"><span>Total</span><RiyalPrice value={money(total)} /></div>{effectivePayment === "apple" ? <ApplePayActionButton disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 w-full`} /> : <button type="button" disabled={!canContinue} onClick={continueToShipping} className={`${isShippingStep ? "shipping-place-order " : ""}mt-6 flex h-12 w-full items-center justify-between gap-2 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-[#252525] disabled:cursor-not-allowed disabled:bg-[#9aa1ac] shadow-none`}><span className="flex items-center gap-2"><Check size={17} /> {continueLabel}</span><RiyalPrice value={money(total)} light /></button>}<p className="mt-4 text-center text-[11px] leading-5 text-[#7b818a]">By placing your order, you agree to our terms and privacy policy.</p><div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#2c8b4b]"><ShieldCheck size={16} /> Secure and protected checkout</div></aside>
       </div>
       <CouponOffersDrawer open={couponsOpen} onClose={() => setCouponsOpen(false)} onUse={code => { applyCouponCode(code); setCouponsOpen(false); }} />

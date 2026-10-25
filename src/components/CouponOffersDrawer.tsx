@@ -51,7 +51,7 @@ export default function CouponOffersDrawer({ open, onClose, onUse }: CouponOffer
   };
 
   return <div role="dialog" aria-modal="true" aria-labelledby="deraah-coupon-drawer-title" className="store-mobile-sheet-overlay fixed inset-0 z-[120] flex items-end justify-end bg-black/35 md:items-stretch" onClick={onClose}>
-    <section style={mobileDrag.dragStyle} className="store-mobile-sheet coupon-offers-drawer relative flex max-h-[calc(100dvh-16px)] w-full max-w-[500px] flex-col overflow-y-auto rounded-t-[24px] bg-[#f8fbff] px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 text-left shadow-2xl md:h-full md:max-h-none md:rounded-l-[24px] md:rounded-t-none md:px-6 md:pb-6 md:pt-7" onClick={event => event.stopPropagation()}>
+    <section style={mobileDrag.dragStyle} className="store-mobile-sheet coupon-offers-drawer relative flex max-h-[calc(100dvh-16px)] w-full max-w-[500px] flex-col overflow-y-auto rounded-t-[24px] bg-white px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 text-left shadow-2xl md:h-full md:max-h-none md:rounded-l-[24px] md:rounded-t-none md:px-6 md:pb-6 md:pt-7" onClick={event => event.stopPropagation()}>
       <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
       <div className="mb-5 flex items-center justify-between">
         <div>

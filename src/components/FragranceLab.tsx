@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Check, Droplets, Flower2, Gauge, Heart, Moon, RotateCcw, Snowflake, Sparkles, Sprout, Sun, Trees, Wind } from "lucide-react";
 import { type Product as StoreProduct } from "./ProductDetailsPage";
 import { RiyalPrice } from "./RiyalPrice";
+import { useStoreLocale } from "./StoreLocaleContext";
 
 type LabStep = "notes" | "body" | "moment" | "season" | "result";
 type LabFamily = "fresh" | "woody" | "floral" | "sweet";
@@ -17,28 +18,28 @@ type LabChoice = {
 };
 
 const noteChoices: LabChoice[] = [
-  { value: "fresh", label: "منعش", sublabel: "برغموت · شاي أخضر", colors: ["#d9eccb", "#9ec9a4", "#d5e9e4"] },
-  { value: "woody", label: "خشبي", sublabel: "أرز · عنبر", colors: ["#b47c5b", "#d5a05f", "#70463b"] },
-  { value: "floral", label: "زهري", sublabel: "ورد · مسك ناعم", colors: ["#e6adbd", "#c8a9d6", "#eee0e8"] },
-  { value: "sweet", label: "حلو", sublabel: "فانيلا · كمثرى", colors: ["#dfb47a", "#e4c3a5", "#b87959"] },
+  { value: "fresh", label: "Fresh", sublabel: "Bergamot · Green tea", colors: ["#d9eccb", "#9ec9a4", "#d5e9e4"] },
+  { value: "woody", label: "Woody", sublabel: "Cedar · Amber", colors: ["#b47c5b", "#d5a05f", "#70463b"] },
+  { value: "floral", label: "Floral", sublabel: "Rose · Soft musk", colors: ["#e6adbd", "#c8a9d6", "#eee0e8"] },
+  { value: "sweet", label: "Sweet", sublabel: "Vanilla · Pear", colors: ["#dfb47a", "#e4c3a5", "#b87959"] },
 ];
 
 const bodyChoices: LabChoice[] = [
-  { value: "light", label: "خفيف", sublabel: "حضور ناعم", colors: ["#eadfe0", "#c9a9b4"] },
-  { value: "balanced", label: "متوازن", sublabel: "حضور متوازن", colors: ["#c9a2ad", "#8d3150"] },
-  { value: "rich", label: "مكثف", sublabel: "أثر غني", colors: ["#8d3150", "#4f1d32"] },
+  { value: "light", label: "Light", sublabel: "Soft presence", colors: ["#eadfe0", "#c9a9b4"] },
+  { value: "balanced", label: "Balanced", sublabel: "Balanced presence", colors: ["#c9a2ad", "#8d3150"] },
+  { value: "rich", label: "Rich", sublabel: "Rich trail", colors: ["#8d3150", "#4f1d32"] },
 ];
 
 const momentChoices: LabChoice[] = [
-  { value: "day", label: "نهاري", sublabel: "روتين يومي", colors: ["#f2c36d", "#e9a36e", "#d8e8c1"] },
-  { value: "date", label: "قريب", sublabel: "أمسيات خاصة", colors: ["#e2a4b5", "#9f6b94", "#6f3f63"] },
-  { value: "night", label: "ليلي", sublabel: "خطط المساء", colors: ["#4a2b48", "#6f3f46", "#d6a05d"] },
+  { value: "day", label: "Daytime", sublabel: "Daily ritual", colors: ["#f2c36d", "#e9a36e", "#d8e8c1"] },
+  { value: "date", label: "Date night", sublabel: "Special evenings", colors: ["#e2a4b5", "#9f6b94", "#6f3f63"] },
+  { value: "night", label: "Night", sublabel: "Evening plans", colors: ["#4a2b48", "#6f3f46", "#d6a05d"] },
 ];
 
 const seasonChoices: LabChoice[] = [
-  { value: "warm", label: "دافئ", sublabel: "مشرق وخفيف", colors: ["#f4c56f", "#eb9d74", "#d9e8c5"] },
-  { value: "mild", label: "معتدل", sublabel: "سهل طوال العام", colors: ["#d8b1a1", "#bba7c7", "#9fb7ad"] },
-  { value: "cool", label: "بارد", sublabel: "دافئ ومحتوٍ", colors: ["#6f3f46", "#a46a4d", "#d6a05d"] },
+  { value: "warm", label: "Warm", sublabel: "Bright and light", colors: ["#f4c56f", "#eb9d74", "#d9e8c5"] },
+  { value: "mild", label: "Mild", sublabel: "Easy year-round", colors: ["#d8b1a1", "#bba7c7", "#9fb7ad"] },
+  { value: "cool", label: "Cool", sublabel: "Warm and enveloping", colors: ["#6f3f46", "#a46a4d", "#d6a05d"] },
 ];
 
 type FragranceProfile = {
@@ -59,39 +60,39 @@ type FragranceProfile = {
 const fragranceCatalog: FragranceProfile[] = [
   {
     product: { name: "Green Woods Eau de Parfum", brand: "LINK", price: "⃁ 258", oldPrice: "⃁ 600", offer: "1+2 Free", views: "9368+", image: "/product-assets/real-products/green-woods.png", hoverImage: "/product-assets/hover-products/green-woods-hover.png" },
-    families: ["fresh", "woody"], bodies: ["balanced"], moments: ["day", "date"], seasons: ["warm", "mild"], notes: ["برغموت", "أخشاب خضراء", "أرز"], signature: "أخشاب خضراء بلمسة نظيفة ومتقنة.",
+    families: ["fresh", "woody"], bodies: ["balanced"], moments: ["day", "date"], seasons: ["warm", "mild"], notes: ["Bergamot", "Green woods", "Cedar"], signature: "Clean, polished green woods.",
   },
   {
     product: { name: "Link White Limited Edition 150ml", brand: "LINK", price: "⃁ 288", oldPrice: "⃁ 500", offer: "1+2 Free", views: "900+", image: "/product-assets/real-products/link-white.png", hoverImage: "/product-assets/hover-products/link-white-hover.png" },
-    families: ["fresh"], bodies: ["light", "balanced"], moments: ["day"], seasons: ["warm", "mild"], notes: ["حمضيات", "زهور بيضاء", "مسك"], signature: "إشراقة حمضية سهلة وناعمة.",
+    families: ["fresh"], bodies: ["light", "balanced"], moments: ["day"], seasons: ["warm", "mild"], notes: ["Citrus", "White florals", "Musk"], signature: "Easy, soft citrus brightness.",
   },
   {
     product: { name: "Black Woods Eau de Toilette", brand: "LINK", price: "⃁ 208", oldPrice: "⃁ 500", views: "16470+", image: "/product-assets/real-products/black-woods.png", hoverImage: "/product-assets/hover-products/black-woods-hover.png" },
-    families: ["woody"], bodies: ["balanced", "rich"], moments: ["day", "night"], seasons: ["mild", "cool"], notes: ["خشب", "عنبر", "مسك"], signature: "خشبي داكن بثقة هادئة.",
+    families: ["woody"], bodies: ["balanced", "rich"], moments: ["day", "night"], seasons: ["mild", "cool"], notes: ["Woods", "Amber", "Musk"], signature: "Dark woods with quiet confidence.",
   },
   {
     product: { name: "Maroon Perfume by Link 200ml", brand: "LINK", price: "⃁ 308", oldPrice: "⃁ 420", offer: "1+2 Free", views: "757+", image: "/product-assets/real-products/maroon.png", hoverImage: "/product-assets/hover-products/maroon-hover.png" },
-    families: ["woody", "sweet"], bodies: ["rich"], moments: ["date", "night"], seasons: ["cool"], notes: ["خشب دافئ", "فانيلا", "عنبر"], signature: "دافئ ومعبر للحظات التي تُذكر.",
+    families: ["woody", "sweet"], bodies: ["rich"], moments: ["date", "night"], seasons: ["cool"], notes: ["Warm woods", "Vanilla", "Amber"], signature: "Warm and expressive for memorable moments.",
   },
   {
     product: { name: "Silver Woods Eau de Parfum", brand: "LINK", price: "⃁ 208", oldPrice: "⃁ 500", views: "1745+", image: "/product-assets/real-products/silver-woods.png", hoverImage: "/product-assets/hover-products/silver-woods-hover.png" },
-    families: ["woody", "fresh"], bodies: ["balanced"], moments: ["day", "date"], seasons: ["mild", "cool"], notes: ["أخشاب ناعمة", "فلفل", "مسك"], signature: "خيار متوازن ومرن بطابع راقٍ.",
+    families: ["woody", "fresh"], bodies: ["balanced"], moments: ["day", "date"], seasons: ["mild", "cool"], notes: ["Soft woods", "Pepper", "Musk"], signature: "A balanced, versatile choice with a refined character.",
   },
   {
     product: { name: "DERAAH PRIVATE Enjoy Eau de Parfum 100ml", brand: "DERAAH PRIVATE", price: "⃁ 159", oldPrice: "⃁ 378", offer: "Special Offer", views: "—", image: "/product-assets/private-555.png" },
-    families: ["sweet", "floral"], bodies: ["balanced", "rich"], moments: ["date", "night"], seasons: ["mild", "cool"], notes: ["فواكه", "زهور", "فانيلا ناعمة"], signature: "حلاوة مرحة بلمسة فاخرة ناعمة.",
+    families: ["sweet", "floral"], bodies: ["balanced", "rich"], moments: ["date", "night"], seasons: ["mild", "cool"], notes: ["Fruits", "Florals", "Soft vanilla"], signature: "Playful sweetness with a soft, luxurious touch.",
   },
   {
     product: { name: "MAIOS Aroma 100 ml", brand: "MAIOS", price: "⃁ 108", oldPrice: "⃁ 268", offer: "Save later", views: "—", image: "/product-assets/misk-toffee.png" },
-    families: ["sweet", "fresh"], bodies: ["light", "balanced"], moments: ["day"], seasons: ["warm", "mild"], notes: ["مسك", "حلاوة خفيفة", "بودرة"], signature: "ناعم ومريح وقريب من البشرة.",
+    families: ["sweet", "fresh"], bodies: ["light", "balanced"], moments: ["day"], seasons: ["warm", "mild"], notes: ["Musk", "Light sweetness", "Powder"], signature: "Soft, comforting and close to the skin.",
   },
   {
     product: { name: "PROUD Suave Perfume", brand: "PROUD", price: "⃁ 294", oldPrice: "⃁ 420", offer: "1+2 Free", views: "—", image: "/product-assets/leader.png" },
-    families: ["fresh", "woody"], bodies: ["balanced", "rich"], moments: ["day", "night"], seasons: ["mild", "cool"], notes: ["حمضيات", "أخشاب", "باتشولي"], signature: "نظيف وواثق بنهاية مصقولة.",
+    families: ["fresh", "woody"], bodies: ["balanced", "rich"], moments: ["day", "night"], seasons: ["mild", "cool"], notes: ["Citrus", "Woods", "Patchouli"], signature: "Clean and confident with a polished finish.",
   },
   {
     product: { name: "LINK Pedestal Extrait 100 ml", brand: "LINK", price: "⃁ 348", oldPrice: "⃁ 696", offer: "Signature", views: "—", image: "/product-assets/real-products/link-white.jpg" },
-    families: ["woody", "sweet"], bodies: ["rich"], moments: ["date", "night"], seasons: ["cool"], notes: ["جريب فروت", "ياسمين", "فيتيفر", "خشب الأرز"], signature: "تركيز غني وأثر أنيق للمناسبات المهمة.",
+    families: ["woody", "sweet"], bodies: ["rich"], moments: ["date", "night"], seasons: ["cool"], notes: ["Grapefruit", "Jasmine", "Vetiver", "Cedarwood"], signature: "Rich concentration with an elegant trail for important occasions.",
   },
 ];
 
@@ -120,7 +121,7 @@ function rankFragrances(family: LabFamily, body: LabBody, moment: LabMoment, sea
   return chosen.slice(0, 3).map((profile, index) => ({
     ...profile,
     fit: Math.min(97, Math.max(74, Math.round(62 + profile.score * 0.3) - index * 6)),
-    label: index === 0 ? "الأقرب لذوقك" : index === 1 ? "بديل متوازن" : "زاوية مختلفة",
+    label: index === 0 ? "Closest to your taste" : index === 1 ? "Balanced alternative" : "A different angle",
   }));
 }
 
@@ -166,7 +167,7 @@ function PreferenceVisual({ family, body, moment, season, step, choices, activeV
   const preferenceSummary = step === "notes" ? note.label : step === "body" ? `${note.label} · ${presence.label}` : step === "moment" ? `${note.label} · ${presence.label} · ${atmosphere.label}` : `${note.label} · ${presence.label} · ${weather.label}`;
   const activeChoice = choices.find(choice => choice.value === activeValue);
   const activeIndex = Math.max(0, choices.findIndex(choice => choice.value === activeValue));
-  const selectionKind = step === "notes" ? "الطابع" : step === "body" ? "قوة الحضور" : step === "moment" ? "المناسبة" : step === "season" ? "الأجواء" : "التفضيلات";
+  const selectionKind = step === "notes" ? "Character" : step === "body" ? "Presence" : step === "moment" ? "Occasion" : step === "season" ? "Atmosphere" : "Preferences";
   const orbitProgress = step === "notes" ? 0.25 : step === "body" ? 0.5 : step === "moment" ? 0.75 : 1;
   const orbitPositions = choices.length === 4
     ? [{ left: "-3%", top: "50%", transform: "translateY(-50%)" }, { left: "50%", top: "-3%", transform: "translateX(-50%)" }, { right: "-3%", top: "50%", transform: "translateY(-50%)" }, { left: "50%", bottom: "-3%", transform: "translateX(-50%)" }]
@@ -190,7 +191,7 @@ function PreferenceVisual({ family, body, moment, season, step, choices, activeV
         key={choice.value}
         type="button"
         onClick={() => onChoose(choice.value)}
-        aria-label={`اختر ${choice.label}`}
+        aria-label={`Choose ${choice.label}`}
         aria-pressed={activeValue === choice.value}
         className={`absolute z-10 flex h-[58px] w-[58px] flex-col items-center justify-center rounded-full border text-center font-semibold transition duration-300 hover:-translate-y-1 sm:h-[76px] sm:w-[76px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d6a4b9] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${activeValue === choice.value ? "scale-110 border-[#d6a4b9] bg-white/15 text-white shadow-[0_0_0_5px_rgba(214,164,185,.18),0_14px_28px_rgba(0,0,0,.35)]" : "border-white/35 bg-black/75 text-white shadow-[0_10px_20px_rgba(0,0,0,.28)]"}`}
         style={orbitPositions[index]}
@@ -217,7 +218,7 @@ function PreferenceVisual({ family, body, moment, season, step, choices, activeV
         </div>
       </div>
     </div>
-    <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/30 bg-black/90 px-3.5 py-2 text-[11px] font-bold tracking-[.01em] text-white shadow-[0_8px_20px_rgba(0,0,0,.35)] sm:text-xs"><span className="inline-flex items-center gap-1.5"><Sparkles size={13} /> {step === "result" ? `التفضيلات: ${preferenceSummary}` : activeChoice ? `${selectionKind}: ${activeChoice.label}` : "ابدأ باختيار تفضيل"}</span><span className="h-3.5 w-px bg-white/25" /><span className="text-white/65">{step === "result" ? "4 / 4" : activeChoice ? `${activeIndex + 1} / ${choices.length}` : `0 / ${choices.length}`}</span></div>
+      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/30 bg-black/90 px-3.5 py-2 text-[11px] font-bold tracking-[.01em] text-white shadow-[0_8px_20px_rgba(0,0,0,.35)] sm:text-xs"><span className="inline-flex items-center gap-1.5"><Sparkles size={13} /> {step === "result" ? `Preferences: ${preferenceSummary}` : activeChoice ? `${selectionKind}: ${activeChoice.label}` : "Start by choosing a preference"}</span><span className="h-3.5 w-px bg-white/25" /><span className="text-white/65">{step === "result" ? "4 / 4" : activeChoice ? `${activeIndex + 1} / ${choices.length}` : `0 / ${choices.length}`}</span></div>
   </div>;
 }
 
@@ -285,32 +286,34 @@ export default function FragranceLab({ onFavorite, favorites }: { onAdd: (produc
     else if (step === "season") setStep("moment");
   };
 
-  return <section id="fragrance-lab" dir="rtl" aria-labelledby="fragrance-lab-title" className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+  const { direction } = useStoreLocale();
+
+  return <section id="fragrance-lab" dir={direction} aria-labelledby="fragrance-lab-title" className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
     <style>{`@keyframes fragrance-lab-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fragrance-lab-pulse{0%,100%{transform:scale(.9);opacity:.75}50%{transform:scale(1.25);opacity:1}}@keyframes fragrance-lab-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}@keyframes fragrance-lab-orbit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}@keyframes fragrance-lab-bottle-prism{0%,9%{opacity:0;transform:scale(.9) translateY(10px);clip-path:circle(0% at 50% 84%)}18%{opacity:.92;transform:scale(.98) translateY(2px);clip-path:circle(34% at 50% 72%)}31%,42%{opacity:1;transform:scale(1) translateY(0);clip-path:circle(115% at 50% 50%)}52%{opacity:0;transform:scale(1.045) translateY(-7px);clip-path:circle(0% at 50% 18%)}53%,100%{opacity:0;transform:scale(1.045) translateY(-7px);clip-path:circle(0% at 50% 18%)}}@keyframes fragrance-lab-bottle-shine{0%,100%{opacity:0;background-position:170% 0}18%{opacity:.45}42%{opacity:.8;background-position:-70% 0}58%,100%{opacity:0;background-position:-70% 0}}.fragrance-lab-spin{animation:fragrance-lab-spin 18s linear infinite}.fragrance-lab-pulse{animation:fragrance-lab-pulse 2.8s ease-in-out infinite}.fragrance-lab-float{animation:fragrance-lab-float 4.5s ease-in-out infinite}.fragrance-lab-orbit-float{animation:fragrance-lab-orbit-float 6s ease-in-out infinite}.fragrance-lab-bottle-variant{opacity:0;animation:fragrance-lab-bottle-prism 10s cubic-bezier(.22,.8,.22,1) infinite;will-change:opacity,transform,clip-path}.fragrance-lab-bottle-shine{background:linear-gradient(108deg,transparent 32%,rgba(255,255,255,.08) 41%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.1) 59%,transparent 68%);background-size:220% 100%;background-position:170% 0;mix-blend-mode:screen;animation:fragrance-lab-bottle-shine 4.8s ease-in-out infinite;will-change:background-position,opacity;-webkit-mask-image:url('/product-assets/fragrance-lab/3d/private-02.png');mask-image:url('/product-assets/fragrance-lab/3d/private-02.png');-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:100% 100%;mask-size:100% 100%}@media (prefers-reduced-motion:reduce){.fragrance-lab-spin,.fragrance-lab-pulse,.fragrance-lab-float,.fragrance-lab-orbit-float,.fragrance-lab-bottle-shine{animation:none}.fragrance-lab-bottle-variant{animation:none;opacity:0}.fragrance-lab-progress{transition:none!important}}`}</style>
     <style>{`@keyframes fragrance-lab-bottle-zoom-switch{0%{opacity:0;filter:blur(1.6px);transform:translate3d(0,-9px,0) scale(1.22)}12%{opacity:.9;filter:blur(.45px);transform:translate3d(0,-4px,0) scale(1.08)}22%{opacity:1;filter:blur(0);transform:translate3d(0,0,0) scale(1)}64%{opacity:1;filter:blur(0);transform:translate3d(0,0,0) scale(1)}82%{opacity:.72;filter:blur(.45px);transform:translate3d(0,1px,0) scale(.9)}100%{opacity:0;filter:blur(1.8px);transform:translate3d(0,2px,0) scale(.72)}}.fragrance-lab-bottle-flip{animation:fragrance-lab-bottle-zoom-switch 2.05s cubic-bezier(.22,.72,.3,1) both;backface-visibility:visible;transform-style:preserve-3d;transform-origin:center;will-change:transform,opacity,filter}.fragrance-lab-bottle-depth{backface-visibility:hidden;transform-style:preserve-3d}@media (prefers-reduced-motion:reduce){.fragrance-lab-bottle-flip{animation:none;opacity:1;transform:none}}`}</style>
     <div id="fragrance-lab-title" className="grid overflow-hidden rounded-[24px] border border-[#eadfe0] bg-white shadow-[0_24px_70px_rgba(75,39,53,.10)] lg:grid-cols-[.92fr_1.08fr]">
           <div className="relative overflow-visible bg-black px-5 py-7 text-white sm:px-10 sm:py-10">
             <div className="relative">
-              <p className="max-w-[320px] text-[15px] font-semibold leading-7 text-white/80 sm:text-base">اختر تفضيلاتك لنرشح لك العطر الأقرب.</p>
+              <p className="max-w-[320px] text-[15px] font-semibold leading-7 text-white/80 sm:text-base">Choose your preferences and we'll recommend the closest fragrance.</p>
               <div className="mt-6"><PreferenceVisual family={preferenceFamily} body={preferenceBody} moment={preferenceMoment} season={preferenceSeason} step={step} choices={activeChoices} activeValue={activeValue} onChoose={choose} /></div>
-              {step === "result" && <button type="button" onClick={reset} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-white/15"><RotateCcw size={14} /> اختيار تفضيلات جديدة</button>}
+              {step === "result" && <button type="button" onClick={reset} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-white/15"><RotateCcw size={14} /> Choose new preferences</button>}
             </div>
           </div>
 
           <div className="flex min-h-[440px] flex-col justify-between p-5 sm:p-8">
             <div>{step !== "result" ? <>
-              <div className="flex items-center justify-between gap-4"><span className="text-[10px] font-bold tracking-[.12em] text-[#a35a71]">الخطوة {progress} من 4</span><button type="button" onClick={goBack} disabled={step === "notes"} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8d3150] transition-opacity disabled:pointer-events-none disabled:opacity-0"><ArrowRight size={12} /> رجوع</button></div>
-              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{step === "notes" ? "ما الطابع الذي تفضله؟" : step === "body" ? "كيف تحب أن يفوح؟" : step === "moment" ? "لأي مناسبة تبحث؟" : "أي أجواء تشبهك؟"}</h3>
-              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">{step === "notes" ? "اختر النمط الأقرب لذوقك." : step === "body" ? "حدد قوة الحضور التي تفضلها." : step === "moment" ? "اختر المناسبة التي تبحث لها عن عطر." : "اختر الأجواء التي تناسبك."}</p>
+              <div className="flex items-center justify-between gap-4"><span className="text-[10px] font-bold tracking-[.12em] text-[#a35a71]">Step {progress} of 4</span><button type="button" onClick={goBack} disabled={step === "notes"} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8d3150] transition-opacity disabled:pointer-events-none disabled:opacity-0"><ArrowRight size={12} /> Back</button></div>
+              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{step === "notes" ? "Which character do you prefer?" : step === "body" ? "How would you like it to wear?" : step === "moment" ? "What occasion are you shopping for?" : "Which atmosphere feels like you?"}</h3>
+              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">{step === "notes" ? "Choose the style closest to your taste." : step === "body" ? "Set the presence you prefer." : step === "moment" ? "Choose the occasion you are shopping for." : "Choose the atmosphere that suits you."}</p>
             </> : <>
-              <div className="flex items-center gap-2 text-[#8d3150]"><span className="grid h-8 w-8 place-items-center rounded-full bg-[#f7e8ed]"><Check size={15} /></span><p className="text-[10px] font-bold tracking-[.12em]">اختياراتك جاهزة</p></div>
-              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">ثلاثة عطور تناسب ذوقك</h3>
-              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">من مئات العطور، رشحنا لك الأقرب بناءً على تفضيلاتك في الطابع والحضور والمناسبة والأجواء.</p>
-              <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#f7e8ed] px-3 py-2 text-[10px] font-semibold text-[#8d3150]">{noteChoices.find(choice => choice.value === family)?.sublabel}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">حضور {bodyChoices.find(choice => choice.value === body)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{momentChoices.find(choice => choice.value === moment)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">جو {seasonChoices.find(choice => choice.value === season)?.label}</span></div>
+              <div className="flex items-center gap-2 text-[#8d3150]"><span className="grid h-8 w-8 place-items-center rounded-full bg-[#f7e8ed]"><Check size={15} /></span><p className="text-[10px] font-bold tracking-[.12em]">Your picks are ready</p></div>
+              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">Three fragrances for your taste</h3>
+              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">From hundreds of fragrances, we selected the closest matches based on your character, presence, occasion and atmosphere.</p>
+              <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#f7e8ed] px-3 py-2 text-[10px] font-semibold text-[#8d3150]">{noteChoices.find(choice => choice.value === family)?.sublabel}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">Presence {bodyChoices.find(choice => choice.value === body)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{momentChoices.find(choice => choice.value === moment)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">Atmosphere {seasonChoices.find(choice => choice.value === season)?.label}</span></div>
               <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">{products.map(profile => <FavoriteStyleProductCard key={profile.product.name} product={profile.product} label={profile.label} fit={profile.fit} signature={profile.signature} favorite={favorites.includes(profile.product.name)} onFavorite={() => onFavorite(profile.product)} />)}</div>
             </>}</div>
 
-            {step !== "result" && <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee2e0] pt-5"><span className="text-[10px] text-[#9a858b]">{activeValue ? "اضغط على نقطة للمتابعة." : "ابدأ باختيار نقطة من الدائرة."}</span><span className="flex items-center gap-1.5">{[1, 2, 3, 4].map(item => <i key={item} className={`h-1.5 rounded-full transition-all ${item < progress || (item === progress && Boolean(activeValue)) ? "w-7 bg-[#8d3150]" : "w-2 bg-[#eadfe0]"}`} />)}</span></div>}
+            {step !== "result" && <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee2e0] pt-5"><span className="text-[10px] text-[#9a858b]">{activeValue ? "Tap a point to continue." : "Start by choosing a point on the circle."}</span><span className="flex items-center gap-1.5">{[1, 2, 3, 4].map(item => <i key={item} className={`h-1.5 rounded-full transition-all ${item < progress || (item === progress && Boolean(activeValue)) ? "w-7 bg-[#8d3150]" : "w-2 bg-[#eadfe0]"}`} />)}</span></div>}
           </div>
     </div>
   </section>;

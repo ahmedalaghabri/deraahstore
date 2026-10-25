@@ -1,4 +1,4 @@
-import type { StoreCartItem } from "./StoreCartContext";
+import { isGiftCustomizationItem, type StoreCartItem } from "./StoreCartContext";
 
 export const RIYAL = "⃁";
 export const formatPrice = (value: number | string) => `${RIYAL} ${value}`;
@@ -61,6 +61,16 @@ export function getGiftOfferForProduct(productName: string): StoreGiftOffer | nu
 export function getGiftSelectionLimit(item: Pick<StoreCartItem, "name" | "quantity">): number {
   const offer = getGiftOfferForProduct(item.name);
   return offer ? offer.maxSelectionsPerUnit * Math.max(1, item.quantity) : 0;
+}
+
+export function getFreeUnitsByItem(items: Array<Pick<StoreCartItem, "id" | "name" | "price" | "quantity">>) {
+  const units = items.filter(item => !isGiftCustomizationItem(item)).flatMap(item => Array.from({ length: item.quantity }, () => ({ id: item.id, price: Number(item.price.replace(/[^0-9]/g, "")) })));
+  const freeUnits = new Map<string, number>();
+  units.sort((a, b) => b.price - a.price);
+  for (let index = 0; index + 2 < units.length; index += 3) {
+    for (const unit of [units[index + 1], units[index + 2]]) freeUnits.set(unit.id, (freeUnits.get(unit.id) ?? 0) + 1);
+  }
+  return freeUnits;
 }
 
 export const cartRewardStages = [

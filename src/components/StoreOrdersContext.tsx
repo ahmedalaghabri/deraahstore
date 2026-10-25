@@ -15,6 +15,8 @@ export type StoreOrder = {
   placedAt: string;
   status: "Delivered" | "On the way" | "Preparing";
   items: StoreOrderItem[];
+  giftSelections?: Record<string, string[]>;
+  freeSample?: { name: string; image: string };
   total: number;
 };
 
@@ -53,11 +55,19 @@ function normalizeOrder(value: unknown): StoreOrder | null {
   });
   if (!items.length && item.id !== "DRH-000000") return null;
   const status = item.status === "Delivered" || item.status === "Preparing" ? item.status : "On the way";
+  const giftSelections = item.giftSelections && typeof item.giftSelections === "object" && !Array.isArray(item.giftSelections)
+    ? Object.fromEntries(Object.entries(item.giftSelections as Record<string, unknown>).map(([itemId, giftIds]) => [itemId, Array.isArray(giftIds) ? giftIds.filter((giftId): giftId is string => typeof giftId === "string") : []]))
+    : undefined;
+  const freeSample = item.freeSample && typeof item.freeSample === "object" && !Array.isArray(item.freeSample)
+    ? { name: String((item.freeSample as Record<string, unknown>).name ?? "Free sample"), image: typeof (item.freeSample as Record<string, unknown>).image === "string" ? (item.freeSample as Record<string, unknown>).image as string : "" }
+    : undefined;
   return {
     id: item.id,
     placedAt: typeof item.placedAt === "string" ? item.placedAt : new Date().toISOString(),
     status,
     items,
+    ...(giftSelections ? { giftSelections } : {}),
+    ...(freeSample ? { freeSample } : {}),
     total: Number(item.total) || 0,
   };
 }

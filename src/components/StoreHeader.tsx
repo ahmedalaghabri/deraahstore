@@ -13,6 +13,91 @@ import OrderItemsPreview from "./OrderItemsPreview";
 import SwipeToast from "./SwipeToast";
 
 const categories = CATEGORY_GROUPS.map(category => category.name);
+const arabicHeaderCategoryLabels: Record<string, string> = {
+  Perfumes: "العطــور",
+  Oud: "العــود",
+  Gifts: "الهــدايا",
+  "Hair Care": "العنــاية بالشعر",
+  Accessories: "الإكسســوارات",
+  "Body Care": "العنــاية بالجسم",
+  "Home Care": "العنــاية بالمنزل",
+  Offers: "العــروض",
+};
+
+function headerCategoryLabel(category: string, language: StoreLanguage) {
+  return language === "العربية" ? (arabicHeaderCategoryLabels[category] ?? category) : category;
+}
+
+const arabicHeaderSubcategoryLabels: Record<string, string> = {
+  "Niche perfumes": "عطــور نيش",
+  "Men Perfumes": "عطــور رجالية",
+  "Unisex Perfumes": "عطــور للجنسين",
+  "Women Perfumes": "عطــور نسائية",
+  "Gifts for all occasions": "هــدايا لكل المناسبات",
+  "All Perfumes": "كل العطــور",
+  "Oriental Perfumes": "عطــور شرقية",
+  "Oud And Incense": "العــود والبخور",
+  steamers: "مبــخرات",
+  Crews: "خلطــات",
+  "Bedspread Fresheners": "معطــرات المفارش",
+  Mixtures: "خلطــات",
+  "Oud-Hair-Fresheners": "معطــرات الشعر بالعود",
+  "Oud Oil": "زيــت العود",
+  "BODY MIST": "رذاذ الجسم",
+  "Al Sadu Collection": "مجمــوعة السدو",
+  "Gifts For Men": "هــدايا للرجال",
+  "Gifts For Women": "هــدايا للنساء",
+  "Unisex Gifts": "هــدايا للجنسين",
+  "Permanent Natural Rose": "ورد طبيعي محفوظ",
+  "gift box": "علــبة هدايا",
+  "Perfume gifts": "هــدايا العطور",
+  "Oud sets": "مجمــوعات العود",
+  "Accessory sets": "مجمــوعات الإكسسوارات",
+  Ceramic: "سيرامــيك",
+  curly: "الشعر الكيرلي",
+  dryer: "مجففــات الشعر",
+  Stylist: "أدوات التصفــيف",
+  "Hair products": "منتجــات الشعر",
+  "Argan Set": "مجمــوعة الأرجان",
+  "Coloured Hair": "الشعر المصبــوغ",
+  "Keratin Set": "مجمــوعة الكيراتين",
+  "Wavy Hair": "الشعر الممــوج",
+  "Men Accessories": "إكسســوارات الرجال",
+  "Women-Accessories": "إكسســوارات النساء",
+  "Men-Watches": "ساعــات الرجال",
+  Sunglasses: "نظــارات شمسية",
+  Stick: "أعــواد",
+  Silver: "فضيــات",
+  Cufflinks: "أزرار أكمــام",
+  "Men-Rings": "خواتــم الرجال",
+  "Men-Sets": "مجمــوعات الرجال",
+  "Men-Wallet": "محــافظ الرجال",
+  Pens: "أقــلام",
+  Rosary: "مســابح",
+  "Shemagh and ghutra": "شمــاغ وغترة",
+  "PROUD HAND BAG": "حقيبــة براود",
+  "Women Bags": "حقــائب النساء",
+  "Women-Sets": "مجمــوعات النساء",
+  "Women-Watches": "ساعــات النساء",
+  glasses: "نظــارات",
+  "Deraah-Home": "درعه للمنزل",
+  "Air fresheners": "معطــرات الجو",
+  "Scented Candles": "شمــوع معطرة",
+  "Room Spray": "بخــاخ الغرف",
+  "Reed Diffuser": "موزع عطري بالأعــواد",
+  Labeaute: "لابــوتيه",
+  "Body-Butter": "زبدة الجسم",
+  "Body Fresheners": "معطــرات الجسم",
+  "Body Lotion": "لوشــن الجسم",
+  "Toilet Perfumes": "عطــور التواليت",
+  "Hair Fresheners": "معطــرات الشعر",
+  "Shower Gel": "جل الاستحمــام",
+};
+
+function headerSubcategoryLabel(category: string, language: StoreLanguage) {
+  return language === "العربية" ? (arabicHeaderSubcategoryLabels[category] ?? category) : category;
+}
+
 const countryOptions: Array<{ value: StoreCountry; label: string; shortLabel: string; englishLabel: string; flag: string; currency: string; languages: Array<{ value: StoreLanguage; label: string; ariaLabel: string }> }> = [
   { value: "Saudi Arabia", label: "المملكة العربية السعودية", shortLabel: "Saudi", englishLabel: "Saudi Arabia", flag: "🇸🇦", currency: "SAR", languages: [{ value: "English", label: "English", ariaLabel: "English" }, { value: "العربية", label: "عربي", ariaLabel: "Arabic" }, { value: "বাংলা", label: "বাংলা", ariaLabel: "Bengali" }] },
   { value: "United Arab Emirates", label: "الإمارات العربية المتحدة", shortLabel: "UAE", englishLabel: "United Arab Emirates", flag: "🇦🇪", currency: "AED", languages: [{ value: "English", label: "English", ariaLabel: "English" }, { value: "العربية", label: "عربي", ariaLabel: "Arabic" }] },
@@ -318,11 +403,13 @@ function AccountEmptyPanel({ view, onClose, onOpenAuth }: { view: AccountEmptyVi
 }
 
 function HeaderAccountMenu({ authenticated, open, onToggle, onOpenAuth, onOpenView, onLogout }: { authenticated: boolean; open: boolean; onToggle: () => void; onOpenAuth: (mode: AuthMode) => void; onOpenView: (view: AccountEmptyView) => void; onLogout: () => void }) {
+  const { language } = useStoreLocale();
+  const isArabic = language === "العربية";
   return <div className="relative shrink-0">
-    <button type="button" onClick={onToggle} aria-label={authenticated ? "My account" : "Account"} aria-expanded={open} className={authenticated ? "inline-flex h-10 items-center gap-1 border-s border-[#e6e2de] px-3 text-[12px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3]" : "grid h-10 w-10 place-items-center text-[#171717] transition-opacity hover:opacity-60"}>
-      {authenticated ? <>My account <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform ${open ? "rotate-180" : ""}`} /></> : <img src="/product-assets/icons/account.svg" alt="" className="h-[18px] w-[18px]" />}
+    <button type="button" onClick={onToggle} aria-label={authenticated ? (isArabic ? "حسابي" : "My account") : (isArabic ? "الحساب" : "Account")} aria-expanded={open} className={authenticated ? "inline-flex h-10 items-center gap-1 border-s-[#e6e2de] px-3 text-[12px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3]" : "grid h-10 w-10 place-items-center text-[#171717] transition-opacity hover:opacity-60"}>
+      {authenticated ? <>{isArabic ? "حسابي" : "My account"} <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform ${open ? "rotate-180" : ""}`} /></> : <img src="/product-assets/icons/account.svg" alt="" className="h-[18px] w-[18px]" />}
     </button>
-    {open && <><button type="button" aria-label="Close account menu" className="fixed inset-0 z-[40] cursor-default" onClick={onToggle} /><div role="menu" aria-label="Account menu" className="absolute end-0 top-12 z-[50] w-56 overflow-hidden rounded-2xl border border-[#e5e9ee] bg-white p-2 text-start shadow-[0_18px_40px_rgba(15,23,42,.14)]">
+    {open && <><button type="button" aria-label={isArabic ? "إغلاق قائمة الحساب" : "Close account menu"} className="fixed inset-0 z-[40] cursor-default" onClick={onToggle} /><div role="menu" aria-label={isArabic ? "قائمة الحساب" : "Account menu"} className="absolute end-0 top-12 z-[50] w-56 overflow-hidden rounded-2xl border border-[#e5e9ee] bg-white p-2 text-start shadow-[0_18px_40px_rgba(15,23,42,.14)]">
       {!authenticated ? <>
         <button type="button" role="menuitem" onClick={() => onOpenAuth("login")} className="w-full rounded-xl px-3 py-3 text-start text-xs font-medium text-[#252a30] transition-colors hover:bg-[#f4f6f8]">Log in</button>
         <button type="button" role="menuitem" onClick={() => onOpenAuth("register")} className="w-full rounded-xl px-3 py-3 text-start text-xs font-medium text-[#252a30] transition-colors hover:bg-[#f4f6f8]">Register</button>
@@ -554,10 +641,10 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
   const mobileCategoryData = CATEGORY_GROUPS.find(category => category.name === mobileCategoryName) ?? CATEGORY_GROUPS[0];
   const visibleMobileCategoryItems = (mobileCategoryData?.items ?? []).filter(item => item.toLowerCase().includes(mobileCategorySearch.trim().toLowerCase()));
   const activeCategoryData = CATEGORY_GROUPS.find(category => category.name === activeCategory);
-  const activeCategoryPanel = activeCategoryData && <div className="absolute start-0 top-full z-30 mt-[2px] hidden w-full overflow-hidden rounded-[28px] border border-white/75 bg-white/95 text-[#161616] shadow-[0_18px_35px_rgba(0,0,0,.12)] md:block"><div className="mx-auto max-w-[1200px] px-6 py-5"><div className="mb-4 flex items-center justify-between border-b border-[#ececef] pb-3"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#9a9ca2]">Explore subcategories</p><div className="flex items-center gap-2"><a href={activeCategoryData.name === "Gifts" ? "/gifts" : `/category?category=${encodeURIComponent(activeCategoryData.name)}`} onClick={() => setActiveCategory(null)} className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-[#242225] no-underline transition-colors hover:bg-[#f1f2f3] hover:text-[#9a5a2e]">View all <ArrowRight size={13} /></a><button type="button" onClick={() => setActiveCategory(null)} aria-label="Close categories" className="rounded-full px-3 py-1 text-xs text-[#737782] transition-colors hover:bg-[#f1f2f3]">Close ×</button></div></div><section aria-label={activeCategoryData.name}><ul className="grid grid-cols-4 content-start gap-x-3 gap-y-2">{activeCategoryData.items.map((link, index) => <li key={link}><a href={`/category?category=${encodeURIComponent(activeCategoryData.name)}&subcategory=${encodeURIComponent(link)}`} onClick={() => setActiveCategory(null)} className="group flex flex-col items-center gap-3 rounded-xl px-2 py-2 text-center text-[#555861] no-underline transition-colors hover:bg-[#f1f2f3] hover:text-[#202125]"><span className="flex aspect-square h-auto w-full max-w-[104px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent mix-blend-multiply transition-transform duration-200 group-hover:scale-[1.03]"><img src={getCategoryItemImage(activeCategoryData.name, link, index, activeCategoryData.image)} alt="" className="h-full w-full object-contain" /></span><span className="text-center text-xs font-semibold leading-4">{link}</span></a></li>)}</ul></section></div></div>;
+  const activeCategoryPanel = activeCategoryData && <div className="absolute start-0 top-full z-30 mt-[2px] hidden w-full overflow-hidden rounded-[28px] border border-white/75 bg-white/95 text-[#161616] shadow-[0_18px_35px_rgba(0,0,0,.12)] md:block"><div className="mx-auto max-w-[1200px] px-6 py-5"><div className="mb-4 flex items-center justify-between border-b border-[#ececef] pb-3"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#9a9ca2]">Explore subcategories</p><div className="flex items-center gap-2"><a href={activeCategoryData.name === "Gifts" ? "/gifts" : `/category?category=${encodeURIComponent(activeCategoryData.name)}`} onClick={() => setActiveCategory(null)} className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-[#242225] no-underline transition-colors hover:bg-[#f1f2f3] hover:text-[#9a5a2e]">View all <ArrowRight size={13} /></a><button type="button" onClick={() => setActiveCategory(null)} aria-label="Close categories" className="rounded-full px-3 py-1 text-xs text-[#737782] transition-colors hover:bg-[#f1f2f3]">Close ×</button></div></div><section aria-label={activeCategoryData.name}><ul className="grid grid-cols-4 content-start gap-x-3 gap-y-2">{activeCategoryData.items.map((link, index) => <li key={link}><a href={`/category?category=${encodeURIComponent(activeCategoryData.name)}&subcategory=${encodeURIComponent(link)}`} onClick={() => setActiveCategory(null)} className="group flex flex-col items-center gap-3 rounded-xl px-2 py-2 text-center text-[#555861] no-underline transition-colors hover:bg-[#f1f2f3] hover:text-[#202125]"><span className="flex aspect-square h-auto w-full max-w-[104px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent mix-blend-multiply transition-transform duration-200 group-hover:scale-[1.03]"><img src={getCategoryItemImage(activeCategoryData.name, link, index, activeCategoryData.image)} alt="" className="h-full w-full object-contain" /></span><span className={`text-center text-xs leading-4 ${language === "العربية" ? "font-light" : "font-semibold"}`}>{headerSubcategoryLabel(link, language)}</span></a></li>)}</ul></section></div></div>;
 
   return (
-    <header dir={direction} onMouseLeave={() => setActiveCategory(null)} className={`${overlay ? "fixed inset-x-0 top-[22px] z-40 bg-transparent text-[#171717] shadow-none" : "relative z-20 bg-transparent pb-4 pt-[22px] text-[#171717]"} translate-y-0 transition-transform duration-300 ease-out`}>
+    <header dir={direction} data-store-overlay={overlay ? "true" : undefined} onMouseLeave={() => setActiveCategory(null)} className={`${overlay ? "fixed inset-x-0 top-[22px] z-40 bg-transparent text-[#171717] shadow-none" : "relative z-20 bg-transparent pb-4 pt-[22px] text-[#171717]"} translate-y-0 transition-transform duration-300 ease-out`}>
       <div className="hidden">
         <div className="flex h-full items-center gap-5">
           <div className="relative">
@@ -578,17 +665,17 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
         </div>
       </div>
 
-      <div className={`relative mx-auto flex h-[52px] items-center gap-4 ${overlay ? `pointer-events-auto mx-4 w-[calc(100%_-_2rem)] max-w-none rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none ${isScrolled ? "max-md:mx-auto max-md:w-fit max-md:gap-0 max-md:px-2" : ""}` : "mx-4 w-[calc(100%_-_2rem)] rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none"}`}>
+      <div data-store-header-shell className={`relative mx-auto flex h-[52px] items-center gap-4 ${overlay ? `pointer-events-auto mx-4 w-[calc(100%_-_2rem)] max-w-none rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none ${isScrolled ? "max-md:mx-auto max-md:w-fit max-md:gap-0 max-md:px-2" : ""}` : "mx-4 w-[calc(100%_-_2rem)] rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none"}`}>
         <div className={`static flex h-full min-w-0 items-center gap-2 overflow-visible transition-[flex-basis,width,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-[flex-basis,width,opacity] md:relative md:flex-1 md:overflow-visible md:rounded-full md:border md:border-white/75 md:bg-white/95 md:px-4 md:shadow-[0_12px_35px_rgba(24,20,16,.14)] ${overlay && isScrolled ? "max-md:w-0 max-md:opacity-0" : ""}`}>
           <button type="button" onClick={() => setNotificationsOpen(true)} aria-label="Notifications" title="Notifications" className="grid h-10 w-10 place-items-center text-[#171717] md:hidden"><Bell size={22} strokeWidth={1.5} /></button>
           <a href="/" aria-label="Deraah home" className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 no-underline transition-opacity duration-500 md:relative md:left-auto md:top-auto md:order-first md:translate-x-0 md:translate-y-0 ${overlay && isScrolled ? "max-md:pointer-events-none max-md:opacity-0" : ""}`}><img src="/product-assets/deraah-wordmark.svg" alt="DERAAH" className="h-[36px] w-[86px] object-contain md:ms-[12px] md:h-[27.06px] md:w-[82px]" /></a>
           <div className="relative hidden h-10 min-w-0 flex-1 md:block">
             <nav aria-label="Main navigation" aria-hidden={overlay && isScrolled} className={`absolute inset-0 flex min-w-0 items-center gap-0 overflow-hidden whitespace-nowrap ps-3 pe-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-[opacity,transform] md:me-0 md:justify-between md:pe-0 md:ps-[68px] ${overlay && isScrolled ? "pointer-events-none z-0 -translate-y-2 opacity-0" : "z-10 translate-y-0 opacity-100"}`}>
-              {categories.filter(category => category !== "Home Care").slice(0, 6).map(category => <button key={category} type="button" aria-expanded={activeCategory === category} onMouseEnter={() => setActiveCategory(category)} onFocus={() => setActiveCategory(category)} onClick={() => setActiveCategory(activeCategory === category ? null : category)} className="inline-flex h-10 items-center gap-1 rounded-full px-2 text-[13px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171717]/20"><span>{category}</span><ChevronDown size={12} strokeWidth={1.5} className={`transition-transform ${activeCategory === category ? "rotate-180" : ""}`} /></button>)}
-              <button type="button" aria-expanded={activeCategory === "Home Care"} onMouseEnter={() => setActiveCategory("Home Care")} onFocus={() => setActiveCategory("Home Care")} onClick={() => setActiveCategory(activeCategory === "Home Care" ? null : "Home Care")} className="inline-flex h-10 items-center gap-1 rounded-full px-2 text-[13px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171717]/20"><span>Home Care</span><ChevronDown size={12} strokeWidth={1.5} className={`transition-transform ${activeCategory === "Home Care" ? "rotate-180" : ""}`} /></button>
-              <a href="#gift-offers" className="inline-flex h-10 items-center rounded-full px-2 text-[13px] font-normal text-[#171717] no-underline transition-colors hover:bg-[#f1f2f3]">Offers</a>
+              {categories.filter(category => category !== "Home Care").slice(0, 6).map(category => <button key={category} type="button" aria-expanded={activeCategory === category} onMouseEnter={() => setActiveCategory(category)} onFocus={() => setActiveCategory(category)} onClick={() => setActiveCategory(activeCategory === category ? null : category)} className={`inline-flex h-10 items-center gap-1 rounded-full px-2 text-[13px] ${direction === "rtl" ? "font-light" : "font-normal"} text-[#171717] transition-colors hover:bg-[#f1f2f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171717]/20`}><span>{headerCategoryLabel(category, language)}</span><ChevronDown size={12} strokeWidth={1.5} className={`transition-transform ${activeCategory === category ? "rotate-180" : ""}`} /></button>)}
+              <button type="button" aria-expanded={activeCategory === "Home Care"} onMouseEnter={() => setActiveCategory("Home Care")} onFocus={() => setActiveCategory("Home Care")} onClick={() => setActiveCategory(activeCategory === "Home Care" ? null : "Home Care")} className={`inline-flex h-10 items-center gap-1 rounded-full px-2 text-[13px] ${direction === "rtl" ? "font-light" : "font-normal"} text-[#171717] transition-colors hover:bg-[#f1f2f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171717]/20`}><span>{headerCategoryLabel("Home Care", language)}</span><ChevronDown size={12} strokeWidth={1.5} className={`transition-transform ${activeCategory === "Home Care" ? "rotate-180" : ""}`} /></button>
+              <a href="#gift-offers" className={`inline-flex h-10 items-center rounded-full px-2 text-[13px] ${direction === "rtl" ? "font-light" : "font-normal"} text-[#171717] no-underline transition-colors hover:bg-[#f1f2f3]`}>{headerCategoryLabel("Offers", language)}</a>
             </nav>
-            <div aria-hidden={!(overlay && isScrolled)} className={`absolute inset-0 flex min-w-0 items-center gap-1 overflow-hidden border-s-0 border-[#e3e3e3] bg-transparent ps-3 transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-transform ${overlay && isScrolled ? "z-10 translate-y-0 border-s" : "pointer-events-none z-0 translate-y-2"}`}>
+            <div data-store-header-search-switch aria-hidden={!(overlay && isScrolled)} className={`absolute inset-0 flex min-w-0 items-center gap-1 overflow-hidden border-s-0 border-[#e3e3e3] bg-transparent ps-3 transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-transform ${overlay && isScrolled ? "z-10 translate-y-0 border-s" : "pointer-events-none z-0 translate-y-2"}`}>
               <div className={`flex min-w-0 flex-1 items-center gap-1 transition-[opacity,transform] duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-[opacity,transform] ${overlay && isScrolled ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0"}`}>
                 <button type="button" onClick={() => openSearch()} aria-label="Search products" className="flex min-w-0 flex-1 items-center gap-2 text-start text-[13px] text-[#757575] transition-colors hover:text-[#171717]">
                   <img src="/product-assets/icons/search.svg" alt="" className="h-[17px] w-[17px] shrink-0 opacity-70" />
@@ -634,7 +721,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
             </div>
             <div className="store-category-menu-body flex min-h-0 flex-1">
               <nav aria-label="Mobile category navigation" className="w-[116px] shrink-0 overflow-y-auto bg-white/85 md:w-[174px] md:pl-[21px]">
-                {categories.map(category => <button key={category} type="button" onClick={() => { setMobileCategoryName(category); setMobileCategorySearch(""); }} className={`flex min-h-[57px] w-full items-center px-2.5 text-start text-[12px] leading-4 transition-colors md:min-h-[64px] md:w-[177px] md:px-[18px] md:text-[14px] md:font-medium md:leading-5 ${mobileCategoryName === category ? "bg-[#f5f5f5] font-medium text-[#24272d]" : "font-normal text-[#34383f] hover:bg-[#fafafa]"}`}>{category}</button>)}
+                {categories.map(category => <button key={category} type="button" onClick={() => { setMobileCategoryName(category); setMobileCategorySearch(""); }} className={`flex min-h-[57px] w-full items-center px-2.5 text-start text-[12px] leading-4 transition-colors md:min-h-[64px] md:w-[177px] md:px-[18px] md:text-[14px] ${mobileCategoryName === category ? `bg-[#f5f5f5] ${direction === "rtl" ? "font-normal" : "font-medium"} text-[#24272d]` : `${direction === "rtl" ? "font-light" : "font-normal"} text-[#34383f] hover:bg-[#fafafa]`}`}>{headerCategoryLabel(category, language)}</button>)}
               </nav>
               <section aria-label={`${mobileCategoryData?.name ?? "Category"} products`} className="flex min-w-0 flex-1 flex-col overflow-hidden bg-white/85">
                 <div className="min-h-0 flex-1 overflow-y-auto px-3.5 py-5 md:px-6 md:py-6">
@@ -642,7 +729,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
                   <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-7 md:mt-8 md:gap-x-8 md:gap-y-7 md:pl-[18px]">
                     {visibleMobileCategoryItems.map((item, index) => <a key={item} href={`/category?category=${encodeURIComponent(mobileCategoryData?.name ?? "")}&subcategory=${encodeURIComponent(item)}`} onClick={closeMobileMenu} className="group flex min-w-0 flex-col items-center gap-2 rounded-xl px-2 py-2 text-center text-[#24272d] no-underline transition-colors hover:bg-[#f5f5f5] md:h-[125px] md:w-[124px] md:gap-4">
                       <span className="flex h-[84px] w-full items-center justify-center overflow-hidden rounded-lg bg-transparent transition-transform duration-200 group-hover:scale-[1.04] md:h-[78px] md:w-[98px] md:shrink-0"><img src={getCategoryItemImage(mobileCategoryData?.name ?? "", item, index, mobileCategoryData?.image ?? "")} alt="" className="h-full w-full object-contain mix-blend-multiply md:scale-[1.2]" /></span>
-                      <span className="px-1 text-[11px] font-semibold leading-4 md:font-normal md:text-[12px] md:leading-5">{item}</span>
+                      <span className={`px-1 text-[11px] leading-4 md:text-[12px] md:leading-5 ${language === "العربية" ? "font-light" : "font-semibold md:font-normal"}`}>{headerSubcategoryLabel(item, language)}</span>
                     </a>)}
                   </div>
                   {visibleMobileCategoryItems.length === 0 && <p className="mt-8 text-center text-xs text-[#8b9199]">No categories found.</p>}
