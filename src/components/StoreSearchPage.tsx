@@ -26,7 +26,11 @@ export default function StoreSearchPage() {
   const { language } = useStoreLocale();
   const { addToCart } = useStoreCart();
   const isArabic = language === "العربية";
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("query") ?? params.get("q") ?? "";
+  });
   const [category, setCategory] = useState("All");
   const [priceMax, setPriceMax] = useState(700);
   const [sort, setSort] = useState("relevance");

@@ -1357,6 +1357,15 @@ function parseSharedCartPayload(rawValue: string): SharedCartPayload | null {
   }
 }
 
+function parseLegacyPaymentItems(rawValue: string): SharedCartPayload | null {
+  try {
+    const decoded = JSON.parse(decodeURIComponent(atob(rawValue)));
+    return parseSharedCartPayload(JSON.stringify({ version: 1, items: decoded, giftSelections: {} }));
+  } catch {
+    return null;
+  }
+}
+
 function createSharedCartUrl(items: StoreCartItem[], giftSelections: StoreGiftSelections, language: string) {
   if (typeof window === "undefined" || !items.length) return "";
   const url = new URL("/checkout", window.location.origin);
@@ -1386,11 +1395,14 @@ export default function CheckoutPage({ step = "cart" }: { step?: "cart" | "shipp
   useEffect(() => {
     if (sharedCartHandled.current || typeof window === "undefined") return;
     sharedCartHandled.current = true;
-    const sharedCartValue = new URLSearchParams(window.location.search).get("sharedCart");
-    if (!sharedCartValue) return;
-    const sharedCart = parseSharedCartPayload(sharedCartValue);
+    const params = new URLSearchParams(window.location.search);
+    const sharedCartValue = params.get("sharedCart");
+    const legacyItemsValue = params.get("items");
+    if (!sharedCartValue && !legacyItemsValue) return;
+    const sharedCart = sharedCartValue ? parseSharedCartPayload(sharedCartValue) : parseLegacyPaymentItems(legacyItemsValue ?? "");
     const cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.delete("sharedCart");
+    cleanUrl.searchParams.delete("items");
     window.history.replaceState({}, "", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
     if (!sharedCart) {
       setSharedCartNotice(isArabic ? "رابط السلة المشتركة غير صالح أو منتهي." : "This shared cart link is no longer valid.");

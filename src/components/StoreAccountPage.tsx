@@ -66,6 +66,7 @@ const ACCOUNT_ACTIONS: AccountAction[] = [
   { label: "My Profile", icon: UserRound, view: "profile", href: "#profile" },
   { label: "My Address Book", icon: MapPin, view: "addresses", href: "/checkout" },
   { label: "My Payment Cards", icon: ReceiptText, view: "cards", href: "/payment-summary" },
+  { label: "Deraah Gift Cards", icon: WalletCards, href: "/gifts/cards" },
 ];
 
 const DESKTOP_ACCOUNT_ACTIONS: AccountAction[] = [
@@ -201,7 +202,7 @@ function DesktopAccountSidebar({ view, onChange }: { view: AccountView; onChange
       {groups.map(group => <div key={group.title}>
         <h2 className={`px-3 pb-2 text-[11px] font-semibold uppercase tracking-[.14em] text-[#9aa1ac] ${group.title === "My Account" ? "" : "pt-6"}`}>{group.title}</h2>
         <div className="space-y-1">
-          {group.actions.map(({ label, icon: Icon, view: actionView, onClick }) => {
+          {group.actions.map(({ label, icon: Icon, view: actionView, href, onClick }) => {
             const active = Boolean(actionView && actionView === view);
             const handleClick = () => {
               if (label === "Sign Out") {
@@ -210,7 +211,9 @@ function DesktopAccountSidebar({ view, onChange }: { view: AccountView; onChange
               }
               onChange(actionView ?? "profile");
             };
-            return <button key={label} type="button" onClick={handleClick} aria-current={active ? "page" : undefined} className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-colors ${active ? "bg-[#f0f8f2] font-semibold text-[#267b42]" : "text-[#4e5661] hover:bg-[#f6f8fa]"}`}><Icon aria-hidden="true" className={`h-[18px] w-[18px] shrink-0 ${active ? "text-[#2c8b4b]" : "text-[#78818d]"}`} strokeWidth={1.7} /><span className="min-w-0 flex-1 truncate">{label}</span>{label !== "Sign Out" && <ChevronRight aria-hidden="true" size={15} className="shrink-0 text-[#aab1bb]" strokeWidth={1.7} />}</button>;
+            const content = <><Icon aria-hidden="true" className={`h-[18px] w-[18px] shrink-0 ${active ? "text-[#2c8b4b]" : "text-[#78818d]"}`} strokeWidth={1.7} /><span className="min-w-0 flex-1 truncate">{label}</span>{label !== "Sign Out" && <ChevronRight aria-hidden="true" size={15} className="shrink-0 text-[#aab1bb]" strokeWidth={1.7} />}</>;
+            if (!actionView && href) return <a key={label} href={href} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm text-[#4e5661] no-underline transition-colors hover:bg-[#f6f8fa]">{content}</a>;
+            return <button key={label} type="button" onClick={handleClick} aria-current={active ? "page" : undefined} className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-colors ${active ? "bg-[#f0f8f2] font-semibold text-[#267b42]" : "text-[#4e5661] hover:bg-[#f6f8fa]"}`}>{content}</button>;
           })}
         </div>
       </div>)}

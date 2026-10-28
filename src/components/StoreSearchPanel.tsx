@@ -1,10 +1,11 @@
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, Clock3, Filter, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Clock3, Filter, History, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { RiyalPrice } from "./RiyalPrice";
 import { MobileSheetHandle, useMobileSheetDrag } from "./MobileSheet";
 import PromptBar from "./PromptBar";
 import { useStoreLocale } from "./StoreLocaleContext";
+import { saveStoreAiHistory } from "./storeAiHistory";
 
 export type SearchProduct = {
   name: string;
@@ -126,6 +127,9 @@ function SearchAiEmptyState({ language, query, onQueryChange }: { language: stri
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [conversation, setConversation] = useState<Array<{ question: string; answer: string }>>([]);
   useEffect(() => {
+    if (conversation.length > 0) saveStoreAiHistory(conversation);
+  }, [conversation]);
+  useEffect(() => {
     const interval = window.setInterval(() => setPlaceholderIndex(current => (current + 1) % copy.placeholders.length), 3000);
     return () => window.clearInterval(interval);
   }, [copy.placeholders.length]);
@@ -144,6 +148,11 @@ function SearchAiEmptyState({ language, query, onQueryChange }: { language: stri
     <p className="mt-3 text-[10px] font-semibold uppercase tracking-[.2em] text-[#b51d6a] sm:mt-5">{copy.eyebrow}</p>
     <h2 className="mt-2 text-xl font-semibold tracking-[-.03em] text-[#20242a] sm:mt-3 sm:text-3xl">{copy.title}</h2>
     <p className="mt-2 max-w-[420px] text-xs leading-5 text-[#7b838c] sm:mt-3 sm:text-sm sm:leading-6">{copy.subtitle}</p>
+    <a href="/ask-ai" className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#e5e9ee] bg-white px-3.5 py-2 text-xs font-semibold text-[#343a42] shadow-[0_6px_18px_rgba(15,23,42,.04)] transition hover:border-[#d6a5bc] hover:text-[#b51d6a]">
+      <History size={14} className="text-[#b51d6a]" />
+      {isArabic ? "فتح صفحة المساعد وسجل الأسئلة" : "Open Ask AI page and history"}
+      <ArrowRight size={14} />
+    </a>
     <div className="mt-5 grid w-full max-w-[680px] gap-2.5 text-start sm:mt-9 sm:gap-3 md:grid-cols-3">
       {copy.questions.map((question, index) => <button key={question} type="button" onClick={() => startConversation(question, copy.answers[index])} className="group flex min-h-[84px] items-center justify-between gap-3 rounded-2xl border border-[#e5e9ee] bg-white px-4 py-3 text-start text-xs font-medium leading-5 text-[#343a42] shadow-[0_6px_18px_rgba(15,23,42,.04)] transition hover:-translate-y-0.5 hover:border-[#d6a5bc] hover:shadow-[0_10px_24px_rgba(15,23,42,.08)] sm:min-h-[92px] sm:py-4"><span>{question}</span><ArrowRight size={15} className="shrink-0 text-[#b51d6a] transition-transform group-hover:translate-x-0.5" /></button>)}
     </div>
@@ -290,7 +299,7 @@ function SearchExperience({ open, onClose, initialMode = "search", isAuthenticat
     if (!trimmed) return;
     recordSearch(trimmed);
     onClose();
-    window.location.assign(`/product-details?search=${encodeURIComponent(trimmed)}#details`);
+    window.location.href = `/search?query=${encodeURIComponent(trimmed)}`;
   };
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -302,8 +311,11 @@ function SearchExperience({ open, onClose, initialMode = "search", isAuthenticat
       setActiveSuggestion(current => (current <= 0 ? suggestions.length - 1 : current - 1));
     } else if (event.key === "Enter" && activeSuggestion >= 0) {
       event.preventDefault();
-      setQuery(suggestions[activeSuggestion]);
-      submitSearch(suggestions[activeSuggestion]);
+      const suggestion = suggestions[activeSuggestion];
+      event.currentTarget.value = suggestion;
+      setQuery(suggestion);
+      setActiveSuggestion(-1);
+      event.currentTarget.form?.requestSubmit();
     } else if (event.key === "Escape") {
       onClose();
     }
@@ -328,9 +340,9 @@ function SearchExperience({ open, onClose, initialMode = "search", isAuthenticat
                     <button type="button" role="tab" aria-selected={false} onClick={() => { setAiMode(false); window.requestAnimationFrame(() => inputRef.current?.focus()); }} className="inline-flex h-9 items-center gap-1 rounded-full px-4 text-xs font-medium text-[#5e6670] transition hover:text-[#20242a]"><Search size={13} /> {isArabic ? "بحث" : "Search"}</button>
                     <button type="button" role="tab" aria-selected={true} className="inline-flex h-9 items-center gap-1 rounded-full bg-[#171a1f] px-4 text-xs font-semibold text-white"><Sparkles size={13} strokeWidth={1.6} /> {isArabic ? "اسأل الذكاء الاصطناعي" : "Ask AI"}</button>
                   </div>
-                </div> : <form className="flex min-w-0 flex-1 items-center gap-2 max-md:rounded-full max-md:border max-md:border-[#e1e6eb] max-md:bg-white max-md:px-2" onSubmit={event => { event.preventDefault(); submitSearch(activeSuggestion >= 0 ? suggestions[activeSuggestion] : query); }}>
+                </div> : <form action="/search" method="get" className="flex min-w-0 flex-1 items-center gap-2 max-md:rounded-full max-md:border max-md:border-[#e1e6eb] max-md:bg-white max-md:px-2" onSubmit={() => { const value = activeSuggestion >= 0 ? suggestions[activeSuggestion] : query; if (value.trim()) recordSearch(value.trim()); }}>
                   <Search className="shrink-0 text-[#343a42]" size={20} strokeWidth={1.7} />
-                  <input ref={inputRef} aria-label={isArabic ? "ابحث في المتجر" : "Search in the store"} aria-autocomplete="list" aria-controls="search-suggestions" aria-activedescendant={activeSuggestion >= 0 ? `search-suggestion-${activeSuggestion}` : undefined} value={query} onChange={event => { setQuery(event.target.value); setActiveSuggestion(-1); }} onKeyDown={handleInputKeyDown} placeholder={isArabic ? "ابحث عن المنتجات أو العلامات أو التصنيفات" : "Search products, brands, or categories"} className="min-w-0 flex-1 bg-transparent text-[14px] text-[#222] outline-none placeholder:text-[#969da6] max-md:text-[13px]" />
+                  <input ref={inputRef} name="query" aria-label={isArabic ? "ابحث في المتجر" : "Search in the store"} aria-autocomplete="list" aria-controls="search-suggestions" aria-activedescendant={activeSuggestion >= 0 ? `search-suggestion-${activeSuggestion}` : undefined} value={query} onChange={event => { setQuery(event.target.value); setActiveSuggestion(-1); }} onKeyDown={handleInputKeyDown} placeholder={isArabic ? "ابحث عن المنتجات أو العلامات أو التصنيفات" : "Search products, brands, or categories"} className="min-w-0 flex-1 bg-transparent text-[14px] text-[#222] outline-none placeholder:text-[#969da6] max-md:text-[13px]" />
                   {query && <button type="button" aria-label={isArabic ? "مسح البحث" : "Clear search"} onClick={() => { setQuery(""); inputRef.current?.focus(); }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#7b838c] hover:bg-[#f1f3f5]"><X size={15} /></button>}
                   <kbd className="hidden shrink-0 rounded-lg border border-[#d8dde2] px-2 py-1 text-[10px] font-medium text-[#7c858e] md:inline">esc</kbd>
                   <button type="submit" className="hidden h-9 shrink-0 items-center rounded-full bg-[#171a1f] px-4 text-xs font-semibold text-white transition hover:bg-[#343940] md:inline-flex">{isArabic ? "بحث" : "Search"}</button>
