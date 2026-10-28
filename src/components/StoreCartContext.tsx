@@ -29,6 +29,7 @@ type StoreCartContextValue = {
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
+  replaceCart: (items: StoreCartItem[], giftSelections?: StoreGiftSelections) => void;
   giftSelections: StoreGiftSelections;
   setGiftSelections: (itemId: string, giftIds: string[]) => void;
 };
@@ -114,6 +115,25 @@ export function StoreCartProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const replaceCart = (nextItems: StoreCartItem[], nextSelections: StoreGiftSelections = {}) => {
+    const normalizedItems = nextItems
+      .filter(item => item && typeof item.id === "string" && typeof item.name === "string" && typeof item.brand === "string" && typeof item.image === "string" && Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0)
+      .map(item => ({
+        ...item,
+        price: String(item.price ?? "0"),
+        ...(typeof item.oldPrice === "string" ? { oldPrice: item.oldPrice } : {}),
+        quantity: Math.max(1, Math.floor(Number(item.quantity))),
+        ...(typeof item.variant === "string" ? { variant: item.variant } : {}),
+      }));
+    const validItemIds = new Set(normalizedItems.map(item => item.id));
+    const normalizedSelections = Object.fromEntries(Object.entries(nextSelections).filter(([itemId, giftIds]) => validItemIds.has(itemId) && Array.isArray(giftIds)).map(([itemId, giftIds]) => [itemId, [...new Set(giftIds.filter(giftId => typeof giftId === "string"))]]));
+    setCartItems(normalizedItems);
+    setGiftSelectionsState(normalizedSelections);
+    window.localStorage.setItem(STORE_CART_KEY, JSON.stringify(normalizedItems));
+    window.localStorage.setItem(STORE_GIFTS_KEY, JSON.stringify(normalizedSelections));
+    window.dispatchEvent(new Event("deraah-cart-updated"));
+  };
+
   const value = useMemo<StoreCartContextValue>(() => ({
     cartItems,
     cartItemCount: cartItems.reduce((total, item) => total + item.quantity, 0),
@@ -137,6 +157,7 @@ export function StoreCartProvider({ children }: { children: ReactNode }) {
       commit([]);
       commitGiftSelections({});
     },
+    replaceCart,
     giftSelections,
     setGiftSelections: (itemId, giftIds) => commitGiftSelections(currentSelections => ({ ...currentSelections, [itemId]: [...new Set(giftIds)] })),
   }), [cartItems, giftSelections]);

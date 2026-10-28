@@ -1,43 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Arabic uses only the supplied Display family: Light for quiet UI text and
+   Regular for readable emphasis. */
 @font-face {
-  font-family: 'Thmanyah Serif Text';
-  src: url('/fonts/thmanyah/thmanyahseriftext-Light.woff2') format('woff2');
+  font-family: 'Thmanyah Serif Display';
+  src: url('/fonts/thmanyah/thmanyahserifdisplay-Light.otf?v=20261028') format('opentype');
   font-style: normal;
   font-weight: 300;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Thmanyah Serif Display';
+  src: url('/fonts/thmanyah/thmanyahserifdisplay-Regular.otf?v=20261028') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Arabic typefaces stay registered together so the active family can be
+   swapped without removing the previous files. */
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/manrope-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 300 800;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Thmanyah Serif Text';
-  src: url('/fonts/thmanyah/thmanyahseriftext-Regular.woff2') format('woff2');
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/manrope-regular.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Thmanyah Serif Text';
-  src: url('/fonts/thmanyah/thmanyahseriftext-Medium.woff2') format('woff2');
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/manrope-semibold.woff2') format('woff2');
   font-style: normal;
-  font-weight: 500;
+  font-weight: 600;
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Thmanyah Serif Text';
-  src: url('/fonts/thmanyah/thmanyahseriftext-Bold.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Thmanyah Serif Text';
-  src: url('/fonts/thmanyah/thmanyahseriftext-Black.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
+:root {
+  /* Arabic glyphs use only the two registered Thmanyah Display weights. */
+  --store-arabic-font-family: 'Thmanyah Serif Display', 'Poppins', 'Saudi Riyal', system-ui, sans-serif;
+  /* The family carries its own Arabic kerning. Keep spacing neutral so joined
+     forms stay connected and words do not look artificially compressed. */
+  --store-arabic-letter-spacing: 0;
+  --store-arabic-word-spacing: 0;
 }
 
 @tailwind base;
@@ -49,7 +64,7 @@ html[dir='rtl'] body.store-page button,
 html[dir='rtl'] body.store-page input,
 html[dir='rtl'] body.store-page textarea,
 html[dir='rtl'] body.store-page select {
-  font-family: 'Thmanyah Serif Text', system-ui, sans-serif;
+  font-family: var(--store-arabic-font-family);
 }
 
 html[dir='rtl'] body.store-page {
@@ -74,7 +89,7 @@ html[dir='rtl'] body.store-page .text-end {
 }
 
 html[dir='rtl'] body.store-page [dir='ltr'] {
-  font-family: 'Thmanyah Serif Text', system-ui, sans-serif;
+  font-family: var(--store-arabic-font-family);
 }
 
 html[dir='rtl'] body.store-page .store-header-nav,
@@ -216,13 +231,452 @@ html[dir='rtl'] body.store-page textarea::placeholder {
   }
 }
 
+/* Store type scale ---------------------------------------------------------
+   Arabic store screens use the supplied Display family only. */
+html[dir='rtl'] body.store-page {
+  --store-type-body: 16px;
+  --store-type-label: 14px;
+  --store-type-button: 15px;
+  font-size: var(--store-type-body);
+  line-height: 26px;
+}
+
+html[dir='rtl'] body.store-page h1,
+html[dir='rtl'] body.store-page h2,
+html[dir='rtl'] body.store-page h3,
+html[dir='rtl'] body.store-page h4,
+html[dir='rtl'] body.store-page h5,
+html[dir='rtl'] body.store-page h6 {
+  font-weight: 500 !important;
+  line-height: 1.2;
+}
+
+html[dir='rtl'] body.store-page .font-semibold,
+html[dir='rtl'] body.store-page .font-bold,
+html[dir='rtl'] body.store-page strong,
+html[dir='rtl'] body.store-page b {
+  font-weight: 500 !important;
+}
+
+html[dir='rtl'] body.store-page .font-extrabold,
+html[dir='rtl'] body.store-page .font-black {
+  font-weight: 500 !important;
+}
+
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] button,
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] a {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+html[dir='rtl'] body.store-page header [data-store-header-actions] {
+  font-size: 16px;
+}
+
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] button,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] span {
+  font-size: 18px;
+}
+
+/* Home: editorial headings, product rails and promotional cards. */
+html[dir='rtl'] body.store-page .store-home main h1 {
+  font-size: clamp(34px, calc(4vw + 4px), 52px);
+}
+
+html[dir='rtl'] body.store-page .store-home main h2 {
+  font-size: clamp(28px, calc(2.8vw + 4px), 42px);
+  line-height: 1.18;
+}
+
+html[dir='rtl'] body.store-page .store-home main h3 {
+  font-size: clamp(22px, calc(1.45vw + 4px), 24px);
+  line-height: 1.3;
+}
+
+/* Keep home section headings clean by removing redundant eyebrow lines above them. */
+.store-home main p.uppercase:has(+ h2) {
+  display: none;
+}
+
+html[dir='rtl'] body.store-page .store-home .store-product-card p {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+html[dir='rtl'] body.store-page .store-home .store-product-card > div.relative > div.relative a {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+html[dir='rtl'] body.store-page .store-home .store-product-card > div.relative > div.group\/action {
+  font-size: 20px;
+}
+
+html[dir='rtl'] body.store-page .store-home .store-product-card > div.relative > div.group\/action strong {
+  font-size: 22px;
+}
+
+html[dir='rtl'] body.store-page .store-home .store-product-card > div.relative > div.group\/action s {
+  font-size: 16px;
+}
+
+html[dir='rtl'] body.store-page .store-home button,
+html[dir='rtl'] body.store-page .store-home a {
+  line-height: 1.35;
+}
+
+html[dir='rtl'] body.store-page #fragrance-finder h2,
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] h2 {
+  font-size: clamp(34px, calc(4vw + 4px), 52px);
+  line-height: 1.12;
+}
+
+html[dir='rtl'] body.store-page #fragrance-finder h3,
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] h3 {
+  font-size: clamp(24px, calc(1.8vw + 4px), 28px);
+  line-height: 1.3;
+}
+
+html[dir='rtl'] body.store-page #fragrance-finder button,
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] button {
+  font-size: var(--store-type-button);
+}
+
+/* Product detail: keep the product identity prominent, with quiet metadata
+   and controls that remain readable beside the gallery. */
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary h1 {
+  font-size: clamp(26px, calc(1.8vw + 4px), 32px);
+  line-height: 1.3;
+}
+
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary > div > strong {
+  font-size: clamp(28px, calc(2.2vw + 4px), 36px);
+}
+
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary p,
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary s {
+  font-size: var(--store-type-label);
+}
+
+html[dir='rtl'] body.store-page .product-detail-page .product-payment-offer,
+html[dir='rtl'] body.store-page .product-detail-page .product-coupon-offer,
+html[dir='rtl'] body.store-page .product-detail-page .product-delivery-options {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+html[dir='rtl'] body.store-page .product-detail-page .product-benefits-grid {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+html[dir='rtl'] body.store-page .product-detail-page .product-size-picker-sheet h2 {
+  font-size: 22px;
+  line-height: 30px;
+}
+
+/* Account, cart and checkout surfaces use a slightly denser reading scale
+   so labels remain legible without making cards feel oversized. */
+html[dir='rtl'] body.store-page .store-account-page h1,
+html[dir='rtl'] body.store-page .checkout-page h1,
+html[dir='rtl'] body.store-page .payment-summary-page h1 {
+  font-size: clamp(34px, calc(3vw + 4px), 44px);
+}
+
+html[dir='rtl'] body.store-page .store-account-page h2,
+html[dir='rtl'] body.store-page .checkout-page h2,
+html[dir='rtl'] body.store-page .payment-summary-page h2 {
+  font-size: clamp(24px, calc(1.8vw + 4px), 30px);
+}
+
+html[dir='rtl'] body.store-page .store-account-page p,
+html[dir='rtl'] body.store-page .store-account-page label,
+html[dir='rtl'] body.store-page .checkout-page p,
+html[dir='rtl'] body.store-page .checkout-page label,
+html[dir='rtl'] body.store-page .payment-summary-page p,
+html[dir='rtl'] body.store-page .payment-summary-page label {
+  line-height: 1.55;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel h2,
+html[dir='rtl'] body.store-page .cart-page-content h2 {
+  font-size: 28px;
+}
+
+html[dir='rtl'] body.store-page footer h3 {
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+html[dir='rtl'] body.store-page footer p,
+html[dir='rtl'] body.store-page footer a,
+html[dir='rtl'] body.store-page footer span {
+  line-height: 1.55;
+}
+
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page {
+    --store-type-body: 16px;
+    --store-type-label: 14px;
+    --store-type-button: 15px;
+    font-size: var(--store-type-body);
+    line-height: 26px;
+  }
+
+  html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] button,
+  html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] a {
+    font-size: 16px;
+  }
+
+  html[dir='rtl'] body.store-page .store-home main h1 {
+    font-size: clamp(32px, calc(8vw + 4px), 42px);
+  }
+
+  html[dir='rtl'] body.store-page .store-home main h2 {
+    font-size: clamp(28px, calc(7vw + 4px), 36px);
+  }
+
+  html[dir='rtl'] body.store-page .store-home .store-product-card > div.relative > div.relative a {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  html[dir='rtl'] body.store-page #fragrance-finder h2,
+  html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] h2 {
+    font-size: clamp(34px, calc(8vw + 4px), 42px);
+  }
+
+  html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary h1 {
+    font-size: 26px;
+  }
+
+  html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary > div > strong {
+    font-size: 28px;
+  }
+
+  html[dir='rtl'] body.store-page .store-account-page h1,
+  html[dir='rtl'] body.store-page .checkout-page h1,
+  html[dir='rtl'] body.store-page .payment-summary-page h1 {
+    font-size: 34px;
+  }
+
+  html[dir='rtl'] body.store-page footer h3 {
+    font-size: 22px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gift-hero-illustration { animation: none; }
+}
+
+/* Keep Deraah pickup cards decision-focused on the compact mobile picker. */
+[role="dialog"][aria-label="اختيار فرع درعه"] .branch-picker-list > div > button > span > span > span.mt-3.flex.flex-wrap.items-center.gap-2 > span:last-child,
+[role="dialog"][aria-label="اختيار فرع درعه"] .branch-picker-list > div > button > span > span > span.mt-2.block,
+[role="dialog"][aria-label="اختيار فرع درعه"] .branch-picker-list > div > button > span > span > span.mt-3.flex.flex-wrap.gap-3,
+[role="dialog"][aria-label="Choose a Deraah branch"] .branch-picker-list > div > button > span > span > span.mt-3.flex.flex-wrap.items-center.gap-2 > span:last-child,
+[role="dialog"][aria-label="Choose a Deraah branch"] .branch-picker-list > div > button > span > span > span.mt-2.block,
+[role="dialog"][aria-label="Choose a Deraah branch"] .branch-picker-list > div > button > span > span > span.mt-3.flex.flex-wrap.gap-3 {
+  display: none;
+}
+
+/* The journey map is the page's visual anchor: quiet glass, warm tier light,
+   and enough contrast to keep the route readable in Arabic and English. */
+.mukafaati-journey-map {
+  background:
+    radial-gradient(circle at 12% 16%, rgba(198, 52, 112, .22), transparent 25%),
+    radial-gradient(circle at 82% 80%, rgba(44, 139, 75, .28), transparent 32%),
+    linear-gradient(135deg, #111718 0%, #18231f 54%, #123d2c 100%);
+}
+
+.mukafaati-journey-map::before {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: .42;
+  pointer-events: none;
+  content: "";
+}
+
+.mukafaati-journey-map__glow {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px;
+  pointer-events: none;
+  animation: mukafaati-orbit-pulse 7s ease-in-out infinite;
+}
+
+.mukafaati-journey-map__glow--rose { inset: -92px auto auto -72px; }
+.mukafaati-journey-map__glow--green { inset: auto -76px -120px auto; animation-delay: -2.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mukafaati-journey-map__glow { animation: none; }
 }
 
 @media (min-width: 768px) {
   .reviews-recent-card {
     flex: 0 0 calc((100% - 18px) / 2.5) !important;
+  }
+}
+
+/* Make the Arabic cart summary action match the established checkout type
+   hierarchy without changing its height, position, or amount treatment. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-order-summary > button.mt-6.flex {
+  font-size: 16px !important;
+}
+
+/* Mukafaati presentation layer: calm movement, depth, and a single luxury
+   palette without turning the page into a noisy carousel. */
+@keyframes mukafaati-surface-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mukafaati-hero-in {
+  from { opacity: 0; transform: scale(.985) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes mukafaati-card-float {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg) translateY(0); }
+  50% { transform: translate(-50%, -50%) rotate(-5deg) translateY(-9px); }
+}
+
+@keyframes mukafaati-orbit-pulse {
+  0%, 100% { opacity: .46; transform: scale(1); }
+  50% { opacity: .9; transform: scale(1.035); }
+}
+
+@keyframes mukafaati-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(44, 139, 75, .08); }
+  50% { box-shadow: 0 0 0 8px rgba(44, 139, 75, .12); }
+}
+
+@keyframes mukafaati-shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+[aria-labelledby='mukafaati-welcome-title'] > div:first-child {
+  animation: mukafaati-hero-in .8s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+[aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) {
+  animation: mukafaati-surface-in .75s .16s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+[aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) {
+  animation: mukafaati-surface-in .75s .28s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+[aria-labelledby='mukafaati-welcome-title'] img[src*='membership-brand-mark'] {
+  animation: mukafaati-orbit-pulse 5s ease-in-out infinite;
+}
+
+[aria-labelledby='mukafaati-welcome-title'] .tilted-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  animation: mukafaati-card-float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+[aria-labelledby='mukafaati-welcome-title'] > div:first-child > div > div:nth-child(2) {
+  background-image: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.12) 48%, transparent 66%);
+  background-size: 220% 100%;
+  animation: mukafaati-shimmer 9s ease-in-out infinite;
+}
+
+[aria-label='عضو مكافآتي'] {
+  box-shadow: 0 20px 48px rgba(18, 52, 38, .18);
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), box-shadow .45s ease;
+}
+
+[aria-label='عضو مكافآتي']:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 28px 58px rgba(18, 52, 38, .24);
+}
+
+[aria-label='عضو مكافآتي'] + section {
+  box-shadow: 0 16px 38px rgba(44, 139, 75, .08);
+}
+
+[aria-label='عضو مكافآتي'] + section > div:nth-of-type(3) span.grid {
+  animation: mukafaati-dot-pulse 3.2s ease-in-out infinite;
+}
+
+[aria-label='عضو مكافآتي'] + section > div:nth-of-type(3) span.grid:nth-child(2) { animation-delay: .3s; }
+[aria-label='عضو مكافآتي'] + section > div:nth-of-type(3) span.grid:nth-child(3) { animation-delay: .6s; }
+[aria-label='عضو مكافآتي'] + section > div:nth-of-type(3) span.grid:nth-child(4) { animation-delay: .9s; }
+
+[aria-labelledby='mukafaati-levels-title'] button {
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease, border-color .35s ease;
+}
+
+[aria-labelledby='mukafaati-levels-title'] button:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 36px rgba(41, 61, 77, .12);
+}
+
+[aria-labelledby='mukafaati-levels-title'] article {
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+}
+
+[aria-labelledby='mukafaati-levels-title'] article:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(41, 61, 77, .1);
+}
+
+[aria-labelledby='mukafaati-how-title'] article {
+  animation: mukafaati-surface-in .7s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+[aria-labelledby='mukafaati-how-title'] article:nth-child(2) { animation-delay: .12s; }
+[aria-labelledby='mukafaati-how-title'] article:nth-child(3) { animation-delay: .24s; }
+
+[aria-labelledby='mukafaati-how-title'] article > div {
+  transition: transform .35s ease, background-color .35s ease;
+}
+
+[aria-labelledby='mukafaati-how-title'] article:hover > div {
+  transform: translateX(-4px);
+  background-color: #f4faf5;
+}
+
+[aria-labelledby='mukafaati-faq-title'] > div:last-child > div > div:first-child {
+  box-shadow: 0 18px 42px rgba(47, 65, 82, .08);
+}
+
+[aria-labelledby='mukafaati-faq-title'] > div:last-child > div > div:last-child {
+  box-shadow: 0 18px 42px rgba(47, 65, 82, .07);
+}
+
+[aria-labelledby='mukafaati-faq-title'] button {
+  transition: color .25s ease, background-color .25s ease, transform .25s ease;
+}
+
+[aria-labelledby='mukafaati-faq-title'] button:hover {
+  color: #267b42;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [aria-labelledby='mukafaati-welcome-title'] > div:first-child,
+  [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2),
+  [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3),
+  [aria-labelledby='mukafaati-welcome-title'] img[src*='membership-brand-mark'],
+  [aria-labelledby='mukafaati-welcome-title'] .tilted-card,
+  [aria-label='عضو مكافآتي'] + section > div:nth-of-type(3) span.grid,
+  [aria-labelledby='mukafaati-how-title'] article {
+    animation: none !important;
+  }
+
+  [aria-label='عضو مكافآتي']:hover,
+  [aria-labelledby='mukafaati-levels-title'] button:hover,
+  [aria-labelledby='mukafaati-levels-title'] article:hover,
+  [aria-labelledby='mukafaati-how-title'] article:hover > div {
+    transform: none !important;
   }
 }
 
@@ -464,6 +918,23 @@ html[dir='rtl'] body.store-page textarea::placeholder {
   border-radius: 10px !important;
 }
 
+/* Keep the mini-cart actions available while a long product list scrolls. */
+body .cart-drawer-panel .mini-cart-footer {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 20;
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  padding-bottom: 16px !important;
+  background: #FAFCFF !important;
+  box-shadow: 0 -10px 20px rgba(15, 23, 42, .05);
+}
+
+/* The two-button mini-cart footer replaces the single compact action in the drawer. */
+body .cart-drawer-panel .cart-drawer-footer {
+  display: none !important;
+}
+
 /* Keep the desktop mini cart compact and focused on the items and checkout actions. */
 @media (min-width: 768px) {
   body .cart-drawer-panel .cart-drawer-products-card {
@@ -521,12 +992,19 @@ html[dir='rtl'] body.store-page textarea::placeholder {
     display: none !important;
   }
 
-  body .cart-drawer-panel .cart-drawer-footer {
-    display: none !important;
-  }
-
   body .cart-drawer-panel .mini-cart-footer {
     flex: 0 0 auto;
+  }
+}
+
+/* Mirror the desktop price placement in the Arabic drawer: the product image
+   sits on the right, so the price belongs at the left edge of the details row. */
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-price {
+    right: auto !important;
+    left: 0 !important;
+    /* Keep the pre-discount price on the right and the sale price on the left. */
+    direction: ltr;
   }
 }
 
@@ -750,8 +1228,8 @@ html[dir='rtl'] body.store-page textarea::placeholder {
 
 @media (max-width: 767px) {
   .branch-picker-panel {
-    height: calc(100dvh - 16px);
-    max-height: calc(100dvh - 16px);
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
     border-radius: 28px 28px 0 0;
   }
 }
@@ -1533,29 +2011,29 @@ input[type="range"].progress-slider::-moz-range-thumb {
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   .dropdown-menu * {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   /* Prevent zoom on all interactive elements */
   button, input, select, textarea {
     touch-action: manipulation;
   }
-  
+
   /* Prevent zoom on all clickable elements */
   [role="button"], [onclick], .cursor-pointer {
     touch-action: manipulation;
   }
-  
+
   /* Global prevention */
   * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   /* Allow text selection for inputs */
   input, textarea {
     -webkit-user-select: text;
@@ -1629,42 +2107,9 @@ main > div > div.min-h-screen.p-3 > div.mx-auto > div.grid.gap-4.sm\:grid-cols-2
   unicode-range: U+20C1;
 }
 
-/* Ping AR LT — the shared Arabic typeface for every application surface. */
-@font-face {
-  font-family: 'Ping AR';
-  src: url('/fonts/PingAR-Light.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Ping AR';
-  src: url('/fonts/PingAR-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Ping AR';
-  src: url('/fonts/PingAR-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Ping AR';
-  src: url('/fonts/PingAR-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   * {
-    font-family: 'Saudi Riyal', 'Ping AR', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    font-family: 'Saudi Riyal', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;
   }
@@ -3495,10 +3940,277 @@ body [role="dialog"][aria-labelledby="all-reviews-title"] > .reviews-drawer > bu
   opacity: 0 !important;
 }
 
-.product-card-old-price {
-  text-decoration-line: line-through !important;
-  text-decoration-thickness: 1px !important;
-  text-decoration-color: currentColor !important;
+.product-card-old-price,
+.store-old-price,
+body.store-page s {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none !important;
+}
+
+.product-card-old-price::after,
+.store-old-price::after,
+body.store-page s::after {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  pointer-events: none;
+}
+
+html[dir="rtl"] .product-detail-page .absolute.inset-x-0 > div.mt-2.grid > button.relative.rounded-md > svg {
+  right: auto !important;
+  left: 4px !important;
+}
+
+html[dir="rtl"] #recommendations > div:first-child > h2,
+html[dir="rtl"] #recommendations > div:first-child > p {
+  text-align: right !important;
+}
+
+html[dir="ltr"] #recommendations > div:first-child > h2,
+html[dir="ltr"] #recommendations > div:first-child > p {
+  text-align: left !important;
+}
+
+.store-branch-real-map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #eaf4ec;
+}
+
+.store-branch-real-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #eaf4ec;
+  font-family: inherit;
+}
+
+.store-branch-search {
+  position: relative;
+  z-index: 30;
+  margin: 0;
+}
+
+.store-branch-filters {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.store-branch-city-filter {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dfe5ea;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 12px;
+  color: #68717b;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(30, 50, 80, .04);
+}
+
+.store-branch-city-filter span {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.store-branch-city-filter select {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #20252b;
+  font-size: 12px;
+  outline: 0;
+}
+
+.store-branch-map-status {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: #567160;
+  font-size: 12px;
+  font-weight: 600;
+  background: #eaf4ec;
+}
+
+.store-branch-leaflet-pin {
+  border: 0;
+  background: transparent;
+}
+
+.store-branch-leaflet-pin span {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ffffff;
+  border-radius: 999px 999px 999px 0;
+  background: #2c8b4b;
+  box-shadow: 0 5px 12px rgba(44, 139, 75, .3);
+  transform: rotate(-45deg);
+}
+
+.store-branch-leaflet-tooltip {
+  border: 0 !important;
+  border-radius: 7px !important;
+  color: #2d4936 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(31, 60, 42, .14) !important;
+}
+
+.interactive-edit-shell {
+  align-items: stretch;
+}
+
+.interactive-edit-shell > .interactive-edit-panel,
+.interactive-edit-shell > .interactive-edit-image {
+  min-height: 0;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-shell {
+    height: 720px;
+    min-height: 720px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel {
+    margin-inline-end: clamp(0px, 8vw, 128px);
+    padding: 32px clamp(32px, 3.2vw, 48px);
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel > div:first-child {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div {
+    gap: 12px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div > button:first-child {
+    gap: 12px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div > button:first-child > span:nth-child(2) {
+    width: 64px;
+    height: 64px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel > .mt-7 {
+    margin-top: 16px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-image {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-image > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 {
+    position: relative;
+    display: block;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.relative.min-h-\[300px\] {
+    position: relative;
+    margin-inline: auto;
+    width: min(100%, 968.16px);
+    height: clamp(380px, 39vw, 601.5px);
+    min-height: 601.5px;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.store-branch-filters {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 30;
+    width: 261.84px;
+    margin: 0;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.grid.gap-3 {
+    position: absolute;
+    top: 128px;
+    left: 16px;
+    z-index: 30;
+    display: flex;
+    width: 261.84px;
+    max-height: calc(100% - 144px);
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.grid.gap-3 > article {
+    flex: none;
+    width: auto;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.relative.min-h-\[300px\] {
+    width: calc(100% + 82px);
+    height: 30vh;
+    min-height: 220px;
+    max-height: 300px;
+    margin-inline: -41px;
+    border-radius: 0;
+  }
+
+  html[dir="rtl"] div.space-y-5 > div.grid.gap-5 > div.store-branch-filters {
+    position: relative;
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
+html[dir="rtl"] article button.absolute.right-0 {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] article button.absolute.right-0 > span.whitespace-nowrap {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  margin: 0 !important;
+  transform: translateY(-50%);
+}
+
+html[dir="rtl"] article button.absolute.right-0 > span.ml-auto {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  margin: 0 !important;
+  transform: translateY(-50%);
+}
+
+html[dir="rtl"] article.group.relative > div.relative.flex > div.relative.z-30 {
+  direction: rtl !important;
+}
+
+html[dir="rtl"] article.group.relative > div.relative.flex > div.relative.z-30 > div.min-w-0 {
+  text-align: right !important;
 }
 
 /* The sticky header must stay opaque while carousels scroll underneath it. */
@@ -3626,12 +4338,12 @@ body [role="dialog"][aria-labelledby="all-reviews-title"] > .reviews-drawer > bu
 }
 
 .product-detail-page .product-card-original-image {
-  width: 86px !important;
-  height: 168px !important;
+  width: 115px !important;
+  height: 140px !important;
   max-width: 100% !important;
-  transform: none !important;
+  transform: translateY(0.75rem) !important;
   object-fit: contain !important;
-  object-position: center bottom !important;
+  object-position: center !important;
   mix-blend-mode: multiply !important;
 }
 
@@ -3668,8 +4380,8 @@ body [role="dialog"][aria-labelledby="all-reviews-title"] > .reviews-drawer > bu
 
 @media (min-width: 768px) {
   .product-detail-page .product-card-original-image {
-    width: 106px !important;
-    height: 228px !important;
+    width: 200px !important;
+    height: 200px !important;
   }
 
 }
@@ -3886,12 +4598,12 @@ body.store-page b,
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: max-content;
+  width: 60px;
   max-width: 100%;
   min-height: 28px;
   padding: 3px 7px;
   border-radius: 999px;
-  background: #d8f4df;
+  background: #EDF9F0;
   color: #208447;
   font-size: 9px;
   font-weight: 600;
@@ -4276,12 +4988,12 @@ body.store-page b,
     align-items: center;
     justify-content: center;
     gap: 4px;
-    width: max-content;
+    width: 60px;
     max-width: 100%;
     min-height: 28px;
     padding: 3px 7px;
     border-radius: 999px;
-    background: #d8f4df;
+    background: #EDF9F0;
     color: #208447;
     font-size: 9px;
     font-weight: 600;
@@ -4441,13 +5153,15 @@ body.store-page b,
 /* The payment step uses the same summary action as the cart step. Keeping
    this button inside the summary card gives it the same sticky/fixed behavior
    at every breakpoint and prevents it from appearing above the payment form. */
-.checkout-step-shipping .checkout-layout > aside > button.shipping-place-order {
+.checkout-step-shipping .checkout-layout > aside > button.shipping-place-order,
+.checkout-step-shipping .checkout-layout > .checkout-side-column > aside > button.shipping-place-order {
   display: flex !important;
 }
 
 /* Coupons are applied in the cart. Keep the shipping/payment summary focused
    on order totals by removing only the coupon block from this step. */
-.checkout-step-shipping .checkout-layout > aside > div:first-child {
+.checkout-step-shipping .checkout-layout > aside > div:first-child,
+.checkout-step-shipping .checkout-layout > .checkout-side-column > aside > div:first-child {
   display: none !important;
 }
 
@@ -4727,6 +5441,22 @@ body.store-page b,
     margin-top: 0 !important;
     margin-bottom: 16px !important;
     padding-bottom: 0;
+  }
+
+  .product-size-picker-sheet[dir="rtl"] .product-size-picker-options {
+    direction: rtl;
+  }
+
+  .product-size-picker-sheet[dir="ltr"] .product-size-picker-options {
+    direction: ltr;
+  }
+
+  .product-size-picker-sheet[dir="rtl"] .product-size-picker-options > button {
+    text-align: right !important;
+  }
+
+  .product-size-picker-sheet[dir="ltr"] .product-size-picker-options > button {
+    text-align: left !important;
   }
 
   .product-size-picker-sheet .product-size-picker-options > button {
@@ -5082,7 +5812,7 @@ body.store-page b,
 }
 
 /* Unified checkout flow: keep the order summary anchored left while the
-   right column swaps between cart, address, and payment in place. */
+   right column swaps between cart and payment in place. */
 .checkout-unified-flow .checkout-layout {
   align-items: start;
   background: #eef3fb;
@@ -5090,6 +5820,13 @@ body.store-page b,
 
 .checkout-unified-flow .checkout-flow-column {
   min-width: 0;
+}
+
+.checkout-unified-flow .checkout-side-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .checkout-unified-flow .desktop-shipping-cart-summary {
@@ -5106,10 +5843,7 @@ body.store-page b,
   transform: none !important;
 }
 
-.checkout-unified-flow.checkout-flow-stage-cart .checkout-delivery-section,
 .checkout-unified-flow.checkout-flow-stage-cart .checkout-payment-section,
-.checkout-unified-flow.checkout-flow-stage-address .checkout-products-stack,
-.checkout-unified-flow.checkout-flow-stage-address .checkout-payment-section,
 .checkout-unified-flow.checkout-flow-stage-payment .checkout-products-stack,
 .checkout-unified-flow.checkout-flow-stage-payment .checkout-delivery-section {
   display: none !important;
@@ -5136,7 +5870,8 @@ body.store-page b,
 
 .checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .cart-bundle-progress,
 .checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-products-card,
-.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-sample-card {
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-sample-card,
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-flow-stage-panel > .checkout-products-stack > .checkout-delivery-section {
   width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
@@ -5187,6 +5922,22 @@ body.store-page b,
     min-width: 0 !important;
   }
 
+  .checkout-unified-flow .checkout-layout > .checkout-side-column {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    display: flex !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .checkout-unified-flow .checkout-layout > .checkout-side-column > aside {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
   .checkout-unified-flow .checkout-layout > aside {
     grid-column: 2 !important;
     grid-row: 1 !important;
@@ -5197,6 +5948,30 @@ body.store-page b,
     max-width: none !important;
     margin: 0 !important;
   }
+
+  /* On the cart step, delivery and order summary share one side column so
+     the summary follows the delivery card instead of waiting on the product
+     column's height. */
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout {
+    grid-template-rows: auto !important;
+    align-content: start !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-flow-column {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-side-column {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-side-column > aside {
+    position: static !important;
+    top: auto !important;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -5206,9 +5981,47 @@ body.store-page b,
   }
 
   .checkout-unified-flow .checkout-flow-column,
-  .checkout-unified-flow .checkout-layout > aside {
+  .checkout-unified-flow .checkout-layout > aside,
+  .checkout-unified-flow .checkout-layout > .checkout-side-column {
     width: 100%;
     min-width: 0;
+  }
+}
+
+/* Keep the relocated delivery card aligned with the summary card. These
+   final unified-flow overrides neutralize the older cart-step rail rules. */
+.checkout-unified-flow.checkout-flow-stage-cart .checkout-delivery-section {
+  border-radius: 16px !important;
+  margin-bottom: 0 !important;
+}
+
+@media (min-width: 1024px) {
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout {
+    row-gap: 16px !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-delivery-section,
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > aside {
+    width: 100% !important;
+    max-width: none !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-flow-column {
+    order: 0 !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-side-column > .checkout-delivery-section {
+    order: 1 !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-cart .checkout-layout > .checkout-side-column > aside.checkout-order-summary {
+    order: 2 !important;
+    position: static !important;
+    top: auto !important;
   }
 }
 
@@ -5240,6 +6053,7 @@ body.store-page b,
    bottom navigation on phones, as in the original mobile checkout. */
 @media (max-width: 767px) {
   .checkout-unified-flow .checkout-layout > aside > button,
+  .checkout-unified-flow .checkout-layout > .checkout-side-column > aside > button,
   .checkout-unified-flow .shipping-place-order {
     position: fixed !important;
     right: auto !important;
@@ -5253,6 +6067,34 @@ body.store-page b,
     transform: translateX(-50%) !important;
     border-radius: 10px !important;
     box-shadow: none !important;
+  }
+}
+
+/* The payment action is a viewport-level action, not part of the summary
+   card. Keep it aligned with the summary column on wide screens while the
+   mobile rule above keeps it centered above the bottom navigation. */
+@media (min-width: 1024px) {
+  .checkout-unified-flow.checkout-flow-stage-payment .checkout-layout > .checkout-side-column > aside > button.shipping-place-order {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 24px !important;
+    z-index: 80 !important;
+    width: min(488px, calc(40vw - 20px)) !important;
+    max-width: calc(100vw - 40px) !important;
+    height: 48px !important;
+    margin: 0 !important;
+    transform: none !important;
+    border-radius: 10px !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-payment[dir="rtl"] .checkout-layout > .checkout-side-column > aside > button.shipping-place-order {
+    right: auto !important;
+    left: max(20px, calc((100vw - 1240px) / 2)) !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-payment[dir="ltr"] .checkout-layout > .checkout-side-column > aside > button.shipping-place-order {
+    right: max(20px, calc((100vw - 1240px) / 2)) !important;
+    left: auto !important;
   }
 }
 
@@ -5277,26 +6119,375 @@ body.store-page b,
   }
 }
 
-/* Arabic typography: keep the Thmanyah family above the legacy store-wide
-   Poppins rule, and reserve the heavier weights for hierarchy and actions. */
+/* Arabic typography: use the active Display family above the legacy store-wide
+   Poppins rule. Only the supplied Light and Regular faces are registered. */
 html[dir='rtl'] body.store-page,
 html[dir='rtl'] body.store-page * {
-  /* Poppins owns Latin letters and numerals; Arabic glyphs fall through to
-     Thmanyah because Poppins has no Arabic character coverage. This keeps
-     mixed Arabic/English values visually consistent without changing English
-     routes. */
-  font-family: 'Saudi Riyal', 'Poppins', 'Thmanyah Serif Text', system-ui, sans-serif;
+  font-family: var(--store-arabic-font-family);
+  /* Keep joined Arabic forms on the supplied faces without synthetic styles. */
   font-synthesis: none;
+  font-kerning: normal;
+  font-variant-ligatures: normal;
+  font-feature-settings: "ccmp" 1, "kern" 1, "liga" 1, "clig" 1, "rlig" 1,
+    "calt" 1, "mark" 1, "mkmk" 1, "locl" 1;
+  letter-spacing: var(--store-arabic-letter-spacing);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-html[dir='rtl'] body.store-page [dir='ltr'],
+html[dir='rtl'] body.store-page {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Address selection uses the same calm account-workspace language: soft
+   neutral surfaces, green success states, generous 18/24px radii, and clear
+   card hierarchy. Keep this scoped to address windows so checkout controls
+   outside the picker retain their existing treatment. */
+.checkout-address-modal-surface {
+  border: 1px solid #e4e9f0 !important;
+  background: #fff !important;
+  box-shadow: 0 24px 70px rgba(30, 50, 80, .16) !important;
+}
+
+.checkout-address-picker-sheet {
+  color: #171a1f;
+}
+
+.checkout-address-picker-header {
+  background: #fff;
+}
+
+.checkout-address-picker-content {
+  scrollbar-width: none;
+}
+
+.checkout-address-picker-content::-webkit-scrollbar {
+  display: none;
+}
+
+.checkout-address-picker-tabs button[aria-pressed="true"],
+.checkout-address-picker-tabs button:focus-visible {
+  outline: 2px solid rgba(44, 139, 75, .18);
+  outline-offset: 1px;
+}
+
+.checkout-saved-address-card {
+  box-shadow: 0 4px 14px rgba(30, 50, 80, .035);
+  transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.checkout-saved-address-card:hover {
+  border-color: #bfe8cc !important;
+  box-shadow: 0 7px 20px rgba(30, 50, 80, .06);
+}
+
+.checkout-address-form {
+  color: #171a1f;
+}
+
+.checkout-address-form-shell {
+  box-shadow: 0 4px 14px rgba(30, 50, 80, .025);
+  min-height: 0;
+}
+
+/* Keep address inputs aligned with the registration form contract. */
+.checkout-address-form input:not([type="checkbox"]),
+.checkout-address-form select {
+  border-color: #cfd3d9 !important;
+  border-radius: 12px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  font-size: 14px !important;
+  color: #171a1f !important;
+}
+
+.checkout-address-form input:not([type="checkbox"])::placeholder {
+  color: #7d838a !important;
+}
+
+.checkout-address-form label,
+.checkout-address-form > div > p {
+  color: #4e5661;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.checkout-address-form button[class*="h-10"],
+.checkout-address-form button[class*="h-11"],
+.checkout-address-form button[class*="h-12"] {
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+}
+
+.checkout-address-form > button:last-of-type {
+  background: #171a1f !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.checkout-address-form > button:last-of-type:hover {
+  background: #2c3036 !important;
+}
+
+.checkout-address-form section {
+  border-color: #e4e9f0 !important;
+  background: #fff !important;
+  box-shadow: 0 4px 14px rgba(30, 50, 80, .035);
+}
+
+.checkout-address-form input:not([type="checkbox"]):focus,
+.checkout-address-form select:focus {
+  border-color: #287cf0 !important;
+  box-shadow: none !important;
+}
+
+/* Floating labels keep the field hint inside the control until it has a value. */
+.checkout-floating-field {
+  position: relative;
+}
+
+.checkout-floating-field > input:not([type="checkbox"]) {
+  padding-top: 14px !important;
+  padding-right: 12px !important;
+  padding-bottom: 2px !important;
+  padding-left: 12px !important;
+}
+
+.checkout-floating-field > label {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 12px;
+  z-index: 1;
+  max-width: calc(100% - 24px);
+  padding: 0 4px;
+  overflow: hidden;
+  background: #fff;
+  color: #7d838a;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  transition: top .16s ease, color .16s ease, font-size .16s ease, transform .16s ease;
+}
+
+.checkout-floating-field > input:focus + label,
+.checkout-floating-field > input:not(:placeholder-shown) + label {
+  top: 0;
+  font-size: 10px;
+  transform: translateY(-50%);
+}
+
+.checkout-floating-field > input:focus + label {
+  color: #287cf0;
+}
+
+/* Core Checkbox contract: native input stays semantic, visual control follows the system. */
+.checkout-address-checkbox {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  place-items: center;
+  border: 1px solid #bdb7b2;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.checkout-address-checkbox-input:hover + .checkout-address-checkbox {
+  border-color: #817a74;
+  background: #faf9f7;
+}
+
+.checkout-address-checkbox-input:checked + .checkout-address-checkbox {
+  border-color: #cd1a76;
+  background: #cd1a76;
+}
+
+.checkout-address-checkbox-input:focus-visible + .checkout-address-checkbox {
+  border-color: #cd1a76;
+  box-shadow: var(--deraah-focus-ring);
+}
+
+.checkout-address-form button[class*="border-[#287cf0]"],
+.checkout-address-form button[class*="border-[#dfe4e8]"]:hover {
+  border-color: #2c8b4b !important;
+  color: #267b42 !important;
+}
+
+.checkout-address-form button[class*="bg-[#f1f7ff]"] {
+  border-color: #8fd3a5 !important;
+  background: #f5fcf7 !important;
+  color: #267b42 !important;
+}
+
+.checkout-location-picker-sheet .checkout-location-details {
+  background: #fafcff !important;
+}
+
+.checkout-location-picker-sheet .checkout-location-details > div.mt-3 {
+  border-color: #8fd3a5 !important;
+  background: #f5fcf7 !important;
+  box-shadow: 0 4px 14px rgba(30, 50, 80, .035) !important;
+}
+
+.checkout-location-picker-sheet .checkout-location-details > div.mt-3 span[class*="border-[#287cf0]"] {
+  border-color: #2c8b4b !important;
+}
+
+.checkout-location-picker-sheet .checkout-location-details > div.mt-3 span[class*="bg-[#287cf0]"] {
+  background: #2c8b4b !important;
+}
+
+.checkout-location-picker-sheet .checkout-location-details > button {
+  background: #171a1f !important;
+  transition: background-color .16s ease;
+}
+
+.checkout-location-picker-sheet .checkout-location-details > button:hover {
+  background: #2c3036 !important;
+}
+
+.branch-picker-panel {
+  color: #171a1f;
+}
+
+@media (max-width: 767px) {
+  .store-mobile-sheet.branch-picker-panel {
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    overflow: hidden !important;
+  }
+}
+
+.branch-picker-list article {
+  border-radius: 18px !important;
+  border-color: #e3e8ee !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 14px rgba(30, 50, 80, .035);
+}
+
+.branch-picker-list article:hover {
+  border-color: #bfe8cc !important;
+  box-shadow: 0 7px 20px rgba(30, 50, 80, .06);
+}
+
+.branch-picker-list article > div > span:first-child {
+  height: 44px !important;
+  width: 44px !important;
+  border-radius: 12px !important;
+}
+
+.branch-picker-list article h4 {
+  color: #171a1f;
+  font-size: 15px;
+}
+
+.branch-picker-list article p {
+  color: #4e5661;
+}
+
+.branch-picker-map > div:last-child button {
+  border-radius: 16px !important;
+  border-color: #e3e8ee !important;
+  box-shadow: 0 8px 20px rgba(30, 50, 80, .1) !important;
+}
+
+@media (max-width: 767px) {
+  .checkout-address-picker-sheet {
+    max-height: calc(100dvh - 12px) !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+  }
+
+  .checkout-address-picker-header {
+    padding-top: 4px;
+  }
+
+  .checkout-saved-address-card > button:first-child {
+    padding: 16px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .checkout-address-picker-sheet {
+    max-height: min(820px, calc(100dvh - 32px)) !important;
+  }
+}
+
+html[dir='rtl'] body.store-page [dir='ltr'] {
+  /* dir=ltr is also used as a layout wrapper around Arabic product cards. */
+  font-family: var(--store-arabic-font-family);
+}
+
 html[dir='rtl'] body.store-page [data-ltr-content='true'] {
-  font-family: 'Saudi Riyal', 'Poppins', 'Thmanyah Serif Text', system-ui, sans-serif;
+  font-family: 'Poppins', 'Saudi Riyal', system-ui, sans-serif;
+  letter-spacing: normal;
 }
 
 html[dir='rtl'] body.store-page {
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: var(--store-arabic-letter-spacing);
+  word-spacing: var(--store-arabic-word-spacing);
+}
+
+/* Keep the Display family on its native spacing across every Arabic surface,
+   while explicit LTR islands retain their Poppins metrics. */
+html[dir='rtl'] body.store-page,
+html[dir='rtl'] body.store-page
+  *:not([dir='ltr']):not([dir='ltr'] *):not([data-ltr-content='true']):not([data-ltr-content='true'] *) {
+  letter-spacing: var(--store-arabic-letter-spacing) !important;
+  word-spacing: var(--store-arabic-word-spacing) !important;
+}
+
+html[dir='rtl'] body.store-page [dir='ltr'],
+html[dir='rtl'] body.store-page [data-ltr-content='true'],
+html[dir='rtl'] body.store-page [dir='ltr'] *,
+html[dir='rtl'] body.store-page [data-ltr-content='true'] * {
+  letter-spacing: normal !important;
+    word-spacing: normal !important;
+}
+
+/* Tracking utilities are useful for Latin labels but visually split Arabic
+   joins. Keep them aligned with the global Arabic spacing correction. */
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class*='tracking-'] {
+  letter-spacing: var(--store-arabic-letter-spacing) !important;
+  word-spacing: var(--store-arabic-word-spacing) !important;
+}
+
+/* iOS Safari path: use the same Display family as the rest of the store.
+   Keep explicit LTR islands on Poppins so English and Latin digits do not change. */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+    html[dir='rtl'] body.store-page,
+    html[dir='rtl'] body.store-page * {
+        font-family: var(--store-arabic-font-family) !important;
+      font-synthesis: none;
+      font-kerning: normal;
+      font-variant-ligatures: normal;
+      font-feature-settings: "ccmp" 1, "kern" 1, "liga" 1, "clig" 1, "rlig" 1,
+        "calt" 1, "mark" 1, "mkmk" 1, "locl" 1;
+      text-rendering: optimizeLegibility;
+    }
+
+    html[dir='rtl'] body.store-page [data-ltr-content='true'],
+    html[dir='rtl'] body.store-page .font-poppins-numeric {
+      font-family: 'Poppins', 'Saudi Riyal', -apple-system, BlinkMacSystemFont,
+        'Segoe UI', sans-serif !important;
+      font-feature-settings: normal;
+    }
+  }
 }
 
 html[dir='rtl'] body.store-page h1,
@@ -5306,7 +6497,7 @@ html[dir='rtl'] body.store-page h4,
 html[dir='rtl'] body.store-page h5,
 html[dir='rtl'] body.store-page h6 {
   font-weight: 500;
-  letter-spacing: 0;
+  letter-spacing: var(--store-arabic-letter-spacing);
 }
 
 html[dir='rtl'] body.store-page p,
@@ -5315,23 +6506,23 @@ html[dir='rtl'] body.store-page input,
 html[dir='rtl'] body.store-page select,
 html[dir='rtl'] body.store-page textarea {
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: var(--store-arabic-letter-spacing);
 }
 
 html[dir='rtl'] body.store-page button,
 html[dir='rtl'] body.store-page a {
-  letter-spacing: 0;
+  letter-spacing: var(--store-arabic-letter-spacing);
 }
 
-html[dir='rtl'] body.store-page .font-light { font-weight: 300 !important; }
+html[dir='rtl'] body.store-page .font-light { font-weight: 400 !important; }
 html[dir='rtl'] body.store-page .font-normal { font-weight: 400 !important; }
 html[dir='rtl'] body.store-page .font-medium { font-weight: 500 !important; }
 html[dir='rtl'] body.store-page .font-semibold { font-weight: 500 !important; }
 html[dir='rtl'] body.store-page strong,
 html[dir='rtl'] body.store-page b { font-weight: 500 !important; }
-html[dir='rtl'] body.store-page .font-bold { font-weight: 700 !important; }
+html[dir='rtl'] body.store-page .font-bold { font-weight: 500 !important; }
 html[dir='rtl'] body.store-page .font-extrabold,
-html[dir='rtl'] body.store-page .font-black { font-weight: 900 !important; }
+html[dir='rtl'] body.store-page .font-black { font-weight: 500 !important; }
 
 /* Full-bleed product sections should be centered from the viewport rather
    than from the inline start edge. The latter can resolve differently under
@@ -5342,5 +6533,2712 @@ html[dir='rtl'] body.store-page .font-black { font-weight: 900 !important; }
   margin-left: calc(50% - 50vw) !important;
   margin-right: calc(50% - 50vw) !important;
   transform: none !important;
+}
+
+/* Mukafaati master presentation: the page reads as one membership portal,
+   while every surface keeps the store's existing neutral/green language. */
+.mukafaati-page {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+.mukafaati-page::before,
+.mukafaati-page::after {
+  position: absolute;
+  z-index: -1;
+  width: 34rem;
+  height: 34rem;
+  border: 1px solid rgba(44, 139, 75, .08);
+  border-radius: 999px;
+  pointer-events: none;
+  content: "";
+  animation: mukafaati-aura-drift 18s ease-in-out infinite alternate;
+}
+
+.mukafaati-page::before {
+  top: 280px;
+  inset-inline-start: -19rem;
+  box-shadow: 0 0 0 44px rgba(44, 139, 75, .025), 0 0 0 88px rgba(44, 139, 75, .018);
+}
+
+.mukafaati-page::after {
+  top: 1120px;
+  inset-inline-end: -20rem;
+  border-color: rgba(193, 36, 117, .08);
+  box-shadow: 0 0 0 44px rgba(193, 36, 117, .025), 0 0 0 88px rgba(193, 36, 117, .018);
+  animation-delay: -6s;
+}
+
+.mukafaati-page > main {
+  position: relative;
+}
+
+.mukafaati-page > main > section {
+  position: relative;
+}
+
+.mukafaati-page > main > section:not(:first-child)::after {
+  position: absolute;
+  top: -3.5rem;
+  inset-inline-start: 0;
+  width: 72px;
+  height: 1px;
+  background: linear-gradient(90deg, #2c8b4b, transparent);
+  opacity: .35;
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] {
+  border-color: rgba(255, 255, 255, .88);
+  box-shadow: 0 24px 70px rgba(42, 64, 88, .11), 0 2px 0 rgba(255, 255, 255, .86) inset;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child {
+  min-height: 390px;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child::after {
+  position: absolute;
+  inset: auto 7% 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .2), transparent);
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, .66), transparent 16%, transparent 84%, rgba(255, 255, 255, .66)),
+    #fbfcfd;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) > div {
+  box-shadow: 0 7px 18px rgba(26, 49, 39, .035);
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) > div:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 26px rgba(26, 49, 39, .09);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 0, rgba(194, 234, 205, .26), transparent 34%),
+    #f4faf6;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3)::before {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(44, 139, 75, .12) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: .16;
+  pointer-events: none;
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:first-child {
+  position: relative;
+  padding-inline-start: 16px;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:first-child::before {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(#2c8b4b, #c12475);
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button {
+  min-height: 190px;
+  transform-style: preserve-3d;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, .5) 48%, transparent 72%);
+  background-size: 220% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease, background-position .7s ease;
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button:hover::after,
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button:focus-visible::after {
+  background-position: -60% 0;
+  opacity: 1;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article {
+  min-height: 164px;
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease, border-color .35s ease;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:hover {
+  border-color: rgba(44, 139, 75, .22);
+  transform: translateY(-7px) rotate(-.35deg);
+  box-shadow: 0 20px 34px rgba(42, 64, 88, .12);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child {
+  box-shadow: 0 20px 48px rgba(42, 64, 88, .065);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child {
+  position: sticky;
+  top: 12px;
+  z-index: 2;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div {
+  transition: background-color .25s ease, transform .25s ease;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div:hover {
+  background-color: #fbfdfb;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] > div > div:first-child {
+  box-shadow: 0 22px 52px rgba(20, 46, 34, .17);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] > div > div:first-child::before {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 22px;
+  pointer-events: none;
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] > div > div:last-child {
+  box-shadow: 0 18px 42px rgba(42, 64, 88, .08);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] article > div {
+  box-shadow: 0 5px 14px rgba(42, 64, 88, .035);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:first-child {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child {
+  box-shadow: 0 24px 56px rgba(42, 64, 88, .1);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(255, 255, 255, .6);
+  border-radius: 22px;
+  pointer-events: none;
+  content: "";
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child {
+  box-shadow: 0 20px 48px rgba(42, 64, 88, .075);
+}
+
+@keyframes mukafaati-aura-drift {
+  from { transform: translate3d(0, 0, 0) scale(.94); }
+  to { transform: translate3d(22px, -12px, 0) scale(1.04); }
+}
+
+@media (max-width: 767px) {
+  .mukafaati-page > main > section:not(:first-child)::after { top: -2rem; }
+  .mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child { min-height: 0; }
+  .mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child { position: static; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mukafaati-page::before,
+  .mukafaati-page::after { animation: none; }
+
+  .mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) > div:hover,
+  .mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button:hover,
+  .mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:hover { transform: none; }
+}
+
+/* Mukafaati palette direction: deep burgundy, carbon black, warm ivory, and
+   restrained brass. The selector stays page-scoped so the wider store keeps
+   its established green system. */
+.mukafaati-page {
+  --mukafaati-burgundy: #57192d;
+  --mukafaati-burgundy-deep: #35111e;
+  --mukafaati-burgundy-soft: #7a2a43;
+  --mukafaati-carbon: #0f0d0f;
+  --mukafaati-carbon-soft: #171317;
+  --mukafaati-ivory: #f8f0ed;
+  --mukafaati-muted: #cdbec0;
+  --mukafaati-brass: #d9ae68;
+  background:
+    radial-gradient(circle at 6% 13%, rgba(122, 42, 67, .3), transparent 25%),
+    radial-gradient(circle at 94% 38%, rgba(87, 25, 45, .38), transparent 28%),
+    linear-gradient(135deg, #191117 0%, #0d0c0e 52%, #21131b 100%) !important;
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page::before {
+  border-color: rgba(217, 174, 104, .1);
+  box-shadow: 0 0 0 44px rgba(217, 174, 104, .028), 0 0 0 88px rgba(217, 174, 104, .016);
+}
+
+.mukafaati-page::after {
+  border-color: rgba(193, 89, 118, .14);
+  box-shadow: 0 0 0 44px rgba(193, 89, 118, .025), 0 0 0 88px rgba(193, 89, 118, .015);
+}
+
+.mukafaati-page > main > section:not(:first-child)::after {
+  background: linear-gradient(90deg, var(--mukafaati-burgundy-soft), transparent);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] {
+  background: var(--mukafaati-carbon) !important;
+  border-color: rgba(248, 240, 237, .14) !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .34), 0 1px 0 rgba(255, 255, 255, .06) inset;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child {
+  background:
+    radial-gradient(circle at 17% 50%, rgba(122, 42, 67, .54), transparent 29%),
+    linear-gradient(135deg, #0e0d0f 0%, #160e13 48%, #57192d 100%) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child > div:nth-child(2) {
+  background: rgba(122, 42, 67, .3) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:first-child::after {
+  background: linear-gradient(90deg, transparent, rgba(217, 174, 104, .42), transparent);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) {
+  background:
+    linear-gradient(90deg, rgba(87, 25, 45, .35), transparent 18%, transparent 82%, rgba(87, 25, 45, .35)),
+    var(--mukafaati-carbon-soft) !important;
+  border-color: rgba(248, 240, 237, .08) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) > div {
+  background: rgba(255, 255, 255, .045) !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+  box-shadow: 0 9px 24px rgba(0, 0, 0, .14);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) > div:hover {
+  background: rgba(255, 255, 255, .085) !important;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, .22);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) p,
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) span {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) p.mt-1 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) {
+  background:
+    radial-gradient(circle at 50% 0, rgba(122, 42, 67, .36), transparent 36%),
+    #21131b !important;
+  border-color: rgba(248, 240, 237, .09) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3)::before {
+  background-image: radial-gradient(rgba(217, 174, 104, .24) 1px, transparent 1px);
+  opacity: .19;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > div:first-child {
+  background: linear-gradient(145deg, #21131b 0%, #341424 58%, #111011 100%) !important;
+  border-color: rgba(217, 174, 104, .2) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] .tilted-card__surface > div {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .16) 0%, rgba(87, 25, 45, .64) 52%, rgba(15, 13, 15, .88) 100%) !important;
+  border-color: rgba(217, 174, 104, .28) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > div:last-child {
+  background: rgba(15, 13, 15, .7) !important;
+  border-color: rgba(217, 174, 104, .18) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > div:last-child p,
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > div:last-child span {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(3) > div:last-child p:first-child {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page .mukafaati-journey-map {
+  background:
+    radial-gradient(circle at 10% 18%, rgba(122, 42, 67, .48), transparent 28%),
+    radial-gradient(circle at 82% 80%, rgba(217, 174, 104, .18), transparent 31%),
+    linear-gradient(135deg, #0e0d0f 0%, #1b1117 52%, #57192d 100%) !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+}
+
+.mukafaati-page .mukafaati-journey-map::before {
+  background-image: linear-gradient(rgba(248, 240, 237, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(248, 240, 237, .055) 1px, transparent 1px);
+}
+
+.mukafaati-page .mukafaati-journey-map__glow {
+  border-color: rgba(217, 174, 104, .18);
+}
+
+.mukafaati-page [aria-label='عضو مكافآتي'] {
+  background: linear-gradient(145deg, #0c0b0d 0%, #25121b 58%, #57192d 100%) !important;
+  border-color: rgba(217, 174, 104, .2) !important;
+  box-shadow: 0 26px 58px rgba(0, 0, 0, .28);
+}
+
+.mukafaati-page [aria-label='عضو مكافآتي'] + section {
+  background: linear-gradient(145deg, #321522 0%, #57192d 100%) !important;
+  border-color: rgba(217, 174, 104, .22) !important;
+  box-shadow: 0 20px 46px rgba(0, 0, 0, .22);
+}
+
+.mukafaati-page [aria-label='عضو مكافآتي'] + section p,
+.mukafaati-page [aria-label='عضو مكافآتي'] + section h2 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-label='عضو مكافآتي'] + section p {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] h2,
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] h3,
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:first-child p:not(.text-\[10px\]) {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:first-child span {
+  background: rgba(217, 174, 104, .15) !important;
+  color: var(--mukafaati-brass) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button {
+  background: linear-gradient(145deg, #191519 0%, #0e0d0f 100%) !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+  color: var(--mukafaati-ivory) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .17);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button:nth-child(3) {
+  background: linear-gradient(145deg, #7a2a43 0%, #35111e 100%) !important;
+  border-color: rgba(217, 174, 104, .48) !important;
+  box-shadow: 0 18px 38px rgba(87, 25, 45, .36);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button p,
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button span {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button p.mt-6 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(2) > button span.rounded-full {
+  background: var(--mukafaati-burgundy-soft) !important;
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article {
+  background: linear-gradient(145deg, #1e171b 0%, #110f11 100%) !important;
+  border-color: rgba(248, 240, 237, .12) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:nth-child(2) {
+  background: linear-gradient(145deg, #542039 0%, #27111b 100%) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:nth-child(3) {
+  background: linear-gradient(145deg, #6d253e 0%, #35111e 100%) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:nth-child(4) {
+  background: linear-gradient(145deg, #2c1a20 0%, #0e0d0f 100%) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) h3 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) p {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:nth-child(3) article:nth-child(3) > span {
+  color: #e0c09b !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child {
+  background: var(--mukafaati-carbon) !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+  box-shadow: 0 24px 52px rgba(0, 0, 0, .2);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child {
+  background: #171317 !important;
+  border-color: rgba(248, 240, 237, .1) !important;
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child > div:first-child {
+  background: linear-gradient(90deg, #171317, #25131d, #171317) !important;
+  border-color: rgba(248, 240, 237, .1) !important;
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child > div:first-child > div {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child > div:first-child > div:nth-child(4) {
+  background: rgba(217, 174, 104, .12) !important;
+  color: var(--mukafaati-brass) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:first-child > div:not(:first-child) {
+  background: #100e10 !important;
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child [class*='bg-[#fffaf0]'] {
+  background: rgba(217, 174, 104, .12) !important;
+  color: var(--mukafaati-brass) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div {
+  border-color: rgba(248, 240, 237, .09) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div > div {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div > div:first-child {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-levels-title'] > div:last-child > div:nth-child(2) > div > div:nth-child(3) {
+  background: rgba(217, 174, 104, .12) !important;
+  color: var(--mukafaati-brass) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] > div > div:first-child {
+  background: linear-gradient(145deg, #0e0d0f 0%, #211018 58%, #57192d 100%) !important;
+  border-color: rgba(217, 174, 104, .2) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] > div > div:last-child {
+  background: #171317 !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] article > div {
+  background: rgba(255, 255, 255, .045) !important;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, .14);
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] article h3 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-how-title'] article p {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] h2,
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] h3 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:first-child p {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child {
+  background: linear-gradient(145deg, #7a2a43 0%, #35111e 58%, #100e10 100%) !important;
+  border-color: rgba(217, 174, 104, .32) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child p,
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child span {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child h3 {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:first-child > div > div {
+  background: rgba(255, 255, 255, .08) !important;
+  border-color: rgba(248, 240, 237, .1) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child {
+  background: var(--mukafaati-carbon) !important;
+  border-color: rgba(248, 240, 237, .13) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:first-child {
+  border-color: rgba(248, 240, 237, .1) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:first-child button {
+  background: rgba(255, 255, 255, .055) !important;
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:first-child button.bg-\[\#171819\] {
+  background: var(--mukafaati-burgundy-soft) !important;
+  color: var(--mukafaati-ivory) !important;
+  box-shadow: 0 8px 20px rgba(87, 25, 45, .28) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:last-child h3,
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:last-child button {
+  color: var(--mukafaati-ivory) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:last-child p {
+  color: var(--mukafaati-muted) !important;
+}
+
+.mukafaati-page [aria-labelledby='mukafaati-faq-title'] > div:last-child > div:last-child > div:last-child > div {
+  border-color: rgba(248, 240, 237, .1) !important;
+}
+
+@media (max-width: 767px) {
+  .mukafaati-page > main {
+    padding-inline: 14px;
+  }
+
+  .mukafaati-page [aria-labelledby='mukafaati-welcome-title'] > div:nth-child(2) {
+    padding: 10px;
+  }
+}
+
+/* Translate the former green accents into the new warm-metal system inside
+   the loyalty experience only. */
+.mukafaati-page > main [class*='text-[#2c8b4b]'],
+.mukafaati-page > main [class*='text-[#267b42]'],
+.mukafaati-page > main [class*='text-[#23763d]'] {
+  color: var(--mukafaati-brass) !important;
+}
+
+.mukafaati-page > main [class*='text-[#c8f0d2]'] {
+  color: #f0d8c1 !important;
+}
+
+.mukafaati-page > main [class*='bg-[#2c8b4b]'] {
+  background-color: var(--mukafaati-burgundy-soft) !important;
+}
+
+.mukafaati-page > main [class*='bg-[#eef7f0]'],
+.mukafaati-page > main [class*='bg-[#f1fbf4]'],
+.mukafaati-page > main [class*='bg-[#f4faf6]'] {
+  background-color: rgba(122, 42, 67, .16) !important;
+}
+
+/* Mukafaati editorial system
+   A quieter, less repetitive composition for the redesigned loyalty page. */
+.mukafaati-editorial-page {
+  --mukafaati-editorial-ink: #171317;
+  --mukafaati-editorial-burgundy: #57192d;
+  --mukafaati-editorial-burgundy-deep: #2b0f1a;
+  --mukafaati-editorial-cream: #f8f0ed;
+  --mukafaati-editorial-paper: #fbf8f6;
+  --mukafaati-editorial-line: #ded4d0;
+  --mukafaati-editorial-muted: #786f70;
+  background: #f3eeec;
+  color: var(--mukafaati-editorial-ink);
+}
+
+.mukafaati-editorial-page main {
+  overflow: clip;
+}
+
+.mukafaati-editorial-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #9b5365;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mukafaati-editorial-hero {
+  display: grid;
+  min-height: 490px;
+  overflow: hidden;
+  border: 1px solid #3e1928;
+  border-radius: 30px;
+  background: var(--mukafaati-editorial-burgundy-deep);
+  color: var(--mukafaati-editorial-cream);
+  grid-template-columns: minmax(0, 1.03fr) minmax(360px, .97fr);
+}
+
+.mukafaati-editorial-hero__copy {
+  position: relative;
+  z-index: 2;
+  align-self: center;
+  max-width: 650px;
+  padding: 55px clamp(28px, 5vw, 72px);
+}
+
+.mukafaati-editorial-hero__copy .mukafaati-editorial-kicker {
+  color: #d5a9b4;
+}
+
+.mukafaati-editorial-hero h1 {
+  max-width: 600px;
+  margin: 22px 0 0;
+  color: var(--mukafaati-editorial-cream);
+  font-size: clamp(34px, 4.4vw, 62px);
+  font-weight: 600;
+  letter-spacing: -.065em;
+  line-height: 1.08;
+}
+
+.mukafaati-editorial-hero__body {
+  max-width: 500px;
+  margin: 22px 0 0;
+  color: #c8b9bb;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.mukafaati-editorial-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-top: 30px;
+  color: #e4d6d4;
+  font-size: 11px;
+}
+
+.mukafaati-editorial-hero__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline-end: 18px;
+  border-inline-end: 1px solid rgba(248, 240, 237, .18);
+}
+
+.mukafaati-editorial-hero__meta span:last-child {
+  padding-inline-end: 0;
+  border: 0;
+}
+
+.mukafaati-editorial-hero__meta svg {
+  color: #d5a56b;
+}
+
+.mukafaati-editorial-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  margin-top: 36px;
+  padding: 0 20px;
+  border-radius: 4px;
+  background: var(--mukafaati-editorial-cream);
+  color: var(--mukafaati-editorial-burgundy-deep);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.mukafaati-editorial-button:hover {
+  background: #d8a3af;
+  color: #210b13;
+  transform: translateY(-2px);
+}
+
+.mukafaati-editorial-hero__visual {
+  position: relative;
+  min-height: 490px;
+  overflow: hidden;
+  border-inline-start: 1px solid rgba(248, 240, 237, .12);
+  background-color: #1c0c13;
+  background-image: linear-gradient(rgba(248, 240, 237, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(248, 240, 237, .06) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.mukafaati-editorial-hero__visual::before,
+.mukafaati-editorial-hero__visual::after {
+  position: absolute;
+  width: 1px;
+  height: 150%;
+  background: rgba(248, 240, 237, .12);
+  content: "";
+  inset-inline-start: 50%;
+  top: -25%;
+  transform: rotate(32deg);
+}
+
+.mukafaati-editorial-hero__visual::after {
+  transform: rotate(-32deg);
+}
+
+.mukafaati-editorial-hero__orbit {
+  position: absolute;
+  border: 1px solid rgba(217, 166, 176, .25);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mukafaati-editorial-hero__orbit--outer {
+  width: min(42vw, 410px);
+  height: min(42vw, 410px);
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%) rotate(28deg) scaleY(.58);
+}
+
+.mukafaati-editorial-hero__orbit--inner {
+  width: min(29vw, 280px);
+  height: min(29vw, 280px);
+  inset: 50% auto auto 50%;
+  border-color: rgba(218, 176, 125, .33);
+  transform: translate(-50%, -50%) rotate(-28deg) scaleY(.58);
+}
+
+.mukafaati-editorial-hero__spark {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(248, 240, 237, .25);
+  border-radius: 50%;
+  color: #d5a56b;
+}
+
+.mukafaati-editorial-hero__spark--one { inset: 18% 16% auto auto; }
+.mukafaati-editorial-hero__spark--two { inset: auto auto 17% 14%; color: #d5a9b4; }
+
+.mukafaati-editorial-card {
+  position: absolute;
+  z-index: 2;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%) rotate(-7deg);
+}
+
+.mukafaati-editorial-card .tilted-card__surface {
+  overflow: hidden;
+  border: 1px solid rgba(248, 240, 237, .22);
+  border-radius: 20px;
+  background: var(--mukafaati-editorial-burgundy) !important;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, .32);
+}
+
+.mukafaati-editorial-card__surface {
+  position: relative;
+  height: 100%;
+  padding: 22px;
+  color: var(--mukafaati-editorial-cream);
+}
+
+.mukafaati-editorial-card__surface::before,
+.mukafaati-editorial-card__surface::after {
+  position: absolute;
+  border: 1px solid rgba(248, 240, 237, .14);
+  border-radius: 50%;
+  content: "";
+}
+
+.mukafaati-editorial-card__surface::before { width: 230px; height: 230px; inset: -115px -50px auto auto; }
+.mukafaati-editorial-card__surface::after { width: 155px; height: 155px; inset: auto auto -74px -28px; border-color: rgba(218, 176, 125, .25); }
+
+.mukafaati-editorial-card__top,
+.mukafaati-editorial-card__footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+
+.mukafaati-editorial-card__top { color: #f2d7dc; font-weight: 700; }
+.mukafaati-editorial-card__top svg { color: #d5a56b; }
+.mukafaati-editorial-card__surface p { position: relative; z-index: 1; margin: 50px 0 0; color: #d6c4c8; font-size: 10px; }
+.mukafaati-editorial-card__surface strong { position: relative; z-index: 1; display: inline-block; margin-top: 4px; font-size: 40px; font-weight: 500; letter-spacing: -.08em; }
+.mukafaati-editorial-card__surface > span { position: relative; z-index: 1; margin-inline-start: 8px; color: #d6c4c8; font-size: 10px; }
+.mukafaati-editorial-card__footer { position: absolute; inset-inline: 22px; bottom: 20px; padding-top: 13px; border-top: 1px solid rgba(248, 240, 237, .2); color: #d6c4c8; letter-spacing: 0; }
+
+.mukafaati-editorial-ledger {
+  display: grid;
+  align-items: stretch;
+  margin-top: 36px;
+  border-top: 1px solid var(--mukafaati-editorial-line);
+  border-bottom: 1px solid var(--mukafaati-editorial-line);
+  background: var(--mukafaati-editorial-paper);
+  grid-template-columns: minmax(190px, .8fr) minmax(280px, 1.25fr) minmax(290px, 1fr);
+}
+
+.mukafaati-editorial-ledger__identity,
+.mukafaati-editorial-ledger__progress,
+.mukafaati-editorial-ledger__facts { padding: 28px 25px; }
+.mukafaati-editorial-ledger__identity { border-inline-end: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-ledger__identity h2 { margin: 9px 0 12px; font-size: 20px; letter-spacing: -.04em; }
+.mukafaati-editorial-ledger__identity > span { display: inline-flex; padding: 5px 9px; background: #eee0e4; color: var(--mukafaati-editorial-burgundy); font-size: 10px; font-weight: 700; }
+.mukafaati-editorial-ledger__progress { display: flex; flex-direction: column; justify-content: center; border-inline-end: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-ledger__progress-head,
+.mukafaati-editorial-ledger__progress-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 11px; }
+.mukafaati-editorial-ledger__progress-head { color: var(--mukafaati-editorial-ink); font-weight: 700; }
+.mukafaati-editorial-ledger__progress-foot { margin-top: 10px; color: var(--mukafaati-editorial-muted); font-size: 10px; }
+.mukafaati-editorial-rule { height: 5px; margin-top: 18px; background: #e8dedb; }
+.mukafaati-editorial-rule span { display: block; width: 76%; height: 100%; background: var(--mukafaati-editorial-burgundy); }
+.mukafaati-editorial-ledger__facts { display: grid; align-items: center; grid-template-columns: repeat(3, 1fr); }
+.mukafaati-editorial-ledger__facts div { min-width: 0; padding-inline: 18px; border-inline-start: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-ledger__facts strong { display: block; color: var(--mukafaati-editorial-burgundy); font-size: 24px; font-weight: 600; letter-spacing: -.06em; }
+.mukafaati-editorial-ledger__facts span { display: block; margin-top: 5px; color: var(--mukafaati-editorial-muted); font-size: 10px; line-height: 1.5; }
+
+.mukafaati-editorial-map-wrap { margin-top: 90px; }
+.mukafaati-editorial-page .mukafaati-journey-map { border-color: #462033 !important; border-radius: 28px; background: #211019 !important; box-shadow: none !important; }
+.mukafaati-editorial-page .mukafaati-journey-map__glow { opacity: .12; filter: blur(40px); }
+.mukafaati-editorial-page .mukafaati-journey-map .bg-gradient-to-l { background: #c58b2a !important; }
+
+.mukafaati-editorial-levels,
+.mukafaati-editorial-faq { margin-top: 96px; }
+.mukafaati-editorial-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.mukafaati-editorial-section-heading h2 { margin: 11px 0 0; font-size: clamp(30px, 4vw, 46px); font-weight: 600; letter-spacing: -.065em; line-height: 1.08; }
+.mukafaati-editorial-section-heading p:not(.mukafaati-editorial-kicker) { max-width: 600px; margin: 12px 0 0; color: var(--mukafaati-editorial-muted); font-size: 13px; line-height: 1.8; }
+.mukafaati-editorial-section-heading > span { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; color: var(--mukafaati-editorial-burgundy); font-size: 11px; font-weight: 700; }
+
+.mukafaati-editorial-tier-rail { display: grid; margin-top: 42px; border-top: 1px solid var(--mukafaati-editorial-line); border-bottom: 1px solid var(--mukafaati-editorial-line); grid-template-columns: repeat(4, 1fr); }
+.mukafaati-editorial-tier-rail button { position: relative; display: grid; align-items: center; min-height: 110px; padding: 18px 20px; border: 0; border-inline-start: 1px solid var(--mukafaati-editorial-line); background: transparent; color: var(--mukafaati-editorial-ink); cursor: pointer; gap: 8px; grid-template-columns: auto auto 1fr; text-align: start; transition: background-color 180ms ease, color 180ms ease; }
+.mukafaati-editorial-tier-rail button:first-child { border-inline-start: 0; }
+.mukafaati-editorial-tier-rail button:hover { background: #ede2e4; }
+.mukafaati-editorial-tier-rail button.is-active { background: var(--mukafaati-editorial-burgundy); color: var(--mukafaati-editorial-cream); }
+.mukafaati-editorial-tier-rail__number { align-self: start; color: #a29899; font-size: 10px; }
+.mukafaati-editorial-tier-rail button.is-active .mukafaati-editorial-tier-rail__number { color: #d9aab5; }
+.mukafaati-editorial-tier-rail__icon { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid currentColor; border-radius: 50%; }
+.mukafaati-editorial-tier-rail strong,
+.mukafaati-editorial-tier-rail small { display: block; }
+.mukafaati-editorial-tier-rail strong { font-size: 13px; }
+.mukafaati-editorial-tier-rail small { margin-top: 5px; color: var(--mukafaati-editorial-muted); font-size: 10px; }
+.mukafaati-editorial-tier-rail button.is-active small { color: #d9c5c9; }
+.mukafaati-editorial-tier-rail em { position: absolute; inset-inline-end: 16px; top: 14px; color: #d9aab5; font-size: 9px; font-style: normal; }
+
+.mukafaati-editorial-matrix { margin-top: 34px; overflow: hidden; border-top: 1px solid var(--mukafaati-editorial-line); background: var(--mukafaati-editorial-paper); }
+.mukafaati-editorial-matrix__head,
+.mukafaati-editorial-matrix__row { display: grid; align-items: center; grid-template-columns: minmax(210px, 1.35fr) repeat(4, minmax(100px, 1fr)); }
+.mukafaati-editorial-matrix__head { min-height: 62px; border-bottom: 1px solid var(--mukafaati-editorial-line); color: var(--mukafaati-editorial-muted); font-size: 11px; }
+.mukafaati-editorial-matrix__head > * { padding: 0 18px; text-align: center; }
+.mukafaati-editorial-matrix__head > :first-child { text-align: start; }
+.mukafaati-editorial-matrix__head .is-current { color: var(--mukafaati-editorial-burgundy); }
+.mukafaati-editorial-matrix__row { min-height: 78px; border-bottom: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-matrix__row:last-child { border-bottom: 0; }
+.mukafaati-editorial-matrix__row > * { padding: 0 18px; text-align: center; }
+.mukafaati-editorial-matrix__row > span { display: flex; align-items: center; gap: 10px; color: #4c4244; font-size: 11px; font-weight: 700; text-align: start; }
+.mukafaati-editorial-matrix__row > span svg { flex-shrink: 0; color: var(--mukafaati-editorial-burgundy); }
+.mukafaati-editorial-matrix__row > strong { color: var(--mukafaati-editorial-muted); font-size: 12px; font-weight: 500; }
+.mukafaati-editorial-matrix__row > .is-current { align-self: stretch; display: grid; place-items: center; background: #f0e2e5; color: var(--mukafaati-editorial-burgundy); font-weight: 700; }
+
+.mukafaati-editorial-journey { display: grid; margin-top: 96px; border-radius: 28px; background: var(--mukafaati-editorial-ink); color: var(--mukafaati-editorial-cream); grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+.mukafaati-editorial-journey__statement { padding: 54px clamp(27px, 5vw, 65px); border-inline-end: 1px solid rgba(248, 240, 237, .13); }
+.mukafaati-editorial-journey__statement .mukafaati-editorial-kicker { color: #d5a9b4; }
+.mukafaati-editorial-journey__statement h2 { max-width: 470px; margin: 20px 0 0; color: var(--mukafaati-editorial-cream); font-size: clamp(35px, 4vw, 56px); letter-spacing: -.07em; line-height: 1.06; }
+.mukafaati-editorial-journey__statement > p:not(.mukafaati-editorial-kicker) { max-width: 430px; margin: 22px 0 0; color: #b9abad; font-size: 13px; line-height: 1.9; }
+.mukafaati-editorial-journey__statement a { display: inline-flex; align-items: center; gap: 8px; margin-top: 32px; color: #e6c3ca; font-size: 12px; font-weight: 700; text-decoration: none; }
+.mukafaati-editorial-journey__steps { padding: 37px clamp(25px, 4vw, 58px); }
+.mukafaati-editorial-journey__steps article { display: grid; min-height: 116px; padding: 20px 0; border-bottom: 1px solid rgba(248, 240, 237, .15); gap: 18px; grid-template-columns: 40px 1fr; }
+.mukafaati-editorial-journey__steps article:last-child { border-bottom: 0; }
+.mukafaati-editorial-journey__steps article > span { color: #d5a56b; font-size: 12px; font-weight: 700; }
+.mukafaati-editorial-journey__steps article div { position: relative; padding-inline-start: 28px; }
+.mukafaati-editorial-journey__steps article div > svg { position: absolute; inset-inline-start: 0; top: 1px; color: #d5a9b4; }
+.mukafaati-editorial-journey__steps h3 { margin: 0; color: var(--mukafaati-editorial-cream); font-size: 15px; }
+.mukafaati-editorial-journey__steps p { margin: 9px 0 0; color: #aaa0a2; font-size: 12px; line-height: 1.8; }
+
+.mukafaati-editorial-faq__layout { display: grid; margin-top: 40px; border-top: 1px solid var(--mukafaati-editorial-line); border-bottom: 1px solid var(--mukafaati-editorial-line); grid-template-columns: minmax(250px, .75fr) minmax(0, 1.25fr); }
+.mukafaati-editorial-faq__layout aside { padding: 31px 27px; background: var(--mukafaati-editorial-burgundy); color: var(--mukafaati-editorial-cream); }
+.mukafaati-editorial-faq__layout aside > span { display: inline-flex; align-items: center; gap: 8px; color: #e4c2ca; font-size: 10px; }
+.mukafaati-editorial-faq__layout aside > div { display: flex; align-items: center; gap: 14px; margin-top: 40px; }
+.mukafaati-editorial-faq__layout aside > div > svg { color: #d5a56b; }
+.mukafaati-editorial-faq__layout aside > div p { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.05em; }
+.mukafaati-editorial-faq__layout aside > strong { display: block; margin-top: 9px; color: #dfc6ca; font-size: 11px; font-weight: 500; }
+.mukafaati-editorial-faq__layout aside ul { margin: 35px 0 0; padding: 0; list-style: none; }
+.mukafaati-editorial-faq__layout aside li { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid rgba(248, 240, 237, .17); color: #eee1e2; font-size: 11px; }
+.mukafaati-editorial-faq__layout aside li svg { color: #d5a56b; }
+.mukafaati-editorial-faq__content { background: var(--mukafaati-editorial-paper); }
+.mukafaati-editorial-faq__content nav { display: flex; gap: 24px; overflow-x: auto; padding: 0 27px; border-bottom: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-faq__content nav button { position: relative; min-height: 65px; padding: 0; border: 0; background: transparent; color: var(--mukafaati-editorial-muted); cursor: pointer; font-size: 11px; white-space: nowrap; }
+.mukafaati-editorial-faq__content nav button.is-active { color: var(--mukafaati-editorial-burgundy); font-weight: 700; }
+.mukafaati-editorial-faq__content nav button.is-active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--mukafaati-editorial-burgundy); content: ""; }
+.mukafaati-editorial-faq__content > div { padding: 7px 27px; }
+.mukafaati-editorial-faq__content article { padding: 21px 0; border-bottom: 1px solid var(--mukafaati-editorial-line); }
+.mukafaati-editorial-faq__content article:last-child { border-bottom: 0; }
+.mukafaati-editorial-faq__content article > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; padding: 0; border: 0; background: transparent; color: var(--mukafaati-editorial-ink); cursor: pointer; font-size: 13px; font-weight: 700; text-align: start; }
+.mukafaati-editorial-faq__content article > button svg { flex-shrink: 0; color: var(--mukafaati-editorial-burgundy); transition: transform 180ms ease; }
+.mukafaati-editorial-faq__content article > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.mukafaati-editorial-faq__content article > p { max-width: 650px; margin: 12px 0 0; color: var(--mukafaati-editorial-muted); font-size: 12px; line-height: 1.9; }
+.mukafaati-editorial-terms { margin: 25px 0 0; color: #8d8183; font-size: 10px; text-align: center; }
+
+@media (max-width: 900px) {
+  .mukafaati-editorial-hero { grid-template-columns: 1fr; }
+  .mukafaati-editorial-hero__visual { min-height: 390px; border-inline-start: 0; border-top: 1px solid rgba(248, 240, 237, .12); }
+  .mukafaati-editorial-ledger { grid-template-columns: 1fr 1fr; }
+  .mukafaati-editorial-ledger__identity { border-bottom: 1px solid var(--mukafaati-editorial-line); border-inline-end: 1px solid var(--mukafaati-editorial-line); }
+  .mukafaati-editorial-ledger__progress { border-bottom: 1px solid var(--mukafaati-editorial-line); border-inline-end: 0; }
+  .mukafaati-editorial-ledger__facts { grid-column: 1 / -1; }
+  .mukafaati-editorial-journey { grid-template-columns: 1fr; }
+  .mukafaati-editorial-journey__statement { border-bottom: 1px solid rgba(248, 240, 237, .13); border-inline-end: 0; }
+}
+
+@media (max-width: 640px) {
+  .mukafaati-editorial-page main { padding-inline: 14px; }
+  .mukafaati-editorial-hero { border-radius: 22px; }
+  .mukafaati-editorial-hero__copy { padding: 38px 24px; }
+  .mukafaati-editorial-hero__visual { min-height: 330px; }
+  .mukafaati-editorial-card { transform: translate(-50%, -50%) rotate(-5deg) scale(.82); }
+  .mukafaati-editorial-hero__orbit--outer { width: 340px; height: 340px; }
+  .mukafaati-editorial-hero__orbit--inner { width: 230px; height: 230px; }
+  .mukafaati-editorial-ledger { display: block; margin-top: 24px; }
+  .mukafaati-editorial-ledger__identity,
+  .mukafaati-editorial-ledger__progress { border-inline-end: 0; }
+  .mukafaati-editorial-ledger__facts { padding-top: 21px; padding-bottom: 21px; }
+  .mukafaati-editorial-ledger__facts div { padding-inline: 10px; }
+  .mukafaati-editorial-ledger__facts strong { font-size: 20px; }
+  .mukafaati-editorial-map-wrap,
+  .mukafaati-editorial-levels,
+  .mukafaati-editorial-faq { margin-top: 64px; }
+  .mukafaati-editorial-section-heading { display: block; }
+  .mukafaati-editorial-section-heading > span { margin-top: 18px; }
+  .mukafaati-editorial-tier-rail { display: flex; overflow-x: auto; margin-top: 28px; }
+  .mukafaati-editorial-tier-rail button { min-width: 210px; border-inline-start: 1px solid var(--mukafaati-editorial-line); }
+  .mukafaati-editorial-matrix { overflow-x: auto; }
+  .mukafaati-editorial-matrix__head,
+  .mukafaati-editorial-matrix__row { min-width: 700px; }
+  .mukafaati-editorial-journey { margin-top: 64px; border-radius: 22px; }
+  .mukafaati-editorial-journey__statement { padding: 40px 24px; }
+  .mukafaati-editorial-journey__steps { padding: 20px 24px; }
+  .mukafaati-editorial-faq__layout { display: block; margin-top: 28px; }
+  .mukafaati-editorial-faq__layout aside { padding: 27px 24px; }
+  .mukafaati-editorial-faq__layout aside > div { margin-top: 25px; }
+  .mukafaati-editorial-faq__content nav { padding-inline: 20px; gap: 20px; }
+  .mukafaati-editorial-faq__content > div { padding-inline: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mukafaati-editorial-page *,
+  .mukafaati-editorial-page *::before,
+  .mukafaati-editorial-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* Keep the RTL action group optically balanced. The original physical
+   margin on the search button collapsed the gap toward the globe icon and
+   left excess space after the account control. */
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions] {
+    gap: 4px;
+    padding-inline: 14px 10px;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions='authenticated'] {
+    width: 288px;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions='guest'] {
+    width: 250px;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions][data-store-header-scrolled='true'][data-store-header-actions='authenticated'] {
+    width: 260px;
+    gap: 4px;
+    padding-inline: 9px 8px;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions][data-store-header-scrolled='true'][data-store-header-actions='guest'] {
+    width: 228px;
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-search-button] {
+    margin-left: 0 !important;
+    margin-inline-start: 0;
+    margin-inline-end: 8px;
+    transition-property: width, margin, opacity, transform;
+    transition-duration: 500ms;
+    transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-actions][data-store-header-scrolled='true'] [data-store-header-search-button] {
+    margin-inline-end: 0;
+  }
+
+  html[dir='rtl'] body.store-page header[dir='rtl'] [data-store-header-account] > button {
+    padding-inline-start: 8px;
+    padding-inline-end: 3px;
+  }
+}
+
+/* Payment layout: keep order details above the summary in the side rail. On
+   phones the original in-flow card remains first, matching the mobile
+   reading order. */
+@media (max-width: 1023px) {
+  .checkout-unified-flow.checkout-flow-stage-payment .checkout-payment-order-details-side {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .checkout-unified-flow.checkout-flow-stage-payment .checkout-flow-column .checkout-payment-order-details {
+    display: none !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-payment .checkout-layout > .checkout-side-column > aside.checkout-order-summary {
+    position: relative !important;
+    top: auto !important;
+    overflow: visible !important;
+  }
+
+  .checkout-unified-flow.checkout-flow-stage-payment .checkout-layout > .checkout-side-column > aside.checkout-order-summary > button.shipping-place-order {
+    position: absolute !important;
+    top: calc(100% + 16px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 48px !important;
+    margin: 0 !important;
+    transform: none !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Final Arabic readability audit: every Tailwind text-size utility used by
+   the store uses an even, readable size. Keep this scoped to the Arabic
+   document and leave explicit LTR islands (for example card inputs) alone. */
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-xs'] {
+  font-size: 16px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-sm'] {
+  font-size: 18px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-base'] {
+  font-size: 20px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-lg'] {
+  font-size: 22px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-xl'] {
+  font-size: 24px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-2xl'] {
+  font-size: 28px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-3xl'] {
+  font-size: 34px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-4xl'] {
+  font-size: 40px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-5xl'] {
+  font-size: 52px !important;
+}
+
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-6xl'] {
+  font-size: 64px !important;
+}
+
+/* Arbitrary pixel sizes are common in the compact product, account and
+   checkout surfaces, so they are covered explicitly as well. */
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[6px]'] { font-size: 10px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[7px]'] { font-size: 10px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[8px]'] { font-size: 12px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[9px]'] { font-size: 12px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[10px]'] { font-size: 14px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[11px]'] { font-size: 14px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[12px]'] { font-size: 16px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[13px]'] { font-size: 16px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[14px]'] { font-size: 18px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[15px]'] { font-size: 18px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[16px]'] { font-size: 20px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[17px]'] { font-size: 20px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[18px]'] { font-size: 22px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[19px]'] { font-size: 22px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[20px]'] { font-size: 24px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[22px]'] { font-size: 26px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[24px]'] { font-size: 28px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[27px]'] { font-size: 30px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[28px]'] { font-size: 32px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[30px]'] { font-size: 34px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[32px]'] { font-size: 36px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[34px]'] { font-size: 38px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[38px]'] { font-size: 42px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[48px]'] { font-size: 52px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[64px]'] { font-size: 68px !important; }
+
+@media (min-width: 640px) {
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-xs'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-sm'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-base'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-lg'] { font-size: 22px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-2xl'] { font-size: 28px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-3xl'] { font-size: 34px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-4xl'] { font-size: 40px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-5xl'] { font-size: 52px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-6xl'] { font-size: 64px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-[9px]'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-[10px]'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-[11px]'] { font-size: 14px !important; }
+}
+
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-xs'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-sm'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-base'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-lg'] { font-size: 22px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-2xl'] { font-size: 28px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-3xl'] { font-size: 34px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[8px]'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[9px]'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[10px]'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[11px]'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[12px]'] { font-size: 15px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[13px]'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[14px]'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[24px]'] { font-size: 28px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-[38px]'] { font-size: 42px !important; }
+}
+
+@media (min-width: 1024px) {
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='lg:text-4xl'] { font-size: 40px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='lg:text-5xl'] { font-size: 52px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='lg:text-[48px]'] { font-size: 52px !important; }
+  html[dir='rtl'] body.store-page
+    :not([dir='ltr']):not([dir='ltr'] *)[class~='lg:text-[64px]'] { font-size: 68px !important; }
+}
+
+/* Component CSS that does not use a Tailwind text utility needs the same
+   audited step too: branch maps, coupon cards, mobile sheets and checkout
+   field labels are all visible Arabic surfaces. */
+html[dir='rtl'] body.store-page .store-branch-city-filter,
+html[dir='rtl'] body.store-page .store-branch-city-filter select,
+html[dir='rtl'] body.store-page .store-branch-map-status {
+  font-size: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .store-branch-leaflet-tooltip {
+  font-size: 16px !important;
+}
+
+html[dir='rtl'] body.store-page .coupon-design-card__heading h3,
+html[dir='rtl'] body.store-page .coupon-design-card__code {
+  font-size: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .coupon-design-card__heading p,
+html[dir='rtl'] body.store-page .coupon-design-card__copy,
+html[dir='rtl'] body.store-page .coupon-design-card__expiry > span {
+  font-size: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .coupon-design-card__expiry strong {
+  font-size: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .coupon-design-card__expiry small,
+html[dir='rtl'] body.store-page .coupon-design-card__details,
+html[dir='rtl'] body.store-page .coupon-design-card__terms {
+  font-size: 16px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-address-form input:not([type='checkbox']),
+html[dir='rtl'] body.store-page .checkout-address-form select {
+  font-size: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-address-form label,
+html[dir='rtl'] body.store-page .checkout-address-form > div > p,
+html[dir='rtl'] body.store-page .checkout-address-form > button:last-of-type {
+  font-size: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-floating-field > label {
+  font-size: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-floating-field > input:focus + label,
+html[dir='rtl'] body.store-page .checkout-floating-field > input:not(:placeholder-shown) + label {
+  font-size: 16px !important;
+}
+
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page .store-mobile-sheet h2 {
+    font-size: 24px !important;
+  }
+
+  html[dir='rtl'] body.store-page .store-mobile-sheet h3 {
+    font-size: 20px !important;
+  }
+
+  html[dir='rtl'] body.store-page .coupon-design-card__heading h3 {
+    font-size: 20px !important;
+  }
+
+  html[dir='rtl'] body.store-page .coupon-design-card__heading p,
+  html[dir='rtl'] body.store-page .coupon-design-card__expiry > span {
+    font-size: 16px !important;
+  }
+
+  /* Interactive accessories: keep the editorial section comfortable on
+     375–430px screens without changing its desktop composition. */
+  [aria-labelledby='interactive-accessories-title'] {
+    width: 100%;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] > .mb-8 {
+    margin-bottom: 24px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] > .mb-8 h2 {
+    max-width: 100%;
+    font-size: 28px !important;
+    line-height: 32px !important;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-shell {
+    border-radius: 20px;
+    min-height: 720px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-image {
+    aspect-ratio: 4 / 4.8;
+    touch-action: pan-y;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel {
+    padding: 14px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel > div:first-child {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div {
+    min-width: 0;
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div > button:first-child {
+    min-width: 0;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 16px !important;
+    line-height: 22px !important;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 strong {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel {
+    padding: 12px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div,
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div > button:first-child {
+    gap: 8px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div > button:first-child > span:first-child {
+    width: 28px;
+    height: 28px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div > button:first-child > span:nth-child(2) {
+    width: 56px;
+    height: 56px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div > button:first-child > span:last-child {
+    width: 178px;
+    max-width: 178px;
+    flex: 0 1 178px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div > button:last-child {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'][dir='ltr'] .interactive-edit-panel .space-y-1 > div:nth-child(2) > button:last-child {
+    margin-bottom: -29px;
+    transform: translateY(-2px);
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong + span {
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong + span + span {
+    font-size: 16px !important;
+    line-height: 22px !important;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel > .mt-7 strong {
+    font-size: 20px !important;
+    line-height: 28px !important;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel > .mt-7 {
+    margin-top: 16px;
+  }
+
+  [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 > div > button:last-child {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+  }
+}
+
+/* Final Arabic type calibration ------------------------------------------
+   Thmanyah Serif Display has a larger, more editorial drawing than the old UI
+   the visual scale returns to calmer values. Latin digits and Riyal amounts
+   remain on Poppins. */
+html[dir='rtl'] body.store-page {
+  --store-arabic-letter-spacing: 0;
+  --store-arabic-word-spacing: 0;
+  --store-type-body: 16px;
+  --store-type-label: 13px;
+  --store-type-button: 15px;
+  font-size: 16px;
+  line-height: 26px;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+html[dir='rtl'] body.store-page * {
+  word-break: normal;
+  hyphens: none;
+}
+
+html[dir='rtl'] body.store-page [class*="text-[8px]"] { font-size: 9px; line-height: 13px; }
+html[dir='rtl'] body.store-page [class*="text-[9px]"] { font-size: 10px; line-height: 14px; }
+html[dir='rtl'] body.store-page [class*="text-[10px]"] { font-size: 11px; line-height: 16px; }
+html[dir='rtl'] body.store-page [class*="text-[11px]"] { font-size: 12px; line-height: 17px; }
+html[dir='rtl'] body.store-page [class*="text-[12px]"] { font-size: 13px; line-height: 19px; }
+html[dir='rtl'] body.store-page [class*="text-[13px]"] { font-size: 14px; line-height: 20px; }
+html[dir='rtl'] body.store-page [class*="text-[14px]"] { font-size: 15px; line-height: 22px; }
+html[dir='rtl'] body.store-page [class*="text-[15px]"] { font-size: 16px; line-height: 23px; }
+html[dir='rtl'] body.store-page .text-xs { font-size: 12px; line-height: 18px; }
+html[dir='rtl'] body.store-page .text-sm { font-size: 14px; line-height: 23px; }
+html[dir='rtl'] body.store-page .text-base { font-size: 16px; line-height: 26px; }
+html[dir='rtl'] body.store-page .text-lg { font-size: 19px; line-height: 28px; }
+html[dir='rtl'] body.store-page .text-xl { font-size: 22px; line-height: 31px; }
+
+html[dir='rtl'] body.store-page .store-home main h1 { font-size: clamp(30px, calc(3vw + 4px), 44px); line-height: 1.18; }
+html[dir='rtl'] body.store-page .store-home main h2 { font-size: clamp(26px, calc(2vw + 5px), 36px); line-height: 1.22; }
+html[dir='rtl'] body.store-page .store-home main h3 { font-size: clamp(19px, calc(1vw + 7px), 23px); line-height: 1.32; }
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] button,
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] a {
+  font-family: var(--store-arabic-font-family);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 19px;
+}
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] {
+  font-family: var(--store-arabic-font-family);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 19px;
+}
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] > button > span,
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] > a {
+  font-size: 14px !important;
+  line-height: 19px !important;
+}
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] > a {
+  font-weight: 300 !important;
+}
+html[dir='rtl'] body.store-page header [data-store-header-actions] { font-size: 13px; }
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] button,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] span { font-size: 14px; line-height: 21px; }
+
+html[dir='rtl'] body.store-page .store-product-card p { font-size: 13px; line-height: 20px; }
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.relative a { font-size: 15px; line-height: 22px; }
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.group\/action { font-size: 15px; }
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.group\/action strong { font-size: 18px; line-height: 24px; }
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.group\/action s { font-size: 12px; line-height: 17px; }
+
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary h1 { font-size: clamp(24px, calc(1.5vw + 5px), 30px); line-height: 1.3; }
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary > div > strong { font-size: clamp(25px, calc(1.7vw + 5px), 33px); line-height: 1.16; }
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary p,
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary s { font-size: 13px; line-height: 21px; }
+html[dir='rtl'] body.store-page .product-detail-page .product-payment-offer,
+html[dir='rtl'] body.store-page .product-detail-page .product-coupon-offer,
+html[dir='rtl'] body.store-page .product-detail-page .product-delivery-options { font-size: 15px; line-height: 24px; }
+html[dir='rtl'] body.store-page .product-detail-page .product-benefits-grid { font-size: 13px; line-height: 21px; }
+html[dir='rtl'] body.store-page .product-detail-page .product-size-picker-sheet h2 { font-size: 19px; line-height: 27px; }
+html[dir='rtl'] body.store-page .store-account-page h1,
+html[dir='rtl'] body.store-page .checkout-page h1,
+html[dir='rtl'] body.store-page .payment-summary-page h1 { font-size: clamp(30px, calc(2.6vw + 4px), 40px); line-height: 1.2; }
+html[dir='rtl'] body.store-page .store-account-page h2,
+html[dir='rtl'] body.store-page .checkout-page h2,
+html[dir='rtl'] body.store-page .payment-summary-page h2 { font-size: clamp(21px, calc(1.5vw + 5px), 27px); line-height: 1.32; }
+html[dir='rtl'] body.store-page footer h3 { font-size: 18px; line-height: 26px; }
+html[dir='rtl'] body.store-page footer p,
+html[dir='rtl'] body.store-page footer a,
+html[dir='rtl'] body.store-page footer span { font-size: 14px; line-height: 22px; }
+
+html[dir='rtl'] body.store-page [data-ltr-content='true'],
+html[dir='rtl'] body.store-page .font-poppins-numeric {
+  font-family: 'Poppins', 'Saudi Riyal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+/* A direction wrapper is not automatically an English text island. Keep
+   Arabic Display inside layout wrappers, and opt into Poppins only for actual
+   Latin/numeric content. */
+html[dir='rtl'] body.store-page [dir='ltr'] {
+  font-family: var(--store-arabic-font-family);
+}
+
+/* Product cards use an LTR wrapper for carousel geometry, not for their
+   Arabic copy. Reapply the visual Arabic tracking inside that wrapper. */
+html[dir='rtl'] body.store-page .store-product-card,
+html[dir='rtl'] body.store-page .store-product-card * {
+  letter-spacing: var(--store-arabic-letter-spacing) !important;
+  word-spacing: var(--store-arabic-word-spacing) !important;
+}
+
+html[dir='rtl'] body.store-page .store-product-card [data-ltr-content='true'],
+html[dir='rtl'] body.store-page .store-product-card .font-poppins-numeric,
+html[dir='rtl'] body.store-page .store-product-card [data-ltr-content='true'] *,
+html[dir='rtl'] body.store-page .store-product-card .font-poppins-numeric * {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+/* Only the supplied Light and Regular faces are available for Arabic copy. */
+html[dir='rtl'] body.store-page .font-bold,
+html[dir='rtl'] body.store-page .font-extrabold,
+html[dir='rtl'] body.store-page .font-black {
+  font-weight: 700 !important;
+}
+
+html[dir='rtl'] body.store-page strong,
+html[dir='rtl'] body.store-page b {
+  font-weight: 500 !important;
+}
+
+html[dir='rtl'] body.store-page strong.font-bold,
+html[dir='rtl'] body.store-page b.font-bold,
+html[dir='rtl'] body.store-page strong.font-extrabold,
+html[dir='rtl'] body.store-page b.font-extrabold,
+html[dir='rtl'] body.store-page strong.font-black,
+html[dir='rtl'] body.store-page b.font-black {
+  font-weight: 700 !important;
+}
+
+/* Apply the real 700 face to the visual anchors that were previously held at
+   500 by the global heading rule. Supporting copy remains regular/medium. */
+html[dir='rtl'] body.store-page .store-home main h1,
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.group\/action strong {
+  font-weight: 700 !important;
+}
+
+html[dir='rtl'] body.store-page .store-home main h2,
+html[dir='rtl'] body.store-page .product-detail-page .product-pricing-summary h1,
+html[dir='rtl'] body.store-page .store-account-page h1,
+html[dir='rtl'] body.store-page .checkout-page h1,
+html[dir='rtl'] body.store-page .payment-summary-page h1,
+html[dir='rtl'] body.store-page .store-product-card > div.relative > div.relative a {
+  font-weight: 500 !important;
+}
+
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page .store-home main h1 { font-size: clamp(30px, calc(7vw + 4px), 38px); }
+  html[dir='rtl'] body.store-page .store-home main h2 { font-size: clamp(26px, calc(5vw + 5px), 32px); }
+  html[dir='rtl'] body.store-page .store-home main h3 { font-size: 20px; }
+  html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] button,
+  html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] a { font-size: 14px; }
+  html[dir='rtl'] body.store-page {
+    --store-type-body: 16px;
+    --store-type-button: 15px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  html[dir='rtl'] body.store-page .store-product-card p { font-size: 13px; line-height: 20px; }
+  html[dir='rtl'] body.store-page .store-product-card > div.relative > div.relative a { font-size: 15px; line-height: 22px; }
+  html[dir='rtl'] body.store-page .store-product-card > div.relative > div.group\/action strong { font-size: 18px; line-height: 23px; }
+  html[dir='rtl'] body.store-page .product-detail-page .product-payment-offer,
+  html[dir='rtl'] body.store-page .product-detail-page .product-coupon-offer,
+  html[dir='rtl'] body.store-page .product-detail-page .product-delivery-options { font-size: 15px; line-height: 23px; }
+}
+
+/* Keep the rest of the visible header bar in the same light Arabic rhythm as
+   the category navigation: account text, search controls, and header actions. */
+html[dir='rtl'] body.store-page header [data-store-header-actions],
+html[dir='rtl'] body.store-page header [data-store-header-actions] button,
+html[dir='rtl'] body.store-page header [data-store-header-actions] a,
+html[dir='rtl'] body.store-page header [data-store-header-actions] span,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] button,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] span,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] input {
+  font-family: var(--store-arabic-font-family);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 19px;
+}
+html[dir='rtl'] body.store-page header [data-store-header-actions] [aria-label*='items in cart'] {
+  font-size: 9px !important;
+  line-height: 1 !important;
+}
+html[dir='rtl'] body.store-page header [data-store-header-account] > button {
+  font-family: var(--store-arabic-font-family) !important;
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  line-height: 19px !important;
+}
+
+/* Use the same light face for Arabic interactive labels across buttons,
+   bottom navigation, tabs, and segmented controls. Numeric/Poppins islands
+   are intentionally excluded so prices and counters keep their own drawing. */
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page [role='tab'],
+html[dir='rtl'] body.store-page [role='radio'] {
+  font-family: var(--store-arabic-font-family) !important;
+  font-weight: 300 !important;
+}
+
+html[dir='rtl'] body.store-page button > span:not(.font-poppins-numeric):not([data-ltr-content='true']),
+html[dir='rtl'] body.store-page button > strong:not(.font-poppins-numeric):not([data-ltr-content='true']),
+html[dir='rtl'] body.store-page [role='tab'] > span:not(.font-poppins-numeric):not([data-ltr-content='true']),
+html[dir='rtl'] body.store-page [role='radio'] > span:not(.font-poppins-numeric):not([data-ltr-content='true']) {
+  font-family: var(--store-arabic-font-family) !important;
+  font-weight: 300 !important;
+}
+
+/* Product-card copy follows one shared scale in every carousel and grid.
+   The explicit structure keeps this rule aligned with the card component,
+   including cards rendered inside the product-details page. */
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > p {
+  font-size: 13px !important;
+  line-height: 19px !important;
+}
+
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > a {
+  font-size: 16px !important;
+  line-height: 23px !important;
+  font-weight: 500 !important;
+}
+
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div[aria-label*='Product rating'] {
+  font-size: 12px !important;
+  line-height: 18px !important;
+}
+
+/* Product-card prices: keep the numeric Poppins treatment while matching the
+   visual scale requested for Arabic cards (current 20px, old 14px). */
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong .font-poppins-numeric,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong .font-poppins-numeric > span {
+  font-size: 20px !important;
+  line-height: 24px !important;
+}
+
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price .font-poppins-numeric,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price .font-poppins-numeric > span {
+  font-size: 14px !important;
+  line-height: 18px !important;
+}
+
+/* Restore the typography baseline from the Display reference.
+   This compatibility layer intentionally comes last: it rolls back the
+   later visual-size experiments while leaving layout, imagery, interactions,
+   and the newer store features untouched. */
+html[dir='rtl'] body.store-page,
+html[dir='rtl'] body.store-page * {
+  font-family: var(--store-arabic-font-family) !important;
+  font-synthesis: none;
+  letter-spacing: 0 !important;
+  word-spacing: 0 !important;
+  word-break: normal;
+  hyphens: none;
+}
+
+html[dir='rtl'] body.store-page {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  text-align: right;
+}
+
+html[dir='rtl'] body.store-page h1,
+html[dir='rtl'] body.store-page h2,
+html[dir='rtl'] body.store-page h3,
+html[dir='rtl'] body.store-page h4,
+html[dir='rtl'] body.store-page h5,
+html[dir='rtl'] body.store-page h6 {
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+html[dir='rtl'] body.store-page p,
+html[dir='rtl'] body.store-page label,
+html[dir='rtl'] body.store-page input,
+html[dir='rtl'] body.store-page select,
+html[dir='rtl'] body.store-page textarea {
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page a,
+html[dir='rtl'] body.store-page [role='tab'],
+html[dir='rtl'] body.store-page [role='radio'] {
+  font-family: var(--store-arabic-font-family) !important;
+  letter-spacing: 0 !important;
+}
+
+/* Native Tailwind type scale used by the Display reference. */
+html[dir='rtl'] body.store-page [class~='text-xs'] { font-size: 12px !important; line-height: 16px !important; }
+html[dir='rtl'] body.store-page [class~='text-sm'] { font-size: 14px !important; line-height: 20px !important; }
+html[dir='rtl'] body.store-page [class~='text-base'] { font-size: 16px !important; line-height: 24px !important; }
+html[dir='rtl'] body.store-page [class~='text-lg'] { font-size: 18px !important; line-height: 28px !important; }
+html[dir='rtl'] body.store-page [class~='text-xl'] { font-size: 20px !important; line-height: 28px !important; }
+html[dir='rtl'] body.store-page [class~='text-2xl'] { font-size: 24px !important; line-height: 32px !important; }
+html[dir='rtl'] body.store-page [class~='text-3xl'] { font-size: 30px !important; line-height: 36px !important; }
+html[dir='rtl'] body.store-page [class~='text-4xl'] { font-size: 36px !important; line-height: 40px !important; }
+html[dir='rtl'] body.store-page [class~='text-5xl'] { font-size: 48px !important; line-height: 1 !important; }
+html[dir='rtl'] body.store-page [class~='text-6xl'] { font-size: 60px !important; line-height: 1 !important; }
+
+html[dir='rtl'] body.store-page [class~='text-[6px]'] { font-size: 6px !important; }
+html[dir='rtl'] body.store-page [class~='text-[7px]'] { font-size: 7px !important; }
+html[dir='rtl'] body.store-page [class~='text-[8px]'] { font-size: 8px !important; }
+html[dir='rtl'] body.store-page [class~='text-[9px]'] { font-size: 9px !important; }
+html[dir='rtl'] body.store-page [class~='text-[10px]'] { font-size: 10px !important; }
+html[dir='rtl'] body.store-page [class~='text-[11px]'] { font-size: 11px !important; }
+html[dir='rtl'] body.store-page [class~='text-[12px]'] { font-size: 12px !important; }
+html[dir='rtl'] body.store-page [class~='text-[13px]'] { font-size: 13px !important; }
+html[dir='rtl'] body.store-page [class~='text-[14px]'] { font-size: 14px !important; }
+html[dir='rtl'] body.store-page [class~='text-[15px]'] { font-size: 15px !important; }
+html[dir='rtl'] body.store-page [class~='text-[16px]'] { font-size: 16px !important; }
+html[dir='rtl'] body.store-page [class~='text-[17px]'] { font-size: 17px !important; }
+html[dir='rtl'] body.store-page [class~='text-[18px]'] { font-size: 18px !important; }
+html[dir='rtl'] body.store-page [class~='text-[19px]'] { font-size: 19px !important; }
+html[dir='rtl'] body.store-page [class~='text-[20px]'] { font-size: 20px !important; }
+html[dir='rtl'] body.store-page [class~='text-[22px]'] { font-size: 22px !important; }
+html[dir='rtl'] body.store-page [class~='text-[24px]'] { font-size: 24px !important; }
+html[dir='rtl'] body.store-page [class~='text-[27px]'] { font-size: 27px !important; }
+html[dir='rtl'] body.store-page [class~='text-[28px]'] { font-size: 28px !important; }
+html[dir='rtl'] body.store-page [class~='text-[30px]'] { font-size: 30px !important; }
+html[dir='rtl'] body.store-page [class~='text-[32px]'] { font-size: 32px !important; }
+html[dir='rtl'] body.store-page [class~='text-[34px]'] { font-size: 34px !important; }
+html[dir='rtl'] body.store-page [class~='text-[38px]'] { font-size: 38px !important; }
+html[dir='rtl'] body.store-page [class~='text-[48px]'] { font-size: 48px !important; }
+html[dir='rtl'] body.store-page [class~='text-[64px]'] { font-size: 64px !important; }
+
+/* Keep explicit leading utilities authoritative after restoring the text
+   scale; this prevents a later size rule from reopening line spacing. */
+html[dir='rtl'] body.store-page [class~='leading-none'] { line-height: 1 !important; }
+html[dir='rtl'] body.store-page [class~='leading-3'] { line-height: .75rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-4'] { line-height: 1rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-5'] { line-height: 1.25rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-6'] { line-height: 1.5rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-7'] { line-height: 1.75rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-8'] { line-height: 2rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-9'] { line-height: 2.25rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-10'] { line-height: 2.5rem !important; }
+html[dir='rtl'] body.store-page [class~='leading-tight'] { line-height: 1.25 !important; }
+html[dir='rtl'] body.store-page [class~='leading-snug'] { line-height: 1.375 !important; }
+html[dir='rtl'] body.store-page [class~='leading-normal'] { line-height: 1.5 !important; }
+html[dir='rtl'] body.store-page [class~='leading-relaxed'] { line-height: 1.625 !important; }
+html[dir='rtl'] body.store-page [class~='leading-loose'] { line-height: 2 !important; }
+
+@media (min-width: 640px) {
+  html[dir='rtl'] body.store-page [class~='sm:text-xs'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-sm'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-base'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-lg'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-xl'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-2xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-3xl'] { font-size: 30px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-4xl'] { font-size: 36px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-5xl'] { font-size: 48px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-6xl'] { font-size: 60px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[8px]'] { font-size: 8px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[9px]'] { font-size: 9px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[10px]'] { font-size: 10px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[11px]'] { font-size: 11px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[12px]'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[13px]'] { font-size: 13px !important; }
+  html[dir='rtl'] body.store-page [class~='sm:text-[14px]'] { font-size: 14px !important; }
+}
+
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page [class~='md:text-xs'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-sm'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-base'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-lg'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-xl'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-2xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-3xl'] { font-size: 30px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[8px]'] { font-size: 8px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[9px]'] { font-size: 9px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[10px]'] { font-size: 10px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[11px]'] { font-size: 11px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[12px]'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[13px]'] { font-size: 13px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[14px]'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[24px]'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page [class~='md:text-[38px]'] { font-size: 38px !important; }
+}
+
+@media (min-width: 1024px) {
+  html[dir='rtl'] body.store-page [class~='lg:text-4xl'] { font-size: 36px !important; }
+  html[dir='rtl'] body.store-page [class~='lg:text-5xl'] { font-size: 48px !important; }
+  html[dir='rtl'] body.store-page [class~='lg:text-[48px]'] { font-size: 48px !important; }
+  html[dir='rtl'] body.store-page [class~='lg:text-[64px]'] { font-size: 64px !important; }
+}
+
+/* Restore explicit weight utilities and the hierarchy used by the reference. */
+html[dir='rtl'] body.store-page [class~='font-light'] { font-weight: 300 !important; }
+html[dir='rtl'] body.store-page [class~='font-normal'] { font-weight: 400 !important; }
+html[dir='rtl'] body.store-page [class~='font-medium'] { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page [class~='font-semibold'] { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page strong,
+html[dir='rtl'] body.store-page b { font-weight: 500 !important; }
+html[dir='rtl'] body.store-page [class~='font-bold'] { font-weight: 700 !important; }
+html[dir='rtl'] body.store-page [class~='font-extrabold'],
+html[dir='rtl'] body.store-page [class~='font-black'] { font-weight: 900 !important; }
+
+/* The reference header used the component's native 13/12px classes. */
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'],
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] button,
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] a {
+  font-family: var(--store-arabic-font-family) !important;
+  font-size: 13px !important;
+  font-weight: 300 !important;
+  line-height: 16px !important;
+}
+html[dir='rtl'] body.store-page header [data-store-header-actions],
+html[dir='rtl'] body.store-page header [data-store-header-actions] button,
+html[dir='rtl'] body.store-page header [data-store-header-actions] a,
+html[dir='rtl'] body.store-page header [data-store-header-actions] span,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] button,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] span,
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] input {
+  font-family: var(--store-arabic-font-family) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
+}
+html[dir='rtl'] body.store-page header [data-store-header-search-switch] button {
+  font-size: 13px !important;
+}
+html[dir='rtl'] body.store-page header [data-store-header-actions] [aria-label*='items in cart'] {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  font-weight: 700 !important;
+}
+
+/* Shared product-card values from the reference card. */
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > p {
+  font-size: 10px !important;
+  line-height: 15px !important;
+  font-weight: 500 !important;
+}
+
+/* Component selectors introduced after the reference use their original
+   compact values here; geometry changes around them remain untouched. */
+html[dir='rtl'] body.store-page .store-branch-city-filter,
+html[dir='rtl'] body.store-page .store-branch-city-filter select,
+html[dir='rtl'] body.store-page .store-branch-map-status {
+  font-size: 12px !important;
+}
+html[dir='rtl'] body.store-page .store-branch-leaflet-tooltip {
+  font-size: 10px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__heading h3,
+html[dir='rtl'] body.store-page .coupon-design-card__code {
+  font-size: 14px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__heading p,
+html[dir='rtl'] body.store-page .coupon-design-card__expiry > span {
+  font-size: 11px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__copy,
+html[dir='rtl'] body.store-page .coupon-design-card__details {
+  font-size: 10px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__expiry strong {
+  font-size: 12px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__expiry small {
+  font-size: 8px !important;
+}
+html[dir='rtl'] body.store-page .coupon-design-card__terms {
+  font-size: 10px !important;
+}
+html[dir='rtl'] body.store-page .checkout-address-form input:not([type='checkbox']),
+html[dir='rtl'] body.store-page .checkout-address-form select {
+  font-size: 14px !important;
+}
+html[dir='rtl'] body.store-page .checkout-address-form label,
+html[dir='rtl'] body.store-page .checkout-address-form > div > p,
+html[dir='rtl'] body.store-page .checkout-address-form > button:last-of-type {
+  font-size: 12px !important;
+}
+html[dir='rtl'] body.store-page .checkout-floating-field > label {
+  font-size: 14px !important;
+}
+html[dir='rtl'] body.store-page .checkout-floating-field > input:focus + label,
+html[dir='rtl'] body.store-page .checkout-floating-field > input:not(:placeholder-shown) + label {
+  font-size: 10px !important;
+}
+
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page .store-mobile-sheet h2 { font-size: 18px !important; line-height: 24px !important; }
+  html[dir='rtl'] body.store-page .store-mobile-sheet h3 { font-size: 13px !important; line-height: 18px !important; }
+  html[dir='rtl'] body.store-page .coupon-design-card__heading h3 { font-size: 13px !important; }
+  html[dir='rtl'] body.store-page .coupon-design-card__heading p,
+  html[dir='rtl'] body.store-page .coupon-design-card__expiry > span { font-size: 10px !important; }
+}
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > a {
+  font-size: 12px !important;
+  line-height: 20px !important;
+  font-weight: 500 !important;
+}
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div[aria-label*='Product rating'] {
+  font-size: 10px !important;
+  line-height: 15px !important;
+}
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong .font-poppins-numeric,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > strong .font-poppins-numeric > span {
+  font-size: 16px !important;
+  line-height: 20px !important;
+}
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price .font-poppins-numeric,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.group\/action > div.flex.flex-col-reverse > s.product-card-old-price .font-poppins-numeric > span {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > a {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+}
+
+/* Restore the reference card's lighter utility-driven typography in the
+   newer interactive section without changing its requested mobile geometry. */
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 500 !important;
+}
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong + span {
+  font-size: 11px !important;
+  line-height: 16px !important;
+}
+html[dir='rtl'] body.store-page [aria-labelledby='interactive-accessories-title'] .interactive-edit-panel .space-y-1 strong + span + span {
+  font-size: 12px !important;
+  line-height: 16px !important;
+}
+
+/* Numeric islands remain Poppins, including nested value spans. */
+html[dir='rtl'] body.store-page [data-ltr-content='true'],
+html[dir='rtl'] body.store-page [data-ltr-content='true'] *,
+html[dir='rtl'] body.store-page .font-poppins-numeric,
+html[dir='rtl'] body.store-page .font-poppins-numeric * {
+  font-family: 'Poppins', 'Saudi Riyal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+/* Product names in storefront cards use the heavier Regular Display face;
+   prices and all other card text keep their existing reference typography. */
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.relative.z-30 > div.min-w-0 > a,
+html[dir='rtl'] body.store-page .store-product-card > div.relative.flex > div.absolute > div.relative.z-30 > p {
+  font-family: 'Thmanyah Serif Display', sans-serif !important;
+  font-weight: 400 !important;
+}
+
+/* Arabic hero copy: refine word rhythm without changing line breaks or global typography. */
+html[dir='rtl'] body.store-page .store-hero-copy {
+  word-spacing: -0.02em !important;
+}
+
+html[dir='rtl'] body.store-page .store-hero-copy h1 {
+  word-spacing: -0.035em !important;
+}
+
+html[dir='rtl'] body.store-page .store-hero-copy p,
+html[dir='rtl'] body.store-page .store-hero-copy a {
+  word-spacing: -0.02em !important;
+}
+
+/* Arabic header labels share one light, compact rhythm across navigation and account. */
+html[dir='rtl'] body.store-page header [data-store-header-shell] nav[aria-label='Main navigation'] button,
+html[dir='rtl'] body.store-page header [data-store-header-shell] nav[aria-label='Main navigation'] a,
+html[dir='rtl'] body.store-page header [data-store-header-shell] [data-store-header-account] > button {
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  line-height: 18px !important;
+}
+
+/* Keep the direct labels aligned as well, including the Offers anchor and account text. */
+html[dir='rtl'] body.store-page header [data-store-header-shell] nav[aria-label='Main navigation'] > *,
+html[dir='rtl'] body.store-page header [data-store-header-shell] nav[aria-label='Main navigation'] > *[class*='text-'],
+html[dir='rtl'] body.store-page header [data-store-header-shell] [data-store-header-account] > button,
+html[dir='rtl'] body.store-page header [data-store-header-shell] [data-store-header-account] > button[class*='text-'] {
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  line-height: 18px !important;
+}
+
+/* Arabic font contract ---------------------------------------------------
+   The Arabic UI has exactly one family and two real faces: Display Light
+   (300) and Display Regular (400). This final layer is deliberately last so
+   old utility experiments cannot request synthetic 500–900 Arabic weights or
+   reintroduce a removed Arabic family. Numeric/LTR islands remain Poppins. */
+html[dir='rtl'] body.store-page,
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page input,
+html[dir='rtl'] body.store-page select,
+html[dir='rtl'] body.store-page textarea,
+html[dir='rtl'] body.store-page label {
+  font-family: var(--store-arabic-font-family) !important;
+  font-synthesis: none !important;
+}
+
+html[dir='rtl'] body.store-page
+  *:not([data-ltr-content='true']):not([data-ltr-content='true'] *):not(.font-poppins-numeric):not(.font-poppins-numeric *) {
+  font-family: var(--store-arabic-font-family) !important;
+  font-synthesis: none !important;
+  font-weight: 400 !important;
+}
+
+/* Light is reserved for quiet navigation and control labels. Everything
+   else uses the regular face; no heavier Arabic face is requested. */
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'],
+html[dir='rtl'] body.store-page header nav[aria-label='Main navigation'] *,
+html[dir='rtl'] body.store-page header [data-store-header-account] > button,
+html[dir='rtl'] body.store-page header [data-store-header-actions],
+html[dir='rtl'] body.store-page header [data-store-header-search-switch],
+html[dir='rtl'] body.store-page button,
+html[dir='rtl'] body.store-page [role='tab'],
+html[dir='rtl'] body.store-page [role='radio'],
+html[dir='rtl'] body.store-page .store-mobile-nav {
+  font-weight: 300 !important;
+}
+
+html[dir='rtl'] body.store-page [class~='font-light'] {
+  font-weight: 300 !important;
+}
+
+html[dir='rtl'] body.store-page [class~='font-normal'],
+html[dir='rtl'] body.store-page [class~='font-medium'],
+html[dir='rtl'] body.store-page [class~='font-semibold'],
+html[dir='rtl'] body.store-page [class~='font-bold'],
+html[dir='rtl'] body.store-page [class~='font-extrabold'],
+html[dir='rtl'] body.store-page [class~='font-black'],
+html[dir='rtl'] body.store-page strong,
+html[dir='rtl'] body.store-page b,
+html[dir='rtl'] body.store-page h1,
+html[dir='rtl'] body.store-page h2,
+html[dir='rtl'] body.store-page h3,
+html[dir='rtl'] body.store-page h4,
+html[dir='rtl'] body.store-page h5,
+html[dir='rtl'] body.store-page h6 {
+  font-weight: 400 !important;
+}
+
+/* The shared utility rule above is intentionally broad. Repeat the store
+   class here so the navigation and account labels reliably retain Light 300. */
+html[dir='rtl'] body.store-page.store-page header nav[aria-label='Main navigation'],
+html[dir='rtl'] body.store-page.store-page header nav[aria-label='Main navigation']
+  *:not([data-ltr-content='true']):not([data-ltr-content='true'] *):not(.font-poppins-numeric):not(.font-poppins-numeric *),
+html[dir='rtl'] body.store-page.store-page header [data-store-header-account] > button:not([data-ltr-content='true']):not(.font-poppins-numeric),
+html[dir='rtl'] body.store-page.store-page header [data-store-header-actions],
+html[dir='rtl'] body.store-page.store-page header [data-store-header-search-switch],
+html[dir='rtl'] body.store-page.store-page button:not([data-ltr-content='true']):not(.font-poppins-numeric),
+html[dir='rtl'] body.store-page.store-page [role='tab'],
+html[dir='rtl'] body.store-page.store-page [role='radio'],
+html[dir='rtl'] body.store-page.store-page .store-mobile-nav {
+  font-family: var(--store-arabic-font-family) !important;
+  font-weight: 300 !important;
+}
+
+/* Keep the compact utility scale visually calm even where an older audit
+   rule used larger values. The values are shared by desktop and mobile. */
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-xs'] { font-size: 12px !important; line-height: 18px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-sm'] { font-size: 14px !important; line-height: 22px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-base'] { font-size: 16px !important; line-height: 26px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-lg'] { font-size: 18px !important; line-height: 28px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-xl'] { font-size: 20px !important; line-height: 30px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-2xl'] { font-size: 24px !important; line-height: 34px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-3xl'] { font-size: 30px !important; line-height: 38px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-4xl'] { font-size: 36px !important; line-height: 44px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-5xl'] { font-size: 48px !important; line-height: 1.08 !important; }
+
+/* Restore the mini-cart's original compact type scale. The broad Arabic
+   readability layer must not enlarge these deliberately dense cart values. */
+html[dir='rtl'] body.store-page .cart-drawer-panel h2 {
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel > div:first-of-type p,
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-reward-card > div:first-child {
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-reward-card > div:last-child,
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-reward-card > div:last-child button {
+  font-size: 11px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-reward-card > div:last-child button > span:last-child {
+  font-size: 10px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-products-card h3 {
+  font-size: 17px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-products-card > div:first-child > span {
+  font-size: 11px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-title {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-info > div > div > p {
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-price > strong {
+  font-size: 16px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-price > s,
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-price > s * {
+  font-size: 11px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .cart-drawer-product-quantity > span {
+  font-size: 14px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .mini-cart-footer > div:first-child {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .mini-cart-footer > div:first-child .font-poppins-numeric {
+  font-size: 24px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel .mini-cart-footer a,
+html[dir='rtl'] body.store-page .cart-drawer-panel > div.cart-drawer-footer > a,
+html[dir='rtl'] body.store-page .cart-drawer-panel > div.cart-drawer-footer > a > span {
+  font-size: 13px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+
+html[dir='rtl'] body.store-page .cart-drawer-panel > div.cart-drawer-footer > a > .font-poppins-numeric {
+  font-size: 16px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-6xl'] { font-size: 60px !important; line-height: 1.08 !important; }
+
+@media (min-width: 640px) {
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-xs'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-sm'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-base'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-lg'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-xl'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-2xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='sm:text-3xl'] { font-size: 30px !important; }
+}
+
+@media (min-width: 768px) {
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-xs'] { font-size: 12px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-sm'] { font-size: 14px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-base'] { font-size: 16px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-lg'] { font-size: 18px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-xl'] { font-size: 20px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-2xl'] { font-size: 24px !important; }
+  html[dir='rtl'] body.store-page :not([dir='ltr']):not([dir='ltr'] *)[class~='md:text-3xl'] { font-size: 30px !important; }
+}
+
+/* Final precedence for the mini-cart: restore the component's authored
+   compact values after the older global readability utilities. */
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel h2 {
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel h2 + p {
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel > div:first-of-type p,
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-reward-card > div:first-child {
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-reward-card > div:last-child,
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-reward-card > div:last-child button {
+  font-size: 11px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-reward-card > div:last-child button > span:last-child {
+  font-size: 10px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-products-card h3 {
+  font-size: 17px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-products-card > div:first-child > span {
+  font-size: 11px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-title {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-info > div > div > p {
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-price > strong {
+  font-size: 16px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-price > s,
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-price > s * {
+  font-size: 11px !important;
+  line-height: 14px !important;
+  font-weight: 400 !important;
+}
+html[dir='rtl'] body.store-page.store-page.store-page .cart-drawer-panel.cart-drawer-panel .cart-drawer-product-quantity > span {
+  font-size: 14px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+}
+
+/* Checkout card titles: keep the Arabic hierarchy compact after the global
+   readability layer, while allowing the free customization item to wrap. */
+html[dir='rtl'] body.store-page.store-page.store-page .checkout-page .checkout-product-title,
+html[dir='rtl'] body.store-page.store-page.store-page .checkout-page .checkout-sample-card > article h3,
+html[dir='rtl'] body.store-page.store-page.store-page .checkout-page .checkout-gift-cards > div.divide-y > article h3 {
+  font-size: 16px !important;
+  line-height: 22px !important;
+}
+
+html[dir='rtl'] body.store-page.store-page.store-page .checkout-page .checkout-gift-cards > div.divide-y > article h3 {
+  width: 137px !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere;
+}
+
+/* Match the specificity of the older readability audit so these authored
+   numeric sizes win without changing ordinary Arabic copy. */
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[6px]']:has(.font-poppins-numeric) { font-size: 6px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[7px]']:has(.font-poppins-numeric) { font-size: 7px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[8px]']:has(.font-poppins-numeric) { font-size: 8px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[9px]']:has(.font-poppins-numeric) { font-size: 9px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[10px]']:has(.font-poppins-numeric) { font-size: 10px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[11px]']:has(.font-poppins-numeric) { font-size: 11px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[12px]']:has(.font-poppins-numeric) { font-size: 12px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[13px]']:has(.font-poppins-numeric) { font-size: 13px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[14px]']:has(.font-poppins-numeric) { font-size: 14px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[15px]']:has(.font-poppins-numeric) { font-size: 15px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[16px]']:has(.font-poppins-numeric) { font-size: 16px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[17px]']:has(.font-poppins-numeric) { font-size: 17px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[18px]']:has(.font-poppins-numeric) { font-size: 18px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[19px]']:has(.font-poppins-numeric) { font-size: 19px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[20px]']:has(.font-poppins-numeric) { font-size: 20px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[22px]']:has(.font-poppins-numeric) { font-size: 22px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[24px]']:has(.font-poppins-numeric) { font-size: 24px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[27px]']:has(.font-poppins-numeric) { font-size: 27px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[28px]']:has(.font-poppins-numeric) { font-size: 28px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[30px]']:has(.font-poppins-numeric) { font-size: 30px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[32px]']:has(.font-poppins-numeric) { font-size: 32px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[34px]']:has(.font-poppins-numeric) { font-size: 34px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[38px]']:has(.font-poppins-numeric) { font-size: 38px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[48px]']:has(.font-poppins-numeric) { font-size: 48px !important; }
+html[dir='rtl'] body.store-page
+  :not([dir='ltr']):not([dir='ltr'] *)[class~='text-[64px]']:has(.font-poppins-numeric) { font-size: 64px !important; }
+
+/* Keep the Arabic offer footer compact on mobile while leaving the English
+   copy and larger breakpoints on their authored scale. */
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div.mt-2.flex > span.min-w-0.flex-1,
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div.mt-2.flex > button {
+    font-size: 12px !important;
+  }
+}
+
+/* Four Arabic type standards for the complimentary gift-card panel. Keep
+   these tokens local to this card so the rest of checkout is unaffected. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards {
+  --checkout-ar-gift-card-title: 20px;
+  --checkout-ar-gift-card-inner-title: 14px;
+  --checkout-ar-gift-card-description: 12px;
+  --checkout-ar-gift-card-label: 10px;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.flex.items-center > div > h2 {
+  font-size: var(--checkout-ar-gift-card-title) !important;
+  line-height: 28px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.flex.items-center > div > p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article p {
+  font-size: var(--checkout-ar-gift-card-description) !important;
+  line-height: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article h3 {
+  font-size: var(--checkout-ar-gift-card-inner-title) !important;
+  line-height: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.flex.items-center > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article > strong {
+  font-size: var(--checkout-ar-gift-card-label) !important;
+  line-height: 14px !important;
+}
+
+/* Reuse the same four Arabic standards across the cart's product, sample,
+   and gift-card panels. Quantity controls remain separate interactive UI. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart {
+  --checkout-ar-cart-title: 20px;
+  --checkout-ar-cart-inner-title: 14px;
+  --checkout-ar-cart-description: 12px;
+  --checkout-ar-cart-label: 10px;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card > div:first-child h2,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > div:first-child h2,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div:first-child h2 {
+  font-size: var(--checkout-ar-cart-title) !important;
+  line-height: 28px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card > div:first-child p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div:first-child > div > p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article p {
+  font-size: var(--checkout-ar-cart-description) !important;
+  line-height: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card .checkout-product-title,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article h3,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article h3 {
+  font-size: var(--checkout-ar-cart-inner-title) !important;
+  line-height: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card .checkout-product-free-label-desktop,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card .checkout-product-free-label-mobile,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-products-card .checkout-product-gift-mobile,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > div:first-child > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article > div:last-child > span:first-child,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div:first-child > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article > strong {
+  font-size: var(--checkout-ar-cart-label) !important;
+  line-height: 14px !important;
+}
+
+/* Align the delivery method labels with the Arabic cart hierarchy. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .delivery-method-option > div.min-w-0.flex-1 > strong {
+  font-size: 16px !important;
+  line-height: 20px !important;
+}
+
+/* Apply the same hierarchy to the 1+2 offer card: title, description, and
+   status label. The footer keeps its readable 12px action treatment. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div:first-child > div.min-w-0 > strong {
+  font-size: var(--checkout-ar-cart-title) !important;
+  line-height: 28px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div:first-child > div.min-w-0 > p {
+  font-size: var(--checkout-ar-cart-description) !important;
+  line-height: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div:first-child > span {
+  font-size: var(--checkout-ar-cart-label) !important;
+  line-height: 14px !important;
+}
+
+/* Keep the Arabic checkout quantity control visually compact on desktop too.
+   The component's Tailwind text-xl class otherwise makes the +/- controls
+   larger than the quantity number called out in the cart review. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-quantity,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-quantity > button {
+  font-size: 14px !important;
+}
+
+@media (min-width: 768px) {
+  /* Desktop-only spacing correction for the gift-available pill. The phone
+     dimensions from the earlier review remain unchanged below this width. */
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-mobile-offer-row {
+    column-gap: 10px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-gift-mobile {
+    margin-right: 4px !important;
+    margin-left: 4px !important;
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+}
+
+/* Mobile Arabic checkout annotations: keep the English layout unchanged and
+   correct only the secondary copy, quantity control, badges, and coupon link
+   called out in the Arabic cart review. */
+@media (max-width: 767px) {
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .cart-bundle-progress > div:first-child p.mt-1.leading-4 {
+    font-size: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-quantity {
+    font-size: 14px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-quantity > button {
+    font-size: 14px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-gift-mobile {
+    width: 118.828px !important;
+    padding-right: 21px !important;
+    padding-left: 21px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-gift-mobile > span:first-of-type {
+    font-size: 10px !important;
+  }
+
+  /* Balance the gift mark with the 10px Arabic label without changing the
+     pill's width or the touch target for choosing a gift. */
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-gift-mobile > svg:first-child {
+    width: 14px !important;
+    height: 14px !important;
+    flex: 0 0 14px;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-product-gift-mobile > button svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > div:first-child > span {
+    font-size: 10px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article h3 {
+    font-size: 14px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article p {
+    font-size: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-sample-card > article > div:last-child > span:first-child {
+    font-size: 10px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.flex.items-center > span {
+    font-size: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article p {
+    font-size: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-gift-cards > div.mt-4 > article > strong {
+    font-size: 12px !important;
+  }
+
+  html[dir='rtl'] body.store-page .checkout-page.checkout-step-cart .checkout-order-summary > div.mb-5 > div.flex.items-start > div.min-w-0.flex-1 > button {
+    column-gap: 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Reuse the Arabic cart hierarchy on the payment stage. Keep this scope on
+   checkout-step-shipping so the confirmed-order summary and English checkout
+   retain their existing type scale. */
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping {
+  --checkout-ar-payment-title: 20px;
+  --checkout-ar-payment-inner-title: 14px;
+  --checkout-ar-payment-description: 12px;
+  --checkout-ar-payment-label: 10px;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-context > section > div:first-child h2,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-section > h2,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-order-details > div:first-child h2,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary > h2 {
+  font-size: var(--checkout-ar-payment-title) !important;
+  line-height: 28px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-option strong,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-card-details-panel > div:first-child strong,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-address-card strong {
+  font-size: var(--checkout-ar-payment-inner-title) !important;
+  line-height: 20px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-option small,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-card-details-panel > div:first-child p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-order-details > div:first-child p,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-address-card > div > span > div > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-address-card > div > span > span {
+  font-size: var(--checkout-ar-payment-description) !important;
+  line-height: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-card-details-panel label,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary .space-y-3 > div > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary .space-y-3 > div > strong {
+  font-size: var(--checkout-ar-payment-label) !important;
+  line-height: 14px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-order-details > div:nth-child(2) > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary .space-y-3 > div > span,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary .space-y-3 > div > span * {
+  font-size: var(--checkout-ar-payment-description) !important;
+  line-height: 18px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-context > section > div:first-child > button,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-payment-order-details > div:first-child > div button,
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary > button {
+  font-size: 12px !important;
+}
+
+html[dir='rtl'] body.store-page .checkout-page.checkout-step-shipping .checkout-order-summary > button {
+  font-size: 16px !important;
+}
+
+/* The Arabic account label in the fixed mobile navigation is intentionally
+   compact so it stays aligned with the other bottom-nav controls. */
+html[dir='rtl'] body.store-page .store-mobile-nav > button:first-of-type > span.whitespace-nowrap {
+  font-size: 12px !important;
+  line-height: 16px !important;
 }
 

@@ -1,10 +1,10 @@
-import { useMemo } from "react";
-import { ArrowLeft, Check, CheckCircle2, Clock3, CreditCard, Gift, MapPin, PackageCheck, ShoppingBag, Store, Truck } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowLeft, CalendarClock, Check, CheckCircle2, Clock3, CreditCard, Gift, MapPin, MoreVertical, PackageCheck, ShoppingBag, Store, Truck, XCircle } from "lucide-react";
 import { RiyalPrice } from "./RiyalPrice";
 import StoreHeader from "./StoreHeader";
 import StoreMobileNav from "./StoreMobileNav";
 import { useStoreCart } from "./StoreCartContext";
-import { useStoreOrders } from "./StoreOrdersContext";
+import { canCancelStoreOrder, useStoreOrders, type StoreOrderStatus } from "./StoreOrdersContext";
 import { useStoreLocale } from "./StoreLocaleContext";
 import { getFreeUnitsByItem, getGiftOfferForProduct } from "./storeCartData";
 
@@ -25,6 +25,8 @@ type OrderSnapshot = {
   shippingMethod: string;
   address?: { label: string; recipient: string; phone: string; city: string; street: string } | null;
   branch?: { name: string; address: string; distance: string; hours: string } | null;
+  status?: StoreOrderStatus;
+  deliveryDate?: string;
 };
 
 function loadOrder(orderId?: string | null): OrderSnapshot | null {
@@ -43,13 +45,23 @@ const paymentLabels: Record<string, string> = {
   cod: "Cash on delivery",
   tamara: "Tamara",
   tabby: "Tabby",
+  "deraah-gift": "Deraah Gift",
 };
 
+function OrderOptionsMenu({ isArabic, canCancel, onChangeDate, onChangeAddress, onCancel }: { isArabic: boolean; canCancel: boolean; onChangeDate: () => void; onChangeAddress: () => void; onCancel: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return <div className="relative"><button type="button" aria-label={isArabic ? "خيارات الطلب" : "Order options"} aria-expanded={isOpen} onClick={() => setIsOpen(open => !open)} className="grid h-9 w-9 place-items-center rounded-lg border border-[#e1e6eb] bg-white text-[#737c87] transition-colors hover:bg-[#f8fafc] hover:text-[#4e5661]"><MoreVertical size={17} /></button>{isOpen && <div role="menu" className="absolute end-0 top-11 z-20 min-w-[190px] rounded-xl border border-[#e1e6eb] bg-white p-1.5 text-start shadow-[0_12px_28px_rgba(30,50,80,.14)]"><button type="button" role="menuitem" onClick={() => { setIsOpen(false); onChangeDate(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-[#4e5661] transition-colors hover:bg-[#f8fafc]"><CalendarClock size={14} />{isArabic ? "تغيير موعد الاستلام" : "Change receiving time"}</button><button type="button" role="menuitem" onClick={() => { setIsOpen(false); onChangeAddress(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-[#4e5661] transition-colors hover:bg-[#f8fafc]"><MapPin size={14} />{isArabic ? "تغيير عنوان الاستلام" : "Change receiving address"}</button>{canCancel && <button type="button" role="menuitem" onClick={() => { setIsOpen(false); onCancel(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-[#b42318] transition-colors hover:bg-[#fff7f6]"><XCircle size={14} />{isArabic ? "إلغاء الطلب" : "Cancel order"}</button>}</div>}</div>;
+}
+
 export default function PaymentSummaryPage() {
-  const { direction } = useStoreLocale();
+  const { direction, language } = useStoreLocale();
+  const isArabic = language === "العربية";
   const requestedOrderId = useMemo(() => new URLSearchParams(window.location.search).get("order"), []);
   const savedOrder = useMemo(() => loadOrder(requestedOrderId), [requestedOrderId]);
-  const { orders } = useStoreOrders();
+  const { orders, cancelOrder, updateOrder } = useStoreOrders();
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState(false);
+  const requestedEdit = useMemo(() => new URLSearchParams(window.location.search).get("edit"), []);
+  const [isDeliveryDatePickerOpen, setIsDeliveryDatePickerOpen] = useState(requestedEdit === "date");
   const { cartItems } = useStoreCart();
   const fallback: OrderSnapshot = {
     id: "DRH-000000",
@@ -67,8 +79,22 @@ export default function PaymentSummaryPage() {
     branch: null,
   };
   const selectedOrder = requestedOrderId ? orders.find(order => order.id === requestedOrderId) : null;
-  const selectedOrderDetails: OrderSnapshot | null = selectedOrder ? { id: selectedOrder.id, placedAt: selectedOrder.placedAt, items: selectedOrder.items, giftSelections: selectedOrder.giftSelections, freeSample: selectedOrder.freeSample, subtotal: selectedOrder.total, promotionDiscount: 0, couponDiscount: 0, shipping: 0, total: selectedOrder.total, payment: "card", delivery: "shipping", shippingMethod: "standard", address: null, branch: null } : null;
+  const selectedOrderDetails: OrderSnapshot | null = selectedOrder ? { id: selectedOrder.id, placedAt: selectedOrder.placedAt, status: selectedOrder.status, deliveryDate: selectedOrder.deliveryDate, items: selectedOrder.items, giftSelections: selectedOrder.giftSelections, freeSample: selectedOrder.freeSample, subtotal: selectedOrder.total, promotionDiscount: 0, couponDiscount: 0, shipping: 0, total: selectedOrder.total, payment: "card", delivery: "shipping", shippingMethod: "standard", address: null, branch: null } : null;
   const details = savedOrder ?? selectedOrderDetails ?? fallback;
+  const hasOrderSnapshot = Boolean(savedOrder || selectedOrder);
+  const currentOrder = orders.find(order => order.id === details.id);
+  const orderStatus = currentOrder?.status ?? details.status ?? (hasOrderSnapshot ? "On the way" : undefined);
+  const canCancel = Boolean(hasOrderSnapshot && orderStatus && canCancelStoreOrder(orderStatus));
+  const isCancelled = orderStatus === "Cancelled";
+  const canManageOrder = Boolean(hasOrderSnapshot && !isCancelled);
+  const orderStage = orderStatus === "Confirmed" ? 0 : orderStatus === "Preparing" ? 1 : orderStatus === "On the way" ? 2 : orderStatus === "Delivered" ? 3 : -1;
+  const deliveryDateOptions = [1, 2, 3].map(offset => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + offset);
+    return { value: date.toISOString(), label: date.toLocaleDateString(isArabic ? "ar-SA" : "en-GB", { weekday: "long", day: "numeric", month: "long" }) };
+  });
+  const selectedDeliveryDate = currentOrder?.deliveryDate ?? details.deliveryDate ?? null;
   const freeUnitsByItem = getFreeUnitsByItem(details.items);
   const confirmedItems = details.items.map(item => ({ item, freeUnits: freeUnitsByItem.get(item.id) ?? 0 }));
   const selectedGifts = details.items.flatMap(item => {
@@ -87,10 +113,10 @@ export default function PaymentSummaryPage() {
     <StoreHeader />
     <main className="mx-auto max-w-[1100px] px-5 py-8 md:px-8 md:py-12">
       <div className="mb-6"><button type="button" onClick={() => window.location.assign("/shipping-payment")} className="flex items-center gap-2 text-sm font-medium text-[#555b63]"><ArrowLeft size={18} /> Back to checkout</button></div>
-      <section className="rounded-2xl bg-white p-6 text-center shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-10"><span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#ecfdf1] text-[#2c8b4b]"><Check size={32} strokeWidth={2.5} /></span><h1 className="mt-5 text-2xl font-semibold md:text-3xl">Payment confirmed</h1><p className="mx-auto mt-2 whitespace-nowrap text-sm text-[#6d7178]">Payment received successfully.</p><div className="mx-auto mt-5 inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-full bg-[#f7f9fb] px-4 py-2 text-xs text-[#555b63]"><span>Order number <strong className="text-[#171a1f]">{details.id}</strong></span><span>Placed {placedDate}</span></div></section>
+      <section className="relative rounded-2xl bg-white p-6 text-center shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-10"><span className={`mx-auto grid h-16 w-16 place-items-center rounded-full ${isCancelled ? "bg-[#fff0ef] text-[#b42318]" : "bg-[#ecfdf1] text-[#2c8b4b]"}`}>{isCancelled ? <XCircle size={32} strokeWidth={2.2} /> : <Check size={32} strokeWidth={2.5} />}</span><h1 className="mt-5 text-2xl font-semibold md:text-3xl">{isCancelled ? (isArabic ? "تم إلغاء الطلب" : "Order cancelled") : "Payment confirmed"}</h1><p className="mx-auto mt-2 text-sm text-[#6d7178]">{isCancelled ? (isArabic ? "تم تحديث حالة الطلب بنجاح." : "The order status has been updated.") : "Payment received successfully."}</p><div className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-3"><div className="inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-full bg-[#f7f9fb] px-4 py-2 text-xs text-[#555b63]"><span>Order number <strong className="text-[#171a1f]">{details.id}</strong></span><span>Placed {placedDate}</span></div>{canManageOrder && !isCancelConfirmationOpen && <OrderOptionsMenu isArabic={isArabic} canCancel={canCancel} onChangeDate={() => setIsDeliveryDatePickerOpen(true)} onChangeAddress={() => window.location.assign("/shipping-payment?edit=address")} onCancel={() => setIsCancelConfirmationOpen(true)} />}</div>{canCancel && isCancelConfirmationOpen && <div className="mx-auto mt-5 max-w-[440px] rounded-xl border border-[#f0c5c1] bg-[#fff8f7] p-4 text-left"><p className="text-xs font-semibold text-[#7f241d]">{isArabic ? "هل تريد إلغاء هذا الطلب؟" : "Do you want to cancel this order?"}</p><p className="mt-1 text-[11px] leading-5 text-[#94544d]">{isArabic ? "يمكن الإلغاء قبل بدء الشحن فقط." : "Cancellation is available before shipping starts."}</p><div className="mt-3 flex justify-end gap-2"><button type="button" onClick={() => setIsCancelConfirmationOpen(false)} className="h-9 rounded-lg border border-[#e1c9c6] bg-white px-3 text-[11px] font-semibold text-[#6d7178]">{isArabic ? "إبقاء الطلب" : "Keep order"}</button><button type="button" onClick={() => { cancelOrder(details.id); setIsCancelConfirmationOpen(false); }} className="h-9 rounded-lg bg-[#b42318] px-3 text-[11px] font-semibold text-white hover:bg-[#941d14]">{isArabic ? "تأكيد الإلغاء" : "Confirm cancellation"}</button></div></div>}{isDeliveryDatePickerOpen && <div role="dialog" aria-modal="true" aria-labelledby="delivery-date-title" className="fixed inset-0 z-[130] flex items-center justify-center bg-black/35 p-5" onClick={() => setIsDeliveryDatePickerOpen(false)}><section className="w-full max-w-[430px] rounded-2xl bg-white p-5 text-start shadow-2xl md:p-6" onClick={event => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#2c8b4b]">{isArabic ? "استلام الطلب" : "Order receiving"}</p><h2 id="delivery-date-title" className="mt-2 text-lg font-semibold">{isArabic ? "تغيير موعد الاستلام" : "Change receiving time"}</h2><p className="mt-1 text-xs leading-5 text-[#6d7178]">{isArabic ? "اختر اليوم الأنسب لاستلام طلبك." : "Choose the day that works best for your order."}</p></div><button type="button" aria-label={isArabic ? "إغلاق" : "Close"} onClick={() => setIsDeliveryDatePickerOpen(false)} className="grid h-9 w-9 place-items-center rounded-lg bg-[#f4f6f8] text-[#555b63]">×</button></div><div className="mt-5 space-y-2">{deliveryDateOptions.map(option => <button key={option.value} type="button" onClick={() => { updateOrder(details.id, { deliveryDate: option.value }); setIsDeliveryDatePickerOpen(false); }} className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-start transition-colors ${selectedDeliveryDate?.slice(0, 10) === option.value.slice(0, 10) ? "border-[#2c8b4b] bg-[#f2fbf4]" : "border-[#e1e6eb] hover:bg-[#f8fafc]"}`}><span className="flex items-center gap-2 text-sm font-medium"><CalendarClock size={16} className="text-[#2c8b4b]" />{option.label}</span><span className="text-[11px] text-[#6d7178]">{isArabic ? "09:00 ص – 01:00 م" : "09:00 – 13:00"}</span></button>)}</div></section></div>}</section>
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,.85fr)]">
         <div className="payment-summary-main-column flex flex-col space-y-6">
-          <section className="payment-summary-status rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#ecfdf1] text-[#2c8b4b]"><PackageCheck size={21} /></span><div><h2 className="text-lg font-semibold">Order status</h2><p className="mt-1 text-xs text-[#6d7178]">We will update you as your order progresses.</p></div></div><div className="mt-6 grid gap-4 sm:grid-cols-4">{[[CheckCircle2, "Order confirmed", "Payment received"], [PackageCheck, "Preparing order", "In progress"], [Truck, details.delivery === "pickup" ? "Ready for pickup" : "On the way", "Next step"], [Check, details.delivery === "pickup" ? "Collected" : "Delivered", "Pending"]].map(([Icon, title, subtitle], index) => <div key={String(title)} className="relative flex gap-3 sm:block sm:text-center"><span className={`mx-0 grid h-10 w-10 shrink-0 place-items-center rounded-full sm:mx-auto ${index === 0 ? "bg-[#2c8b4b] text-white" : "bg-[#f1f4f6] text-[#9aa1ac]"}`}><Icon size={18} /></span><span className="block min-w-0"><strong className="mt-1 block text-xs font-semibold">{title}</strong><small className="mt-1 block text-[10px] text-[#7b818a]">{subtitle}</small></span></div>)}</div></section>
+          <section className="payment-summary-status rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><div className="flex items-center gap-3"><span className={`grid h-10 w-10 place-items-center rounded-xl ${isCancelled ? "bg-[#fff0ef] text-[#b42318]" : "bg-[#ecfdf1] text-[#2c8b4b]"}`}>{isCancelled ? <XCircle size={21} /> : <PackageCheck size={21} />}</span><div><h2 className="text-lg font-semibold">{isCancelled ? (isArabic ? "الطلب ملغى" : "Order cancelled") : "Order status"}</h2><p className="mt-1 text-xs text-[#6d7178]">{isCancelled ? (isArabic ? "لن تتم متابعة تجهيز هذا الطلب." : "This order will not continue to fulfillment.") : "We will update you as your order progresses."}</p></div></div><div className="mt-6 grid gap-4 sm:grid-cols-4">{[[CheckCircle2, "Order confirmed", "Payment received"], [PackageCheck, "Preparing order", "In progress"], [Truck, details.delivery === "pickup" ? "Ready for pickup" : "On the way", "Next step"], [Check, details.delivery === "pickup" ? "Collected" : "Delivered", "Pending"]].map(([Icon, title, subtitle], index) => <div key={String(title)} className="relative flex gap-3 sm:block sm:text-center"><span className={`mx-0 grid h-10 w-10 shrink-0 place-items-center rounded-full sm:mx-auto ${!isCancelled && index <= orderStage ? "bg-[#2c8b4b] text-white" : "bg-[#f1f4f6] text-[#9aa1ac]"}`}><Icon size={18} /></span><span className="block min-w-0"><strong className="mt-1 block text-xs font-semibold">{title}</strong><small className="mt-1 block text-[10px] text-[#7b818a]">{subtitle}</small></span></div>)}</div></section>
           <section className="payment-summary-receiving rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f7f9fb] text-[#2c8b4b]">{details.delivery === "pickup" ? <Store size={21} /> : <Truck size={21} />}</span><div><h2 className="text-lg font-semibold">receiving details</h2><p className="mt-1 text-xs text-[#6d7178]">{deliveryLabel}</p></div></div>{details.delivery === "pickup" ? <div className="mt-5 rounded-xl border border-[#dfe4e8] bg-[#f8fafc] p-4"><strong className="block text-sm">{details.branch?.name ?? "Selected branch"}</strong><p className="mt-1 text-xs text-[#6d7178]">{details.branch?.address ?? "Branch details will be confirmed shortly."}</p><div className="mt-3 flex flex-wrap gap-4 text-xs text-[#6d7178]"><span className="inline-flex items-center gap-1"><MapPin size={14} />{details.branch?.distance ?? "Riyadh"}</span><span className="inline-flex items-center gap-1"><Clock3 size={14} />{details.branch?.hours ?? "Branch opening hours"}</span></div></div> : <div className="mt-5 rounded-xl border border-[#2c8b4b] bg-[#ecfdf1]/60 p-4"><strong className="block text-sm">{details.address?.label ?? "Delivery address"}</strong><p className="mt-1 text-xs text-[#6d7178]">{details.address?.recipient ?? "Primary contact"} · {details.address?.phone ?? "05X XXX XXXX"}</p><p className="mt-1 text-xs text-[#6d7178]">{details.address ? `${details.address.city} · ${details.address.street}` : "Your saved address"}</p></div>}</section>
           <section className="payment-summary-order-details rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,50,80,.05)] md:p-6">
             <div className="flex items-center gap-3"><ShoppingBag className="text-[#2c8b4b]" size={21} /><h2 className="text-lg font-semibold">Order details</h2></div>

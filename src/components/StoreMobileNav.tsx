@@ -27,10 +27,12 @@ export default function StoreMobileNav({ collapsed, onToggle, onOpenCategories, 
       ? "cart"
       : pathname === "/category" || pathname === "/clp" || pathname === "/gifts"
         ? "categories"
-        : pathname === "/" || pathname === "/index.html" || pathname === "/store-home"
-          ? "home"
-          : null;
-  const openRewards = onOpenRewards ?? (() => window.location.assign("/#gift-offers"));
+        : pathname === "/mukafaati" || pathname === "/rewards"
+          ? "rewards"
+          : pathname === "/" || pathname === "/index.html" || pathname === "/store-home"
+            ? "home"
+            : null;
+  const openRewards = onOpenRewards ?? (() => window.location.assign("/mukafaati"));
   const openHome = onOpenHome ?? (() => window.location.assign("/"));
   const handleCategoryOpen = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

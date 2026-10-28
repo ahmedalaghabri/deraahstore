@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 32" role="img" aria-labelledby="title">
+  <title id="title">mada</title>
+  <path d="M12 24c6-3 10-7 14-13 4 6 8 10 14 13" fill="none" stroke="#1e90c8" stroke-linecap="round" stroke-width="3"/>
+  <path d="M39 24c5-2 8-5 11-10" fill="none" stroke="#56b874" stroke-linecap="round" stroke-width="3"/>
+  <text x="67" y="23" text-anchor="middle" fill="#1f5e91" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700">mada</text>
+</svg>

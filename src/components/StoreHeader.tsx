@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BadgePercent, Bell, CheckCircle2, ChevronDown, ClipboardList, Clock3, Copy, Gift, Globe2, Headphones, Heart, Menu, PackageCheck, ScanLine, Search, Sparkles, Truck, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgePercent, Bell, CheckCircle2, ChevronDown, ClipboardList, Clock3, Copy, Gift, Globe2, Headphones, Heart, Menu, PackageCheck, ScanLine, Search, ShoppingBag, Sparkles, Truck, UserRound, X } from "lucide-react";
 import { CATEGORY_GROUPS, getCategoryItemImage } from "./storeNavigation";
 import { useStoreCart } from "./StoreCartContext";
 import StoreCartDrawer from "./StoreCartDrawer";
@@ -110,18 +110,20 @@ type AuthMode = "login" | "register";
 
 function CountryLanguagePanel({ open, onClose, country, language, onSelectLocale }: { open: boolean; onClose: () => void; country: StoreCountry; language: StoreLanguage; onSelectLocale: (country: StoreCountry, language: StoreLanguage) => void }) {
   const { direction } = useStoreLocale();
+  const isArabic = language === "العربية";
+  const countryNames: Record<StoreCountry, string> = { "Saudi Arabia": "السعودية", "United Arab Emirates": "الإمارات", Qatar: "قطر", Oman: "عمان" };
   const mobileDrag = useMobileSheetDrag(onClose);
   if (!open) return null;
   return createPortal(<div dir={direction} role="dialog" aria-modal="true" aria-labelledby="country-language-title" className="store-side-overlay fixed inset-0 z-[140] flex justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end" onClick={onClose}>
     <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-country-panel store-side-panel-right flex h-dvh w-full max-w-[440px] flex-col overflow-y-auto bg-white px-7 pb-7 pt-5 text-start shadow-2xl max-md:h-[min(92dvh,760px)] max-md:max-w-none max-md:rounded-t-[28px] max-md:px-5">
       <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
-      <div className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-2 text-[11px] text-[#9a9da3]"><Globe2 size={17} /> Preferences</span><button type="button" onClick={onClose} aria-label="Close country and language panel" className="grid h-9 w-9 place-items-center rounded-full bg-[#f4f6f8] text-[#69717a] transition-colors hover:bg-[#e9edf1]"><X size={18} /></button></div>
+      <div className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-2 text-[11px] text-[#9a9da3]"><Globe2 size={17} /> {isArabic ? "التفضيلات" : "Preferences"}</span><button type="button" onClick={onClose} aria-label={isArabic ? "إغلاق نافذة الدولة واللغة" : "Close country and language panel"} className="grid h-9 w-9 place-items-center rounded-full bg-[#f4f6f8] text-[#69717a] transition-colors hover:bg-[#e9edf1]"><X size={18} /></button></div>
       <div className="flex flex-1 flex-col justify-center py-8">
-        <div className="mx-auto w-full max-w-[340px]"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#a0a4aa]">Country &amp; language</p><h2 id="country-language-title" className="mt-5 text-[34px] font-semibold leading-[1.12] tracking-[-.045em] text-[#242225]">Choose your<br />shopping preferences</h2><p className="mt-5 text-sm leading-6 text-[#737982]">Choose the language for each country&apos;s shopping experience.</p>
-          <section aria-labelledby="country-options-title" className="mt-8"><h3 id="country-options-title" className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#a0a4aa]">Country</h3><div className="mt-3 grid gap-2">{countryOptions.map(option => <div key={option.value} dir="ltr" className="rounded-xl border border-[#e4e6e9] bg-[#f7f8f9] px-3 py-2.5 transition-colors"><div className="flex min-w-0 items-center gap-2"><div className="flex min-w-0 flex-1 items-center gap-2"><span aria-hidden="true" className="text-lg leading-none">{option.flag}</span><span className="min-w-0 truncate text-sm font-medium text-[#242225]">{option.shortLabel}</span><span aria-label={`${option.englishLabel} currency ${option.currency}`} className="shrink-0 text-[10px] font-semibold tracking-[.04em] text-[#68717a]">{option.currency}</span></div><div className="flex shrink-0 items-center gap-1" aria-label={`${option.englishLabel} languages`}>{option.languages.map(locale => <button key={locale.value} type="button" aria-pressed={country === option.value && language === locale.value} aria-label={`${option.englishLabel}: ${locale.ariaLabel}`} onClick={() => onSelectLocale(option.value, locale.value)} className={`rounded-md border px-1.5 py-1 text-[9px] transition-colors ${country === option.value && language === locale.value ? "border-[#242225] bg-[#242225] font-semibold text-white" : "border-[#dfe4e8] bg-white text-[#68717a] hover:border-[#242225] hover:text-[#242225]"}`}>{locale.label}</button>)}</div></div></div>)}</div></section>
+        <div className="mx-auto w-full max-w-[340px]"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#a0a4aa]">{isArabic ? "الدولة واللغة" : "Country & language"}</p><h2 id="country-language-title" className="mt-5 text-[34px] font-semibold leading-[1.12] tracking-[-.045em] text-[#242225]">{isArabic ? <>اختر<br />تفضيلات التسوق</> : <>Choose your<br />shopping preferences</>}</h2><p className="mt-5 text-sm leading-6 text-[#737982]">{isArabic ? "اختر لغة تجربة التسوق لكل دولة." : "Choose the language for each country&apos;s shopping experience."}</p>
+          <section aria-labelledby="country-options-title" className="mt-8"><h3 id="country-options-title" className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#a0a4aa]">{isArabic ? "الدولة" : "Country"}</h3><div className="mt-3 grid gap-2">{countryOptions.map(option => <div key={option.value} dir="ltr" className="rounded-xl border border-[#e4e6e9] bg-[#f7f8f9] px-3 py-2.5 transition-colors"><div className="flex min-w-0 items-center gap-2"><div className="flex min-w-0 flex-1 items-center gap-2"><span aria-hidden="true" className="text-lg leading-none">{option.flag}</span><span className="min-w-0 truncate text-sm font-medium text-[#242225]">{isArabic ? countryNames[option.value] : option.shortLabel}</span><span aria-label={`${option.englishLabel} currency ${option.currency}`} className="shrink-0 text-[10px] font-semibold tracking-[.04em] text-[#68717a]">{option.currency}</span></div><div className="flex shrink-0 items-center gap-1" aria-label={`${option.englishLabel} languages`}>{option.languages.map(locale => <button key={locale.value} type="button" aria-pressed={country === option.value && language === locale.value} aria-label={`${option.englishLabel}: ${locale.ariaLabel}`} onClick={() => onSelectLocale(option.value, locale.value)} className={`rounded-md border px-1.5 py-1 text-[9px] transition-colors ${country === option.value && language === locale.value ? "border-[#242225] bg-[#242225] font-semibold text-white" : "border-[#dfe4e8] bg-white text-[#68717a] hover:border-[#242225] hover:text-[#242225]"}`}>{locale.label}</button>)}</div></div></div>)}</div></section>
         </div>
       </div>
-      <p className="mx-auto max-w-[340px] text-center text-[10px] leading-5 text-[#a0a4aa]">Your preferences are saved for this shopping session.</p>
+      <p className="mx-auto max-w-[340px] text-center text-[10px] leading-5 text-[#a0a4aa]">{isArabic ? "يتم حفظ تفضيلاتك لجلسة التسوق هذه." : "Your preferences are saved for this shopping session."}</p>
     </section>
   </div>, document.body);
 }
@@ -257,6 +259,8 @@ function AccountSuccessToast({ open, onClose }: { open: boolean; onClose: () => 
 }
 
 function FavoriteSuccessToast({ product, onClose, onViewFavorites }: { product: StoreFavoriteProduct | null; onClose: () => void; onViewFavorites: () => void }) {
+  const { language } = useStoreLocale();
+  const isArabic = language === "العربية";
   const [mounted, setMounted] = useState(Boolean(product));
   useEffect(() => {
     if (product) setMounted(true);
@@ -269,9 +273,9 @@ function FavoriteSuccessToast({ product, onClose, onViewFavorites }: { product: 
   return createPortal(<SwipeToast
     key={product.id}
     open={Boolean(product)}
-    title="Added to favorites"
+    title={isArabic ? "تمت الإضافة إلى المفضلة" : "Added to favorites"}
     description={<>
-      <span className="quick-cart-toast__status">Your product was saved successfully.</span>
+      <span className="quick-cart-toast__status">{isArabic ? "تم حفظ المنتج بنجاح." : "Your product was saved successfully."}</span>
       <span className="quick-cart-toast__product">
         <span className="quick-cart-toast__thumb"><img src={product.image} alt={product.name} /></span>
         <span>
@@ -282,7 +286,7 @@ function FavoriteSuccessToast({ product, onClose, onViewFavorites }: { product: 
         <span className="quick-cart-toast__qty">1×</span>
       </span>
     </>}
-    actionLabel="View favorites"
+    actionLabel={isArabic ? "عرض المفضلة" : "View favorites"}
     onAction={onViewFavorites}
     onClose={handleClose}
     background="#ffffff"
@@ -317,7 +321,8 @@ const notificationCards: NotificationCard[] = [
 ];
 
 function NotificationsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { direction } = useStoreLocale();
+  const { direction, language } = useStoreLocale();
+  const isArabic = language === "العربية";
   const [copied, setCopied] = useState(false);
   const mobileDrag = useMobileSheetDrag(onClose);
   if (!open) return null;
@@ -333,37 +338,40 @@ function NotificationsPanel({ open, onClose }: { open: boolean; onClose: () => v
   };
 
   return createPortal(<div dir={direction} role="dialog" aria-modal="true" aria-labelledby="notifications-title" className="store-side-overlay fixed inset-0 z-[140] flex justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end" onClick={onClose}>
-    <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-notifications-panel store-side-panel-right flex h-dvh w-full max-w-[500px] flex-col overflow-hidden bg-[#f7f9fc] text-start shadow-2xl max-md:h-[min(92dvh,820px)] max-md:max-w-none max-md:rounded-t-[28px]">
+    <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-notifications-panel store-side-panel-right flex h-dvh w-full max-w-[460px] flex-col overflow-hidden bg-[#f7f9fc] text-start shadow-2xl max-md:h-[min(92dvh,820px)] max-md:max-w-none max-md:rounded-t-[28px]">
       <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
-      <header className="flex shrink-0 items-center justify-between border-b border-[#e8ebef] bg-[#f7f9fc] px-6 pb-5 pt-6 md:px-8 md:pt-7">
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-[#cd1a76] shadow-[0_8px_22px_rgba(15,23,42,.06)]"><Bell size={20} strokeWidth={1.7} /></span>
-          <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#9a9fa6]">Stay in the loop</p><h2 id="notifications-title" className="mt-1 text-[28px] font-semibold tracking-[-.045em] text-[#242225]">Notifications</h2></div>
+      <header className="flex shrink-0 items-center justify-between border-b border-[#e8ebef] bg-[#f7f9fc] px-5 pb-4 pt-5 md:px-6 md:pt-6">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#cd1a76] shadow-[0_8px_22px_rgba(15,23,42,.06)]"><Bell size={18} strokeWidth={1.7} /></span>
+          <div><p className="text-[9px] font-semibold uppercase tracking-[.14em] text-[#9a9fa6]">{isArabic ? "ابقَ على اطلاع" : "Stay in the loop"}</p><h2 id="notifications-title" className="mt-0.5 text-[24px] font-semibold leading-7 tracking-[-.04em] text-[#242225]">{isArabic ? "الإشعارات" : "Notifications"}</h2></div>
         </div>
-        <button type="button" onClick={onClose} aria-label="Close notifications" className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#69717a] shadow-[0_6px_18px_rgba(15,23,42,.05)] transition-colors hover:bg-[#eef1f4]"><X size={19} /></button>
+        <button type="button" onClick={onClose} aria-label={isArabic ? "إغلاق الإشعارات" : "Close notifications"} className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#69717a] shadow-[0_6px_18px_rgba(15,23,42,.05)] transition-colors hover:bg-[#eef1f4]"><X size={17} /></button>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 md:px-7 md:py-7">
-        <p className="text-sm leading-6 text-[#737982]">Important updates, offers, and order activity from Deraah.</p>
-        <div className="mt-5 grid gap-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-6">
+        <p className="text-xs leading-5 text-[#737982]">{isArabic ? "آخر التحديثات والعروض ونشاط طلباتك من درعه." : "Important updates, offers, and order activity from Deraah."}</p>
+        <div className="mt-4 grid gap-3">
           {notificationCards.map((notification, index) => {
             const isOrder = notification.kind === "order";
             const isCoupon = notification.kind === "coupon";
             const Icon = isOrder ? PackageCheck : isCoupon ? BadgePercent : Truck;
-            return <article key={`${notification.kind}-${index}`} className={`notification-card notification-card-${notification.kind} rounded-[22px] bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,.06)] md:p-5`}>
-              <div className="notification-card-header flex items-start gap-3.5">
-                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${isOrder ? "bg-[#e8f0ff] text-[#6b86bc]" : isCoupon ? "bg-[#fff0f6] text-[#cd1a76]" : "bg-[#fff3ec] text-[#b05a31]"}`}><Icon size={22} strokeWidth={1.65} /></span>
+            const title = isArabic ? (isOrder ? "تم شحن طلبك" : isCoupon ? "عرض خاص لك" : "توصيل مجاني") : notification.title;
+            const message = isArabic ? (isOrder ? "تم شحن طلبك رقم “23651547”" : isCoupon ? "خصم 50% على جميع المنتجات. استخدم الكوبون “Free50”" : "عرض خاص: خصم 50% على منتجات البخور والعود") : notification.message;
+            const time = isArabic ? (isOrder ? "منذ 30 دقيقة" : isCoupon ? "منذ ساعتين" : "14:00") : notification.time;
+            return <article key={`${notification.kind}-${index}`} className={`notification-card notification-card-${notification.kind} rounded-[18px] bg-white p-3.5 shadow-[0_8px_22px_rgba(15,23,42,.05)] md:p-4`}>
+              <div className="notification-card-header flex items-start gap-3">
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${isOrder ? "bg-[#e8f0ff] text-[#6b86bc]" : isCoupon ? "bg-[#fff0f6] text-[#cd1a76]" : "bg-[#fff3ec] text-[#b05a31]"}`}><Icon size={19} strokeWidth={1.65} /></span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-[15px] font-semibold leading-5 text-[#3a3b3f]">{notification.title}</h3>
-                  <p className="notification-card-message mt-1 text-[12px] leading-5 text-[#737982]">{notification.message}</p>
-                  {isCoupon && <div className="mt-3 flex flex-wrap items-center gap-2"><button type="button" onClick={copyCoupon} className="inline-flex items-center gap-2 rounded-full bg-[#171717] px-3 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-[#303030]"><span>{copied ? "Copied" : "Copy Free50"}</span><Copy size={12} strokeWidth={1.8} /></button>{copied && <span role="status" className="text-[10px] font-medium text-[#2c8b4b]">Coupon copied</span>}</div>}
+                  <h3 className="text-[13px] font-semibold leading-5 text-[#3a3b3f]">{title}</h3>
+                  <p className="notification-card-message mt-0.5 text-[11px] leading-[1.7] text-[#737982]">{message}</p>
+                  {isCoupon && <div className="mt-2.5 flex flex-wrap items-center gap-2"><button type="button" onClick={copyCoupon} className="inline-flex items-center gap-1.5 rounded-full bg-[#171717] px-2.5 py-1 text-[10px] font-medium text-white transition-colors hover:bg-[#303030]"><span>{copied ? (isArabic ? "تم النسخ" : "Copied") : (isArabic ? "نسخ Free50" : "Copy Free50")}</span><Copy size={11} strokeWidth={1.8} /></button>{copied && <span role="status" className="text-[9px] font-medium text-[#2c8b4b]">{isArabic ? "تم نسخ الكوبون" : "Coupon copied"}</span>}</div>}
                 </div>
               </div>
-              {notification.image && <div className="notification-card-image mt-4 overflow-hidden rounded-[16px] bg-[#f4e8e2]"><img src={notification.image} alt="Deraah fragrance offer" className="block aspect-[2/1] w-full object-cover" /></div>}
-              <div className="notification-card-footer mt-4 flex items-center justify-between gap-4 border-t border-[#f0f1f3] pt-3"><span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#858a92]"><Clock3 size={13} strokeWidth={1.7} />{notification.time}</span>{notification.image && <a href="#gift-offers" onClick={onClose} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#242225] no-underline transition-colors hover:text-[#cd1a76]">Shop offer<ArrowRight size={14} strokeWidth={1.8} /></a>}{isOrder && <a href="/checkout" onClick={onClose} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#242225] no-underline transition-colors hover:text-[#cd1a76]">View order<ArrowRight size={14} strokeWidth={1.8} /></a>}</div>
+              {notification.image && <div className="notification-card-image mt-3 overflow-hidden rounded-[14px] bg-[#f4e8e2]"><img src={notification.image} alt={isArabic ? "عرض عطور من درعه" : "Deraah fragrance offer"} className="block aspect-[2/1] w-full object-cover" /></div>}
+              <div className="notification-card-footer mt-3 flex items-center justify-between gap-3 border-t border-[#f0f1f3] pt-2.5"><span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#858a92]"><Clock3 size={12} strokeWidth={1.7} />{time}</span>{notification.image && <a href="#gift-offers" onClick={onClose} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#242225] no-underline transition-colors hover:text-[#cd1a76]">{isArabic ? "تسوق العرض" : "Shop offer"}<ArrowRight size={13} strokeWidth={1.8} /></a>}{isOrder && <a href="/checkout" onClick={onClose} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#242225] no-underline transition-colors hover:text-[#cd1a76]">{isArabic ? "عرض الطلب" : "View order"}<ArrowRight size={13} strokeWidth={1.8} /></a>}</div>
             </article>;
           })}
         </div>
-        <p className="pb-2 pt-7 text-center text-[10px] leading-5 text-[#a0a4aa]">You&apos;re all caught up for now.</p>
+        <p className="pb-2 pt-6 text-center text-[9px] leading-5 text-[#a0a4aa]">{isArabic ? "لا توجد تحديثات جديدة حالياً." : "You&apos;re all caught up for now."}</p>
       </div>
     </section>
   </div>, document.body);
@@ -379,13 +387,34 @@ const accountEmptyContent: Record<AccountEmptyView, { title: string; message: st
   rewards: { title: "Mukafaati", message: "Your points, rewards, and special offers will appear here as you earn them.", action: "Continue shopping" }
 };
 
+const mobileFavoriteArabicNames: Record<string, string> = {
+  "Black Woods Eau de Toilette": "بلاك وودز أو دو تواليت",
+  "Green Woods Eau de Parfum": "جرين وودز أو دو بارفان",
+  "Link White Limited Edition 150ml": "لينك الأبيض إصدار محدود 150 مل",
+  "Silver Woods Eau de Parfum": "سيلفر وودز أو دو بارفان",
+};
+
+function MobileFavoriteCard({ product, isArabic, onClose, onRemove, onAdd }: { product: StoreFavoriteProduct; isArabic: boolean; onClose: () => void; onRemove: () => void; onAdd: () => void }) {
+  const productName = isArabic ? mobileFavoriteArabicNames[product.name] ?? product.name : product.name;
+  const brand = isArabic && product.brand === "LINK" ? "لينك" : product.brand;
+  return <article className="group relative flex h-fit min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#e8ebee] bg-white shadow-sm transition-shadow hover:shadow-md">
+    <a href={`/product-details?product=${encodeURIComponent(product.name)}#details`} onClick={onClose} className="relative grid h-[148px] shrink-0 place-items-center overflow-hidden bg-[#f5f6f7] p-3"><img src={product.image} alt={productName} className="block h-auto w-auto max-h-[124px] max-w-[104px] object-contain transition-transform duration-300 group-hover:scale-105" /></a>
+    <button type="button" onClick={onRemove} aria-label={`${isArabic ? "إزالة" : "Remove"} ${productName} ${isArabic ? "من المفضلة" : "from favorites"}`} className="absolute end-2.5 top-2.5 z-10 grid h-8 w-8 place-items-center rounded-full bg-white text-[#cd1a76] shadow-md transition-colors hover:bg-[#fff0f6]"><Heart size={16} fill="currentColor" /></button>
+    <div className="flex min-h-[132px] flex-1 flex-col p-3"><div className="flex items-center justify-between gap-2"><span className="min-w-0 truncate text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a9fa6]">{brand}</span><span className="shrink-0 text-[10px] font-semibold text-[#6b7280]" aria-label={isArabic ? "تقييم المنتج 4.8 من 5" : "Product rating 4.8 out of 5"}>★ 4.8</span></div><a href={`/product-details?product=${encodeURIComponent(product.name)}#details`} onClick={onClose} className="mt-1 block min-h-[36px] line-clamp-2 text-[12px] font-semibold leading-5 text-[#242225] no-underline hover:text-[#cd1a76]">{productName}</a><div className="mt-auto flex items-end justify-between gap-2 border-t border-[#edf0f3] pt-3"><span className="text-[13px] font-semibold text-[#5d6570]">{product.price}</span><button type="button" onClick={onAdd} aria-label={`${isArabic ? "أضف" : "Add"} ${productName} ${isArabic ? "إلى السلة" : "to cart"}`} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#d8d4cf] text-[#161616] transition hover:border-[#161616] hover:bg-[#161616] hover:text-white"><ShoppingBag size={15} strokeWidth={1.7} /></button></div></div>
+  </article>;
+}
+
 function AccountEmptyPanel({ view, onClose, onOpenAuth }: { view: AccountEmptyView | null; onClose: () => void; onOpenAuth: () => void }) {
-  const { direction } = useStoreLocale();
+  const { direction, language } = useStoreLocale();
+  const isArabic = language === "العربية";
   const { favorites, removeFavorite } = useStoreFavorites();
+  const { addToCart } = useStoreCart();
   const { orders } = useStoreOrders();
   const mobileDrag = useMobileSheetDrag(onClose);
   if (!view) return null;
   const content = accountEmptyContent[view];
+  const favoriteTitle = isArabic ? "المفضلة" : content.title;
+  const savedProductsLabel = isArabic ? `${favorites.length} ${favorites.length === 1 ? "منتج محفوظ" : "منتجات محفوظة"}` : `${favorites.length} saved ${favorites.length === 1 ? "product" : "products"}`;
   const Icon = view === "favorites" ? Heart : view === "orders" ? PackageCheck : view === "track-order" ? ClipboardList : view === "rewards" ? Gift : UserRound;
   const showFavorites = view === "favorites" && favorites.length > 0;
   const showOrders = (view === "orders" || view === "track-order") && orders.length > 0;
@@ -393,6 +422,13 @@ function AccountEmptyPanel({ view, onClose, onOpenAuth }: { view: AccountEmptyVi
     if (view === "account") onOpenAuth();
     else onClose();
   };
+  if (showFavorites) return createPortal(<div dir={direction} role="dialog" aria-modal="true" aria-labelledby="account-empty-title" className="store-side-overlay fixed inset-0 z-[140] flex justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end" onClick={onClose}>
+    <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-account-panel store-side-panel-right flex h-dvh w-full max-w-[440px] flex-col bg-white px-7 pb-7 pt-5 text-start shadow-2xl max-md:h-[min(92dvh,760px)] max-md:max-w-none max-md:rounded-t-[28px] max-md:px-5">
+      <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
+      <div className="flex items-center justify-end"><button type="button" onClick={onClose} aria-label={isArabic ? "إغلاق المفضلة" : "Close favorites"} className="grid h-9 w-9 place-items-center rounded-full bg-[#f4f6f8] text-[#69717a] transition-colors hover:bg-[#e9edf1]"><X size={18} /></button></div>
+      <div className="flex min-h-0 flex-1 flex-col pt-8"><div><h2 id="account-empty-title" className="text-[30px] font-semibold tracking-[-.04em] text-[#242225]">{favoriteTitle}</h2><p className="mt-2 text-sm text-[#737982]">{savedProductsLabel}</p></div><div className="mt-5 grid min-h-0 flex-1 content-start items-start grid-cols-2 gap-2 overflow-y-auto pr-1">{favorites.map(product => <MobileFavoriteCard key={product.id} product={product} isArabic={isArabic} onClose={onClose} onRemove={() => removeFavorite(product.id)} onAdd={() => addToCart({ id: product.id, name: product.name, brand: product.brand, price: product.price, oldPrice: product.oldPrice, image: product.image, quantity: 1 })} />)}</div></div>
+    </section>
+  </div>, document.body);
   return createPortal(<div dir={direction} role="dialog" aria-modal="true" aria-labelledby="account-empty-title" className="store-side-overlay fixed inset-0 z-[140] flex justify-end bg-black/35 backdrop-blur-[3px] max-md:items-end" onClick={onClose}>
     <section onClick={event => event.stopPropagation()} style={mobileDrag.dragStyle} className="store-mobile-sheet store-account-panel store-side-panel-right flex h-dvh w-full max-w-[440px] flex-col bg-white px-7 pb-7 pt-5 text-start shadow-2xl max-md:h-[min(92dvh,760px)] max-md:max-w-none max-md:rounded-t-[28px] max-md:px-5">
       <MobileSheetHandle dragHandlers={mobileDrag.dragHandlers} />
@@ -405,7 +441,7 @@ function AccountEmptyPanel({ view, onClose, onOpenAuth }: { view: AccountEmptyVi
 function HeaderAccountMenu({ authenticated, open, onToggle, onOpenAuth, onOpenView, onLogout }: { authenticated: boolean; open: boolean; onToggle: () => void; onOpenAuth: (mode: AuthMode) => void; onOpenView: (view: AccountEmptyView) => void; onLogout: () => void }) {
   const { language } = useStoreLocale();
   const isArabic = language === "العربية";
-  return <div className="relative shrink-0">
+  return <div data-store-header-account={authenticated ? "authenticated" : "guest"} className="relative shrink-0">
     <button type="button" onClick={onToggle} aria-label={authenticated ? (isArabic ? "حسابي" : "My account") : (isArabic ? "الحساب" : "Account")} aria-expanded={open} className={authenticated ? "inline-flex h-10 items-center gap-1 border-s-[#e6e2de] px-3 text-[12px] font-normal text-[#171717] transition-colors hover:bg-[#f1f2f3]" : "grid h-10 w-10 place-items-center text-[#171717] transition-opacity hover:opacity-60"}>
       {authenticated ? <>{isArabic ? "حسابي" : "My account"} <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform ${open ? "rotate-180" : ""}`} /></> : <img src="/product-assets/icons/account.svg" alt="" className="h-[18px] w-[18px]" />}
     </button>
@@ -540,7 +576,13 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
   }, []);
 
   useEffect(() => {
-    const openSharedCart = () => setCartDrawerOpen(true);
+    const openSharedCart = () => {
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        window.location.assign("/checkout");
+        return;
+      }
+      setCartDrawerOpen(true);
+    };
     window.addEventListener("store:open-cart", openSharedCart);
     return () => window.removeEventListener("store:open-cart", openSharedCart);
   }, []);
@@ -667,7 +709,7 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
 
       <div data-store-header-shell className={`relative mx-auto flex h-[52px] items-center gap-4 ${overlay ? `pointer-events-auto mx-4 w-[calc(100%_-_2rem)] max-w-none rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none ${isScrolled ? "max-md:mx-auto max-md:w-fit max-md:gap-0 max-md:px-2" : ""}` : "mx-4 w-[calc(100%_-_2rem)] rounded-full border-0 bg-white/95 px-3 shadow-[0_12px_35px_rgba(24,20,16,.14)] md:mx-auto md:w-full md:max-w-[1240px] md:gap-4 md:rounded-none md:bg-transparent md:px-0 md:shadow-none"}`}>
         <div className={`static flex h-full min-w-0 items-center gap-2 overflow-visible transition-[flex-basis,width,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-[flex-basis,width,opacity] md:relative md:flex-1 md:overflow-visible md:rounded-full md:border md:border-white/75 md:bg-white/95 md:px-4 md:shadow-[0_12px_35px_rgba(24,20,16,.14)] ${overlay && isScrolled ? "max-md:w-0 max-md:opacity-0" : ""}`}>
-          <button type="button" onClick={() => setNotificationsOpen(true)} aria-label="Notifications" title="Notifications" className="grid h-10 w-10 place-items-center text-[#171717] md:hidden"><Bell size={22} strokeWidth={1.5} /></button>
+          <button type="button" onClick={() => setNotificationsOpen(true)} aria-label="Notifications" title="Notifications" style={{ left: direction === "rtl" ? "calc(50% - 92px)" : undefined, right: direction === "ltr" ? "calc(50% - 92px)" : undefined }} className="absolute top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center text-[#171717] md:hidden"><Bell size={22} strokeWidth={1.5} /></button>
           <a href="/" aria-label="Deraah home" className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 no-underline transition-opacity duration-500 md:relative md:left-auto md:top-auto md:order-first md:translate-x-0 md:translate-y-0 ${overlay && isScrolled ? "max-md:pointer-events-none max-md:opacity-0" : ""}`}><img src="/product-assets/deraah-wordmark.svg" alt="DERAAH" className="h-[36px] w-[86px] object-contain md:ms-[12px] md:h-[27.06px] md:w-[82px]" /></a>
           <div className="relative hidden h-10 min-w-0 flex-1 md:block">
             <nav aria-label="Main navigation" aria-hidden={overlay && isScrolled} className={`absolute inset-0 flex min-w-0 items-center gap-0 overflow-hidden whitespace-nowrap ps-3 pe-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-[opacity,transform] md:me-0 md:justify-between md:pe-0 md:ps-[68px] ${overlay && isScrolled ? "pointer-events-none z-0 -translate-y-2 opacity-0" : "z-10 translate-y-0 opacity-100"}`}>
@@ -691,8 +733,8 @@ export default function StoreHeader({ overlay = false }: { overlay?: boolean }) 
           <button type="button" aria-label="Open categories menu" onClick={() => setMobileMenuOpen(true)} className="hidden"><Menu size={20} strokeWidth={1.5} /><span className="mb-[-6px]">Categories</span></button>
           {activeCategoryPanel}
         </div>
-        <div className={`order-last ml-auto flex h-full min-w-0 items-center rounded-full text-[12px] transition-[width,padding,gap,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-[width,padding,gap,opacity] max-md:gap-1 md:border md:border-white/75 md:bg-white/95 md:shadow-[0_12px_35px_rgba(24,20,16,.14)] ${overlay && isScrolled ? (isAuthenticated ? "gap-3 md:w-[274px] md:px-[8px] md:opacity-95" : "gap-3 md:w-[224px] md:px-[6px] md:opacity-95") : (isAuthenticated ? "gap-1 md:w-[328.625px] md:px-[18px] md:opacity-100" : "gap-0 md:w-[274px] md:px-[18px] md:opacity-100")}`}>
-          <button type="button" onClick={() => openSearch()} aria-label="Search products" className={`hidden h-10 place-items-center overflow-hidden rounded-full text-[#171717] transition-[opacity,transform,width] duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-[opacity,transform,width] hover:bg-[#f1f2f3] md:ml-[-11px] md:grid ${overlay ? (isScrolled ? "pointer-events-none w-0 -translate-x-2 scale-75 opacity-0" : "w-10 translate-x-0 scale-100 opacity-100") : "w-10"}`}><img src="/product-assets/icons/search.svg" alt="" className="h-5 w-5 shrink-0" /></button>
+        <div data-store-header-actions={isAuthenticated ? "authenticated" : "guest"} data-store-header-scrolled={overlay && isScrolled ? "true" : "false"} className={`order-last ml-auto flex h-full min-w-0 items-center rounded-full text-[12px] transition-[width,padding,gap,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] will-change-[width,padding,gap,opacity] max-md:gap-1 md:border md:border-white/75 md:bg-white/95 md:shadow-[0_12px_35px_rgba(24,20,16,.14)] ${overlay && isScrolled ? (isAuthenticated ? "gap-3 md:w-[274px] md:px-[8px] md:opacity-95" : "gap-3 md:w-[224px] md:px-[6px] md:opacity-95") : (isAuthenticated ? "gap-1 md:w-[328.625px] md:px-[18px] md:opacity-100" : "gap-0 md:w-[274px] md:px-[18px] md:opacity-100")}`}>
+          <button data-store-header-search-button type="button" onClick={() => openSearch()} aria-label="Search products" className={`hidden h-10 place-items-center overflow-hidden rounded-full text-[#171717] transition-[opacity,transform,width] duration-700 ease-[cubic-bezier(.22,1,.36,1)] will-change-[opacity,transform,width] hover:bg-[#f1f2f3] md:ml-[-11px] md:grid ${overlay ? (isScrolled ? "pointer-events-none w-0 -translate-x-2 scale-75 opacity-0" : "w-10 translate-x-0 scale-100 opacity-100") : "w-10"}`}><img src="/product-assets/icons/search.svg" alt="" className="h-5 w-5 shrink-0" /></button>
           <div className="hidden shrink-0 items-center gap-2 md:flex">
               <div className="relative hidden md:block"><button type="button" aria-label="Change country and language" aria-expanded={countryPanelOpen} onClick={() => { setTopMenu(null); setCountryPanelOpen(true); }} className="grid h-10 w-10 place-items-center rounded-full text-[#171717] transition-colors hover:bg-[#f1f2f3]"><Globe2 size={18} strokeWidth={1.5} /></button></div>
               <button type="button" onClick={() => setNotificationsOpen(true)} aria-label="Notifications" title="Notifications" className="grid h-10 w-10 place-items-center rounded-full text-[#171717] transition-colors hover:bg-[#f1f2f3]"><Bell size={18} strokeWidth={1.5} /></button>

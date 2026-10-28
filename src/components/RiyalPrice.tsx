@@ -14,7 +14,7 @@ export function RiyalPrice({
   const amount = String(value).replace(/^⃁\s*/, "");
 
   return (
-    <span dir="ltr" className={`inline-flex items-baseline gap-1 whitespace-nowrap ${className}`}>
+    <span dir="ltr" className={`font-poppins-numeric inline-flex items-baseline gap-1 whitespace-nowrap ${className}`}>
       <img
         src={RIYAL_SYMBOL_ASSET}
         alt=""

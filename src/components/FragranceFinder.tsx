@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Heart, RotateCcw, Sparkles } from "lucide-react";
 import { type Product as StoreProduct } from "./ProductDetailsPage";
+import { useStoreLocale } from "./StoreLocaleContext";
 
 type QuizKey = "gender" | "clothingColor" | "wallColor" | "possessionsColor" | "hobbies" | "vacation" | "birthday" | "job" | "special" | "personalityType" | "quiet" | "sensitive" | "patient" | "social" | "confidence" | "emotional" | "observant" | "eloquent" | "zodiac" | "skin" | "personalityDescription" | "ingredients" | "scentDirection";
 type AnswerValue = string | string[];
@@ -68,6 +69,93 @@ const zodiacOptions: QuizOption[] = [
   { value: "scorpio", label: "October 24 – November 21", description: "Scorpio" },
   { value: "sagittarius", label: "November 22 – December 21", description: "Sagittarius" },
 ];
+
+const finderArabicQuestions: Record<string, string> = {
+  "Who is this fragrance for?": "لمن هذا العطر؟",
+  "What is your favorite color to wear?": "ما لونك المفضل في ملابسك؟",
+  "What is your favorite wall-paint color?": "ما لون طلاء الجدران المفضل لديك؟",
+  "What is your favorite color for your possessions?": "ما لونك المفضل في مقتنياتك؟",
+  "Which hobbies do you enjoy most?": "ما الهوايات التي تستمتع بها أكثر؟",
+  "Where would you spend your vacation if you had the chance?": "أين ستقضي إجازتك لو أتيحت لك الفرصة؟",
+  "How would you spend your birthday?": "كيف ستقضي يوم ميلادك؟",
+  "Which of these jobs would you wish to have?": "أيّاً من هذه الوظائف تتمنى أن تعمل بها؟",
+  "What do you consider special about yourself?": "ما الشيء المميز الذي تراه في نفسك؟",
+  "Which personality is closest to yours?": "أي شخصية هي الأقرب إلى شخصيتك؟",
+  "Do you lean toward calm and few words?": "هل تميل إلى الهدوء وقلة الكلام؟",
+  "How sensitive are you?": "ما مدى حساسيتك؟",
+  "How patient are you?": "ما مدى صبرك؟",
+  "How social are you?": "ما مدى اجتماعيتك؟",
+  "How confident are you?": "ما مدى ثقتك بنفسك؟",
+  "How emotional are you?": "ما مدى عاطفيتك؟",
+  "How observant are you?": "ما مدى ملاحظتك للتفاصيل؟",
+  "How eloquent are you?": "ما مدى فصاحتك؟",
+  "Choose your date of birth": "اختر تاريخ ميلادك",
+  "What is your skin type?": "ما نوع بشرتك؟",
+  "How would you describe your personality?": "كيف تصف شخصيتك؟",
+  "Which ingredients would you love in your fragrance?": "ما المكونات التي تفضلها في عطرك؟",
+  "Which scents do you lean toward most?": "إلى أي الروائح تميل أكثر؟",
+};
+
+const finderArabicOptionLabels: Partial<Record<QuizKey, Record<string, string>>> = {
+  gender: { male: "للرجال", female: "للنساء" },
+  clothingColor: { black: "الأسود", blue: "الأزرق", white: "الأبيض", brown: "البني", orange: "البرتقالي", red: "الأحمر", purple: "البنفسجي", gray: "الرمادي", pink: "الوردي" },
+  wallColor: { green: "الأخضر", white: "الأبيض", gray: "الرمادي", purple: "البنفسجي", pink: "الوردي", brown: "البني", red: "الأحمر", blue: "الأزرق" },
+  possessionsColor: { blue: "الأزرق", pink: "الوردي", gold: "الذهبي", black: "الأسود", green: "الأخضر", red: "الأحمر" },
+  hobbies: { poetry: "الشعر", mystery: "الروايات البوليسية", events: "تنظيم الأنشطة والفعاليات", home: "ترتيب المنزل", sports: "ممارسة الرياضة", plants: "العناية بالنباتات والزهور" },
+  vacation: { home: "في المنزل", island: "في جزيرة", beach: "على الشاطئ", safari: "في رحلة سفاري", park: "في حديقة عامة", "children-home": "في دار للأطفال" },
+  birthday: { "family-party": "حفلة عائلية", "romantic-dinner": "عشاء رومانسي", "friends-night": "سهرة مع الأصدقاء", cinema: "فيلم في السينما", "large-hall": "احتفال في قاعة كبيرة", "no-celebration": "لن أحتفل به" },
+  job: {
+    "female-novelist": "روائي أو روائية", "male-novelist": "روائي", coach: "مدرب تطوير شخصي", "female-accountant": "محاسب أو محاسبة", "male-accountant": "محاسب", "political-party": "عضو في حزب سياسي", judiciary: "في السلك القضائي", politician: "سياسي", sailor: "بحّار", detective: "محقق جنائي", "female-musician": "مغنٍ أو موسيقي", "male-musician": "مغنٍ أو موسيقي", "public-relations": "علاقات عامة", "female-fashion": "مصمم أزياء", "male-fashion": "مصمم أزياء", "female-manager": "مدير أو مدير بنك", "male-manager": "مدير إداري أو مدير بنك", "female-flight-attendant": "مضيف طيران", "male-flight-attendant": "مضيف طيران", "female-archaeologist": "متخصص آثار", "male-archaeologist": "متخصص آثار",
+  },
+  special: { artistic: "عاطفي وشغوف بالفن", diplomatic: "دبلوماسي واجتماعي", "pleasure-seeker": "أحب المتعة وأبحث عن الحب", traditional: "تقليدي ولا أحب المخاطرة", adventurous: "جريء ومغامر", mysterious: "غامض ومثير للفضول" },
+  personalityType: { entertainer: "الشخص المرح", defender: "الحامي", logician: "المفكر المنطقي", adventurer: "المغامر", creator: "المبدع", leader: "القائد" },
+  quiet: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  sensitive: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  patient: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  social: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  confidence: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  emotional: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  observant: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  eloquent: { "strongly-disagree": "لا ينطبق علي إطلاقاً", disagree: "غالباً لا ينطبق علي", neutral: "أحياناً", agree: "غالباً ينطبق علي", "strongly-agree": "ينطبق علي جداً" },
+  zodiac: { capricorn: "22 ديسمبر – 19 يناير", aquarius: "20 يناير – 18 فبراير", pisces: "19 فبراير – 20 مارس", aries: "21 مارس – 19 أبريل", taurus: "20 أبريل – 20 مايو", gemini: "21 مايو – 20 يونيو", cancer: "21 يونيو – 22 يوليو", leo: "23 يوليو – 22 أغسطس", virgo: "23 أغسطس – 22 سبتمبر", libra: "23 سبتمبر – 23 أكتوبر", scorpio: "24 أكتوبر – 21 نوفمبر", sagittarius: "22 نوفمبر – 21 ديسمبر" },
+  skin: { dry: "بشرة جافة", oily: "بشرة دهنية", sensitive: "بشرة حساسة" },
+  personalityDescription: { sporty: "أحب الرياضة أو أمارسها", dreamy: "حالم", romantic: "رومانسي", playful: "مرح", leader: "قائد", classic: "كلاسيكي" },
+  ingredients: { "aquatic-herbs": "أعشاب برائحة مائية", "green-fruit": "أعشاب خضراء مع الفاكهة", "green-woods": "أعشاب خضراء مع أخشاب عطرية", "green-oriental": "أعشاب خضراء مع مكونات شرقية", "fern-lavender-citrus": "سرخسيات مثل اللافندر مع الأعشاب الخضراء والحمضيات", "fresh-hot": "أعشاب خضراء منعشة مع مكونات حارة", "sweet-notes": "أعشاب مع نوتات حلوة", "citrus-woods": "حمضيات مع أخشاب عطرية", "citrus-oriental": "حمضيات مع مكونات شرقية" },
+  scentDirection: { aquatic: "نوتات مائية", woody: "نوتات خشبية", fruity: "نوتات فاكهية", citrus: "نوتات حمضية", "fresh-floral-herbal": "نوتات عشبية منعشة مع الزهور", spicy: "روائح متبلة", sweet: "روائح حلوة" },
+};
+
+const finderArabicEyebrows: Record<string, string> = {
+  "Your fragrance profile": "ملف عطرك",
+  "Your style": "أسلوبك",
+  "Your surroundings": "محيطك",
+  "Your details": "تفاصيلك",
+  "Your free time": "وقت فراغك",
+  "Your escape": "وجهتك",
+  "Your celebration": "احتفالك",
+  "Your ambition": "طموحك",
+  "Your signature": "بصمتك",
+  "Your personality": "شخصيتك",
+  "A closer look": "نظرة أعمق",
+  "Your birth date": "تاريخ ميلادك",
+  "Your skin": "بشرتك",
+  "How you see yourself": "نظرتك إلى نفسك",
+  "The ingredients": "المكونات",
+  "The scent direction": "اتجاه العطر",
+};
+
+function localizeFinderQuestion(value: string, isArabic: boolean) {
+  return isArabic ? finderArabicQuestions[value] ?? value : value;
+}
+
+function localizeFinderEyebrow(value: string, isArabic: boolean) {
+  if (!isArabic) return value;
+  const match = value.match(/^Question (\d+) of (\d+) · (.+)$/);
+  return match ? `السؤال ${match[1]} من ${match[2]} · ${finderArabicEyebrows[match[3]] ?? match[3]}` : value;
+}
+
+function localizeFinderOption(option: QuizOption, stepKey: QuizKey, isArabic: boolean): QuizOption {
+  return isArabic ? { ...option, label: finderArabicOptionLabels[stepKey]?.[option.value] ?? option.label } : option;
+}
 
 const quizSteps: QuizStep[] = [
   {
@@ -607,9 +695,9 @@ function ScalePicker({ options, selectedValue, onSelect }: { options: QuizOption
   </div>;
 }
 
-function OptionCard({ option, stepKey, selected, onSelect }: { option: QuizOption; stepKey: QuizKey; selected: boolean; onSelect: (value: string) => void }) {
+function OptionCard({ option, stepKey, selected, onSelect, isArabic }: { option: QuizOption; stepKey: QuizKey; selected: boolean; onSelect: (value: string) => void; isArabic: boolean }) {
   const isScale = ["quiet", "sensitive", "patient", "social", "confidence", "emotional", "observant", "eloquent"].includes(stepKey);
-  return <button type="button" onClick={() => onSelect(option.value)} aria-pressed={selected} className={`group relative min-h-[56px] gap-3 rounded-[14px] border px-3 py-2.5 text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a7835c] focus-visible:ring-offset-2 sm:min-h-[62px] sm:px-4 ${isScale ? "flex flex-col items-start justify-center" : "flex items-center justify-between"} ${selected ? "border-[#a7835c] bg-[#fbf5ee] shadow-[0_8px_20px_rgba(167,131,92,.10)]" : "border-[#eadfe0] bg-white hover:border-[#c7ac8d] hover:bg-[#fffaf6]"}`}><span className="min-w-0 text-[13px] font-semibold leading-5 text-[#2d1b23]">{option.label}</span><span className={isScale ? "mt-2" : "shrink-0"}><OptionVisual stepKey={stepKey} value={option.value} /></span></button>;
+  return <button type="button" onClick={() => onSelect(option.value)} aria-pressed={selected} className={`group relative min-h-[56px] gap-3 rounded-[14px] border px-3 py-2.5 ${isArabic ? "text-right" : "text-left"} transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a7835c] focus-visible:ring-offset-2 sm:min-h-[62px] sm:px-4 ${isScale ? "flex flex-col items-start justify-center" : "flex items-center justify-between"} ${selected ? "border-[#a7835c] bg-[#fbf5ee] shadow-[0_8px_20px_rgba(167,131,92,.10)]" : "border-[#eadfe0] bg-white hover:border-[#c7ac8d] hover:bg-[#fffaf6]"}`}><span className="min-w-0 text-[14px] font-semibold leading-5 text-[#2d1b23]">{option.label}</span><span className={isScale ? "mt-2" : "shrink-0"}><OptionVisual stepKey={stepKey} value={option.value} /></span></button>;
 }
 
 function ResultCard({ profile, favorite, onFavorite }: { profile: FragranceProfile; favorite: boolean; onFavorite: () => void }) {
@@ -723,6 +811,8 @@ function FinderSteps() {
 }
 
 export default function FragranceFinder({ onFavorite, favorites }: { onFavorite: (product: StoreProduct) => void; favorites: string[] }) {
+  const { direction, language } = useStoreLocale();
+  const isArabic = language === "العربية";
   const [view, setView] = useState<FinderView>("intro");
   const [slideIndex, setSlideIndex] = useState(0);
   const [gender, setGender] = useState<"male" | "female" | null>(null);
@@ -761,10 +851,16 @@ export default function FragranceFinder({ onFavorite, favorites }: { onFavorite:
     setView("quiz");
   };
 
+  const advanceAfterSelection = () => {
+    if (slideIndex === quizSlides.length - 1) setView("results");
+    else setSlideIndex(index => index + 1);
+  };
+
   const choose = (step: QuizStep, value: string) => {
     if (step.key === "gender") {
       setGender(value as "male" | "female");
       setAnswers(previous => ({ ...previous, gender: value }));
+      advanceAfterSelection();
       return;
     }
     if (step.multi) {
@@ -778,14 +874,11 @@ export default function FragranceFinder({ onFavorite, favorites }: { onFavorite:
             : selected;
         return { ...previous, [step.key]: nextSelected };
       });
+      advanceAfterSelection();
       return;
     }
     setAnswers(previous => ({ ...previous, [step.key]: value }));
-  };
-
-  const continueSlide = () => {
-    if (slideIndex === quizSlides.length - 1) setView("results");
-    else setSlideIndex(index => index + 1);
+    advanceAfterSelection();
   };
 
   const goBack = () => {
@@ -794,15 +887,15 @@ export default function FragranceFinder({ onFavorite, favorites }: { onFavorite:
   };
 
   return (
-    <section id="fragrance-finder" aria-labelledby="fragrance-finder-title" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+    <section id="fragrance-finder" dir={direction} aria-labelledby="fragrance-finder-title" className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
       <div className="relative overflow-hidden rounded-[26px] bg-[#000000] text-white shadow-[0_22px_60px_rgba(55,21,36,.16)]">
         <span className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full border-[34px] border-[#dec6b1]/18" />
         <span className="pointer-events-none absolute -bottom-44 left-[38%] h-96 w-96 rounded-full bg-[#dec6b1]/14 blur-3xl" />
         <div className={`relative grid ${view === "intro" ? "lg:grid-cols-1" : "lg:grid-cols-[28.75%_71.25%]"}`}>
           <div className={`flex flex-col justify-between bg-[#000000] px-5 sm:px-10 ${view === "intro" ? "lg:min-h-[442px] lg:flex-row lg:items-center lg:gap-10 lg:px-12 lg:py-7" : "lg:items-stretch lg:justify-between lg:px-7"} ${view === "intro" ? "py-4 sm:py-6" : "py-5 sm:py-10 lg:py-12"}`}>
             <div className={`w-full ${view === "intro" ? "order-2 lg:order-1 lg:flex-1" : "order-2"}`}>
-              <div className="flex items-center gap-2 text-[#dec6b1]"><Sparkles size={14} /><p className="text-[10px] font-semibold uppercase tracking-[.24em]">Personal fragrance edit</p></div>
-              {view === "intro" ? <><h2 id="fragrance-finder-title" className="mt-4 max-w-[330px] text-3xl font-medium leading-[1.02] tracking-[-.05em] sm:mt-6 sm:text-4xl lg:text-4xl">Choose your scent,<br /><span className="text-[#dec6b1]">your way.</span></h2><p className="mt-3 max-w-[280px] text-xs leading-5 text-white/70 sm:mt-5 sm:text-sm sm:leading-6">Find your match in a few simple choices.</p><button type="button" onClick={begin} className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#000000] transition hover:bg-[#f4eadf]">Start the scent match <ArrowRight size={14} /></button></> : <><h2 id="fragrance-finder-title" className="mt-3 max-w-[480px] text-2xl font-medium leading-[1.02] tracking-[-.05em] sm:mt-5 sm:text-5xl">Choose your scent,<br /><span className="text-[#dec6b1]">your way.</span></h2><p className="mt-2 max-w-[420px] text-xs leading-5 text-white/68 sm:mt-5 sm:text-sm sm:leading-6">A quick match for the scent that fits you.</p></>}
+              <div className="flex items-center gap-2 text-[#dec6b1]"><Sparkles size={14} /><p className="text-[10px] font-semibold uppercase tracking-[.24em]">{isArabic ? "اختيارك الشخصي للعطر" : "Personal fragrance edit"}</p></div>
+              {view === "intro" ? <><h2 id="fragrance-finder-title" className="mt-4 max-w-[330px] text-3xl font-medium leading-[1.02] tracking-[-.05em] sm:mt-6 sm:text-4xl lg:text-4xl">{isArabic ? <>اختر عطر<br /><span className="text-[#dec6b1]">يشبهك</span></> : <>Choose your scent,<br /><span className="text-[#dec6b1]">your way.</span></>}</h2><p className="mt-3 max-w-[330px] text-xs leading-5 text-white/70 sm:mt-5 sm:max-w-[390px] sm:text-sm sm:leading-6">{isArabic ? "أجب عن أسئلة بسيطة، ودع شخصيتك تختار لك العطر. تستغرق ٣ دقائق فقط." : "Find your match in a few simple choices."}</p><button type="button" onClick={begin} className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#000000] transition hover:bg-[#f4eadf]">{isArabic ? "ابدأ اختيار عطرك" : "Start the scent match"} <ArrowRight size={14} /></button></> : <><h2 id="fragrance-finder-title" className="mt-3 max-w-[480px] text-2xl font-medium leading-[1.02] tracking-[-.05em] sm:mt-5 sm:text-5xl">{isArabic ? <>اختر عطر<br /><span className="text-[#dec6b1]">يشبهك</span></> : <>Choose your scent,<br /><span className="text-[#dec6b1]">your way.</span></>}</h2><p className="mt-2 max-w-[420px] text-xs leading-5 text-white/68 sm:mt-5 sm:text-sm sm:leading-6">{isArabic ? "اختيار سريع للعطر الذي يناسبك." : "A quick match for the scent that fits you."}</p></>}
             </div>
             {view === "intro" ? <div className="order-1 flex w-full justify-center lg:order-2 lg:w-1/2"><FinderBottleVisual /></div> : null}
           </div>
@@ -811,19 +904,18 @@ export default function FragranceFinder({ onFavorite, favorites }: { onFavorite:
           <div className="min-h-0 w-full rounded-[20px] bg-[#ffffff] p-3 text-[#28151f] sm:min-h-[430px] sm:p-7 lg:ml-[50px] lg:h-full lg:w-[calc(100%_-_58px)]">
               {view === "quiz" && currentSlide && (
                 <div className="flex min-h-[300px] flex-col sm:min-h-[380px]">
-                  <div className="flex items-center justify-between gap-4"><button type="button" onClick={goBack} className="inline-flex items-center gap-1 text-[11px] font-medium text-[#766169] hover:text-[#a7835c]"><ArrowLeft size={13} /> Back</button><span className="text-[10px] font-semibold text-[#a7835c]">{slideIndex + 1} / {quizSlides.length}</span></div>
+                  <div className="flex items-center justify-between gap-4"><button type="button" onClick={goBack} className="inline-flex items-center gap-1 text-[11px] font-medium text-[#766169] hover:text-[#a7835c]"><ArrowLeft size={13} /> {isArabic ? "رجوع" : "Back"}</button><span className="text-[10px] font-semibold text-[#a7835c]">{isArabic ? `السؤال ${slideIndex + 1} من ${quizSlides.length}` : `${slideIndex + 1} / ${quizSlides.length}`}</span></div>
                   <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[#f2e9df]"><span className="block h-full rounded-full bg-[#a7835c] transition-all duration-300" style={{ width: `${((slideIndex + 1) / quizSlides.length) * 100}%` }} /></div>
-                  <div className="mt-5 grid gap-5 sm:mt-7 lg:gap-6">{currentSlide.steps.map(step => { const visibleOptions = step.maleOptions && gender === "male" ? step.maleOptions : step.options; const selectedValues = answerValues(answers[step.key]); const isAgreement = agreementStepKeys.includes(step.key); return <div key={step.key} className="min-w-0"><div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#a7835c]">{step.eyebrow}</p><h3 className="mt-2 text-lg font-medium tracking-[-.03em] text-[#2d1b23] sm:text-xl">{step.question}</h3><p className="mt-2 text-[11px] leading-5 text-[#9a858b]">Choose the answer that feels most like you.</p></div>{isAgreement ? <div className="mt-5"><ScalePicker options={visibleOptions} selectedValue={selectedValues[0]} onSelect={value => choose(step, value)} /></div> : <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-3">{visibleOptions.map(option => <OptionCard key={option.value} option={option} stepKey={step.key} selected={selectedValues.includes(option.value)} onSelect={value => choose(step, value)} />)}</div>}</div>; })}</div>
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5"><span className="text-[10px] text-[#9a858b]">One quick question per stage.</span><button type="button" onClick={continueSlide} className="inline-flex items-center gap-2 rounded-full bg-[#000000] px-5 py-3 text-[11px] font-semibold text-white transition hover:bg-[#2a2a2a]">{slideIndex === quizSlides.length - 1 ? "See my matches" : "Continue"} <ArrowRight size={13} /></button></div>
+                  <div className="mt-5 grid gap-5 sm:mt-7 lg:gap-6">{currentSlide.steps.map(step => { const visibleOptions = (step.maleOptions && gender === "male" ? step.maleOptions : step.options).map(option => localizeFinderOption(option, step.key, isArabic)); const selectedValues = answerValues(answers[step.key]); const isAgreement = agreementStepKeys.includes(step.key); return <div key={step.key} className="min-w-0"><div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#a7835c]">{localizeFinderEyebrow(step.eyebrow, isArabic)}</p><h3 className="mt-2 text-lg font-medium tracking-[-.03em] text-[#2d1b23] sm:text-xl">{localizeFinderQuestion(step.question, isArabic)}</h3><p className="mt-2 text-[11px] leading-5 text-[#9a858b]">{isArabic ? "اختر الإجابة الأقرب إلى شخصيتك." : "Choose the answer that feels most like you."}</p></div>{isAgreement ? <div className="mt-5"><ScalePicker options={visibleOptions} selectedValue={selectedValues[0]} onSelect={value => choose(step, value)} /></div> : <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-3">{visibleOptions.map(option => <OptionCard key={option.value} option={option} stepKey={step.key} selected={selectedValues.includes(option.value)} onSelect={value => choose(step, value)} isArabic={isArabic} />)}</div>}</div>; })}</div>
                 </div>
               )}
 
               {view === "results" && (
                 <div>
-                  <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="flex items-center gap-2 text-[#a7835c]"><span className="grid h-7 w-7 place-items-center rounded-full bg-[#f4eadf]"><Check size={14} /></span><p className="text-[10px] font-bold uppercase tracking-[.2em]">Your edit is ready</p></div><h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">Six scents to try first</h3><p className="mt-2 hidden max-w-[520px] text-xs leading-5 text-[#806b72] sm:block">Ranked across the signals you shared.</p></div><button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-full border border-[#eadfe0] px-3 py-2 text-[10px] font-semibold text-[#8b6a47] transition hover:bg-[#fffaf6]"><RotateCcw size={12} /> Start over</button></div>
+                  <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="flex items-center gap-2 text-[#a7835c]"><span className="grid h-7 w-7 place-items-center rounded-full bg-[#f4eadf]"><Check size={14} /></span><p className="text-[10px] font-bold uppercase tracking-[.2em]">{isArabic ? "اختيارك جاهز" : "Your edit is ready"}</p></div><h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{isArabic ? "ستة عطور لتجربتها أولاً" : "Six scents to try first"}</h3><p className="mt-2 hidden max-w-[520px] text-xs leading-5 text-[#806b72] sm:block">{isArabic ? "مرتبة وفق التفضيلات التي شاركتها." : "Ranked across the signals you shared."}</p></div><button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-full border border-[#eadfe0] px-3 py-2 text-[10px] font-semibold text-[#8b6a47] transition hover:bg-[#fffaf6]"><RotateCcw size={12} /> {isArabic ? "ابدأ من جديد" : "Start over"}</button></div>
                   <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-7 sm:grid-cols-4 sm:gap-3">{visibleResults.map(({ profile }) => <div key={profile.product.name} className="min-w-0"><ResultCard profile={profile} favorite={favorites.includes(profile.product.name)} onFavorite={() => onFavorite(profile.product)} /></div>)}</div>
-                  {results.length > 4 && <div className="mt-5 flex justify-center"><button type="button" onClick={() => setShowAllResults(current => !current)} className="inline-flex items-center gap-2 rounded-full border border-[#eadfe0] px-4 py-2.5 text-[11px] font-semibold text-[#8b6a47] transition hover:bg-[#fffaf6]">{showAllResults ? "Show less" : "View more"} <ArrowRight size={13} /></button></div>}
-                  <div className="mt-7 hidden flex-wrap items-center justify-between gap-3 border-t border-[#eee2e0] pt-5 sm:flex"><span className="inline-flex items-center gap-2 text-[10px] text-[#8b777d]"><Sparkles size={13} className="text-[#a7835c]" /> Your match is a starting point.</span><a href="#shop" className="inline-flex items-center gap-2 text-[11px] font-semibold text-[#8b6a47] no-underline hover:underline">Browse all fragrances <ArrowRight size={13} /></a></div>
+                  {results.length > 4 && <div className="mt-5 flex justify-center"><button type="button" onClick={() => setShowAllResults(current => !current)} className="inline-flex items-center gap-2 rounded-full border border-[#eadfe0] px-4 py-2.5 text-[11px] font-semibold text-[#8b6a47] transition hover:bg-[#fffaf6]">{showAllResults ? (isArabic ? "عرض أقل" : "Show less") : (isArabic ? "عرض المزيد" : "View more")} <ArrowRight size={13} /></button></div>}
+                  <div className="mt-7 hidden flex-wrap items-center justify-between gap-3 border-t border-[#eee2e0] pt-5 sm:flex"><span className="inline-flex items-center gap-2 text-[10px] text-[#8b777d]"><Sparkles size={13} className="text-[#a7835c]" /> {isArabic ? "نتيجتك هي نقطة البداية." : "Your match is a starting point."}</span><a href="#shop" className="inline-flex items-center gap-2 text-[11px] font-semibold text-[#8b6a47] no-underline hover:underline">{isArabic ? "تصفح جميع العطور" : "Browse all fragrances"} <ArrowRight size={13} /></a></div>
                 </div>
               )}
             </div>

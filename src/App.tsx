@@ -10,8 +10,12 @@ import PaymentSummaryPage from "./components/PaymentSummaryPage";
 import ProductDetailsPage from "./components/ProductDetailsPage";
 import StoreAccountPage from "./components/StoreAccountPage";
 import StoreHomePage from "./components/StoreHomePage";
+import StoreBlogPage from "./components/StoreBlogPage";
+import StoreBlogArticlePage from "./components/StoreBlogArticlePage";
+import MukafaatiPage from "./components/MukafaatiPage";
 import DesignSystemPage from "./components/DesignSystemPage";
 import UserFlowPage from "./components/UserFlowPage";
+import WorkProjectsPage from "./components/WorkProjectsPage";
 
 function getStorePage() {
   const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -23,6 +27,10 @@ function getStorePage() {
 
   if (pathname === "/design-system") {
     return <DesignSystemPage />;
+  }
+
+  if (pathname === "/work-projects" || pathname === "/projects") {
+    return <WorkProjectsPage />;
   }
 
   if (pathname === "/enjoy" || pathname === "/enjoy-landing") {
@@ -43,6 +51,19 @@ function getStorePage() {
 
   if (pathname === "/gifts") {
     return <GiftCLPPage />;
+  }
+
+  if (pathname.startsWith("/blog/") || pathname.startsWith("/journal/")) {
+    const slug = pathname.split("/").filter(Boolean).slice(1).join("/");
+    return <StoreBlogArticlePage slug={slug} />;
+  }
+
+  if (pathname === "/blog" || pathname === "/journal") {
+    return <StoreBlogPage />;
+  }
+
+  if (pathname === "/mukafaati" || pathname === "/rewards") {
+    return <MukafaatiPage />;
   }
 
   if (pathname === "/category" || pathname === "/clp") {

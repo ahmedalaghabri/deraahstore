@@ -1,0 +1,74 @@
+.tilted-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  outline: none;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-style: preserve-3d;
+}
+
+.tilted-card::before {
+  position: absolute;
+  inset: 14% 9% 6%;
+  border-radius: 28px;
+  background: rgba(0, 0, 0, var(--tilted-shadow, .18));
+  filter: blur(22px);
+  content: "";
+  transform: translateY(18px) scale(.9);
+  transition: opacity .5s ease;
+}
+
+.tilted-card__body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilted-card__surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 26px;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.tilted-card__surface::before {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: radial-gradient(circle at var(--tilted-glare-x, 50%) var(--tilted-glare-y, 50%), rgba(255,255,255,var(--tilted-glare-opacity, .12)), transparent 38%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  content: "";
+}
+
+.tilted-card__surface::after {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 24%, rgba(255,255,255,.1) 48%, transparent 70%);
+  background-size: 220% 100%;
+  pointer-events: none;
+  content: "";
+  animation: tilted-card-sheen 8s ease-in-out infinite;
+}
+
+@keyframes tilted-card-sheen {
+  0%, 20% { background-position: 160% 0; }
+  65%, 100% { background-position: -60% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilted-card__surface::after { animation: none; }
+  .tilted-card__body { transform: none !important; }
+}

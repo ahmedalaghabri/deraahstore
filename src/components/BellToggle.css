@@ -156,7 +156,10 @@
   filter: blur(0);
 }
 .product-notify-toggle .bell-toggle__glyph svg {
-  stroke-width: 1.7;
+  stroke-width: 1.35 !important;
+}
+.product-notify-toggle .bell-toggle__glyph svg * {
+  stroke-width: 1.35 !important;
 }
 .product-notify-toggle[data-on="true"] .bell-toggle__glyph,
 .product-notify-toggle .bell-toggle__button:hover .bell-toggle__glyph,

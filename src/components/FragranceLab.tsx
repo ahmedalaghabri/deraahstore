@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, Droplets, Flower2, Gauge, Heart, Moon, RotateCcw, Snowflake, Sparkles, Sprout, Sun, Trees, Wind } from "lucide-react";
-import { type Product as StoreProduct } from "./ProductDetailsPage";
-import { RiyalPrice } from "./RiyalPrice";
+import { ArrowRight, Check, Droplets, Flower2, Gauge, Moon, RotateCcw, Snowflake, Sparkles, Sprout, Sun, Trees, Wind } from "lucide-react";
+import { ProductCard, type Product as StoreProduct } from "./ProductDetailsPage";
 import { useStoreLocale } from "./StoreLocaleContext";
 
 type LabStep = "notes" | "body" | "moment" | "season" | "result";
@@ -41,6 +40,42 @@ const seasonChoices: LabChoice[] = [
   { value: "mild", label: "Mild", sublabel: "Easy year-round", colors: ["#d8b1a1", "#bba7c7", "#9fb7ad"] },
   { value: "cool", label: "Cool", sublabel: "Warm and enveloping", colors: ["#6f3f46", "#a46a4d", "#d6a05d"] },
 ];
+
+const labArabicLabels: Record<string, string> = {
+  fresh: "منعش", woody: "خشبي", floral: "زهري", sweet: "حلو",
+  light: "خفيف", balanced: "متوازن", rich: "مكثف",
+  day: "نهاري", date: "سهرة", night: "ليلي",
+  warm: "دافئ", mild: "معتدل", cool: "بارد",
+};
+
+const labArabicSublabels: Record<string, string> = {
+  fresh: "برغموت · شاي أخضر", woody: "أرز · عنبر", floral: "ورد · مسك ناعم", sweet: "فانيلا · كمثرى",
+  light: "حضور ناعم", balanced: "حضور متوازن", rich: "أثر مكثف",
+  day: "روتين يومي", date: "أمسيات خاصة", night: "خطط المساء",
+  warm: "مشرق وخفيف", mild: "مناسب طوال العام", cool: "دافئ ومحتوٍ",
+};
+
+const labArabicResultLabels: Record<string, string> = {
+  "Closest to your taste": "الأقرب إلى ذوقك",
+  "Balanced alternative": "خيار متوازن",
+  "A different angle": "اختيار مختلف",
+};
+
+const labArabicSignatures: Record<string, string> = {
+  "Clean, polished green woods.": "أخشاب خضراء نظيفة بلمسة مصقولة.",
+  "Easy, soft citrus brightness.": "إشراقة حمضية ناعمة وسهلة الارتداء.",
+  "Dark woods with quiet confidence.": "أخشاب داكنة بثقة هادئة.",
+  "Warm and expressive for memorable moments.": "دافئ ومعبر للحظات التي لا تنسى.",
+  "A balanced, versatile choice with a refined character.": "خيار متوازن ومتعدد الاستخدامات بشخصية راقية.",
+  "Playful sweetness with a soft, luxurious touch.": "حلاوة مرحة بلمسة ناعمة وفاخرة.",
+  "Soft, comforting and close to the skin.": "ناعم ومريح وقريب من البشرة.",
+  "Clean and confident with a polished finish.": "نظيف وواثق بلمسة نهائية مصقولة.",
+  "Rich concentration with an elegant trail for important occasions.": "تركيز غني بأثر أنيق للمناسبات المهمة.",
+};
+
+function localizeLabChoice(choice: LabChoice, isArabic: boolean): LabChoice {
+  return isArabic ? { ...choice, label: labArabicLabels[choice.value] ?? choice.label, sublabel: labArabicSublabels[choice.value] ?? choice.sublabel } : choice;
+}
 
 type FragranceProfile = {
   product: StoreProduct;
@@ -158,16 +193,17 @@ function OrbitIcon({ step, value }: { step: LabStep; value: string }) {
   return <Snowflake size={18} strokeWidth={1.7} />;
 }
 
-function PreferenceVisual({ family, body, moment, season, step, choices, activeValue, onChoose }: { family: LabFamily; body: LabBody; moment: LabMoment; season: LabSeason; step: LabStep; choices: LabChoice[]; activeValue: string | null; onChoose: (value: string) => void }) {
+function PreferenceVisual({ family, body, moment, season, step, choices, activeValue, onChoose, isArabic }: { family: LabFamily; body: LabBody; moment: LabMoment; season: LabSeason; step: LabStep; choices: LabChoice[]; activeValue: string | null; onChoose: (value: string) => void; isArabic: boolean }) {
   const [bottleIndex, setBottleIndex] = useState(0);
-  const note = noteChoices.find(choice => choice.value === family) ?? noteChoices[0];
-  const presence = bodyChoices.find(choice => choice.value === body) ?? bodyChoices[1];
-  const atmosphere = momentChoices.find(choice => choice.value === moment) ?? momentChoices[0];
-  const weather = seasonChoices.find(choice => choice.value === season) ?? seasonChoices[1];
+  const note = localizeLabChoice(noteChoices.find(choice => choice.value === family) ?? noteChoices[0], isArabic);
+  const presence = localizeLabChoice(bodyChoices.find(choice => choice.value === body) ?? bodyChoices[1], isArabic);
+  const atmosphere = localizeLabChoice(momentChoices.find(choice => choice.value === moment) ?? momentChoices[0], isArabic);
+  const weather = localizeLabChoice(seasonChoices.find(choice => choice.value === season) ?? seasonChoices[1], isArabic);
   const preferenceSummary = step === "notes" ? note.label : step === "body" ? `${note.label} · ${presence.label}` : step === "moment" ? `${note.label} · ${presence.label} · ${atmosphere.label}` : `${note.label} · ${presence.label} · ${weather.label}`;
-  const activeChoice = choices.find(choice => choice.value === activeValue);
+  const displayChoices = choices.map(choice => localizeLabChoice(choice, isArabic));
+  const activeChoice = displayChoices.find(choice => choice.value === activeValue);
   const activeIndex = Math.max(0, choices.findIndex(choice => choice.value === activeValue));
-  const selectionKind = step === "notes" ? "Character" : step === "body" ? "Presence" : step === "moment" ? "Occasion" : step === "season" ? "Atmosphere" : "Preferences";
+  const selectionKind = isArabic ? (step === "notes" ? "الشخصية" : step === "body" ? "الحضور" : step === "moment" ? "المناسبة" : step === "season" ? "الأجواء" : "التفضيلات") : (step === "notes" ? "Character" : step === "body" ? "Presence" : step === "moment" ? "Occasion" : step === "season" ? "Atmosphere" : "Preferences");
   const orbitProgress = step === "notes" ? 0.25 : step === "body" ? 0.5 : step === "moment" ? 0.75 : 1;
   const orbitPositions = choices.length === 4
     ? [{ left: "-3%", top: "50%", transform: "translateY(-50%)" }, { left: "50%", top: "-3%", transform: "translateX(-50%)" }, { right: "-3%", top: "50%", transform: "translateY(-50%)" }, { left: "50%", bottom: "-3%", transform: "translateX(-50%)" }]
@@ -187,11 +223,11 @@ function PreferenceVisual({ family, body, moment, season, step, choices, activeV
       </svg>
       <span className="fragrance-lab-spin absolute inset-[24%] rounded-full border-[1.5px] border-white/25 [animation-direction:reverse] [animation-duration:11s]" />
 
-      {step !== "result" ? choices.map((choice, index) => <button
+      {step !== "result" ? displayChoices.map((choice, index) => <button
         key={choice.value}
         type="button"
         onClick={() => onChoose(choice.value)}
-        aria-label={`Choose ${choice.label}`}
+        aria-label={isArabic ? `اختر ${choice.label}` : `Choose ${choice.label}`}
         aria-pressed={activeValue === choice.value}
         className={`absolute z-10 flex h-[58px] w-[58px] flex-col items-center justify-center rounded-full border text-center font-semibold transition duration-300 hover:-translate-y-1 sm:h-[76px] sm:w-[76px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d6a4b9] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${activeValue === choice.value ? "scale-110 border-[#d6a4b9] bg-white/15 text-white shadow-[0_0_0_5px_rgba(214,164,185,.18),0_14px_28px_rgba(0,0,0,.35)]" : "border-white/35 bg-black/75 text-white shadow-[0_10px_20px_rgba(0,0,0,.28)]"}`}
         style={orbitPositions[index]}
@@ -218,30 +254,11 @@ function PreferenceVisual({ family, body, moment, season, step, choices, activeV
         </div>
       </div>
     </div>
-      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/30 bg-black/90 px-3.5 py-2 text-[11px] font-bold tracking-[.01em] text-white shadow-[0_8px_20px_rgba(0,0,0,.35)] sm:text-xs"><span className="inline-flex items-center gap-1.5"><Sparkles size={13} /> {step === "result" ? `Preferences: ${preferenceSummary}` : activeChoice ? `${selectionKind}: ${activeChoice.label}` : "Start by choosing a preference"}</span><span className="h-3.5 w-px bg-white/25" /><span className="text-white/65">{step === "result" ? "4 / 4" : activeChoice ? `${activeIndex + 1} / ${choices.length}` : `0 / ${choices.length}`}</span></div>
+      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/30 bg-black/90 px-3.5 py-2 text-[11px] font-bold tracking-[.01em] text-white shadow-[0_8px_20px_rgba(0,0,0,.35)] sm:text-xs"><span className="inline-flex items-center gap-1.5"><Sparkles size={13} /> {step === "result" ? (isArabic ? `التفضيلات: ${preferenceSummary}` : `Preferences: ${preferenceSummary}`) : activeChoice ? `${selectionKind}: ${activeChoice.label}` : (isArabic ? "ابدأ باختيار تفضيل" : "Start by choosing a preference")}</span><span className="h-3.5 w-px bg-white/25" /><span className="text-white/65">{step === "result" ? (isArabic ? "٤ / ٤" : "4 / 4") : activeChoice ? `${activeIndex + 1} / ${choices.length}` : `0 / ${choices.length}`}</span></div>
   </div>;
 }
 
-function FavoriteStyleProductCard({ product, favorite, onFavorite, label, fit, signature }: { product: StoreProduct; favorite: boolean; onFavorite: () => void; label: string; fit: number; signature: string }) {
-  return <article className="overflow-hidden rounded-2xl border border-[#e4e9f0] bg-white">
-    <div className="relative grid h-[148px] place-items-center bg-[#f5f7f9] p-4 sm:h-[170px] sm:p-5">
-      <img src={product.image} alt={product.name} className="h-auto w-auto max-h-[118px] max-w-[128px] object-contain mix-blend-multiply sm:max-h-[145px] sm:max-w-[150px]" />
-      <button type="button" aria-label={`${favorite ? "إزالة" : "إضافة"} ${product.name} ${favorite ? "من" : "إلى"} المفضلة`} onClick={onFavorite} className={`absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-white shadow-sm ${favorite ? "text-[#cd1a76]" : "text-[#69717a]"}`}><Heart size={15} fill={favorite ? "currentColor" : "none"} /></button>
-      {product.offer && <span className="absolute left-3 top-3 rounded-full bg-white px-2 py-1 text-[9px] font-semibold text-[#6f1e3b] shadow-sm">{product.offer}</span>}
-    </div>
-    <div className="p-3 sm:p-4">
-      <div className="mb-2 flex items-center justify-between gap-2"><span className="rounded-full bg-[#f7e8ed] px-2 py-1 text-[9px] font-semibold text-[#8d3150]">{label}</span><span className="text-[9px] font-semibold text-[#a35a71]">{fit}%</span></div>
-      <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9aa1ac]">{product.brand}</p>
-      <h4 className="mt-1 min-h-[40px] line-clamp-2 text-[12px] font-semibold leading-5 text-[#20252b] sm:text-sm">{product.name}</h4>
-      <p className="mt-2 min-h-[32px] line-clamp-2 text-[10px] leading-4 text-[#7d858f]">{signature}</p>
-      <div className="mt-3 flex items-center sm:mt-4">
-        <div className="min-w-0 text-sm font-semibold text-[#20252b]"><RiyalPrice value={product.price} /></div>
-      </div>
-    </div>
-  </article>;
-}
-
-export default function FragranceLab({ onFavorite, favorites }: { onAdd: (product: StoreProduct, quantity?: number, variant?: string) => void; onFavorite: (product: StoreProduct) => void; favorites: string[] }) {
+export default function FragranceLab({ onAdd, onFavorite, favorites }: { onAdd: (product: StoreProduct, quantity: number, variant?: string) => void; onFavorite: (product: StoreProduct) => void; favorites: string[] }) {
   const [step, setStep] = useState<LabStep>("notes");
   const [family, setFamily] = useState<LabFamily | null>(null);
   const [body, setBody] = useState<LabBody | null>(null);
@@ -286,7 +303,8 @@ export default function FragranceLab({ onFavorite, favorites }: { onAdd: (produc
     else if (step === "season") setStep("moment");
   };
 
-  const { direction } = useStoreLocale();
+  const { direction, language } = useStoreLocale();
+  const isArabic = language === "العربية";
 
   return <section id="fragrance-lab" dir={direction} aria-labelledby="fragrance-lab-title" className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
     <style>{`@keyframes fragrance-lab-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fragrance-lab-pulse{0%,100%{transform:scale(.9);opacity:.75}50%{transform:scale(1.25);opacity:1}}@keyframes fragrance-lab-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}@keyframes fragrance-lab-orbit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}@keyframes fragrance-lab-bottle-prism{0%,9%{opacity:0;transform:scale(.9) translateY(10px);clip-path:circle(0% at 50% 84%)}18%{opacity:.92;transform:scale(.98) translateY(2px);clip-path:circle(34% at 50% 72%)}31%,42%{opacity:1;transform:scale(1) translateY(0);clip-path:circle(115% at 50% 50%)}52%{opacity:0;transform:scale(1.045) translateY(-7px);clip-path:circle(0% at 50% 18%)}53%,100%{opacity:0;transform:scale(1.045) translateY(-7px);clip-path:circle(0% at 50% 18%)}}@keyframes fragrance-lab-bottle-shine{0%,100%{opacity:0;background-position:170% 0}18%{opacity:.45}42%{opacity:.8;background-position:-70% 0}58%,100%{opacity:0;background-position:-70% 0}}.fragrance-lab-spin{animation:fragrance-lab-spin 18s linear infinite}.fragrance-lab-pulse{animation:fragrance-lab-pulse 2.8s ease-in-out infinite}.fragrance-lab-float{animation:fragrance-lab-float 4.5s ease-in-out infinite}.fragrance-lab-orbit-float{animation:fragrance-lab-orbit-float 6s ease-in-out infinite}.fragrance-lab-bottle-variant{opacity:0;animation:fragrance-lab-bottle-prism 10s cubic-bezier(.22,.8,.22,1) infinite;will-change:opacity,transform,clip-path}.fragrance-lab-bottle-shine{background:linear-gradient(108deg,transparent 32%,rgba(255,255,255,.08) 41%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.1) 59%,transparent 68%);background-size:220% 100%;background-position:170% 0;mix-blend-mode:screen;animation:fragrance-lab-bottle-shine 4.8s ease-in-out infinite;will-change:background-position,opacity;-webkit-mask-image:url('/product-assets/fragrance-lab/3d/private-02.png');mask-image:url('/product-assets/fragrance-lab/3d/private-02.png');-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:100% 100%;mask-size:100% 100%}@media (prefers-reduced-motion:reduce){.fragrance-lab-spin,.fragrance-lab-pulse,.fragrance-lab-float,.fragrance-lab-orbit-float,.fragrance-lab-bottle-shine{animation:none}.fragrance-lab-bottle-variant{animation:none;opacity:0}.fragrance-lab-progress{transition:none!important}}`}</style>
@@ -294,26 +312,26 @@ export default function FragranceLab({ onFavorite, favorites }: { onAdd: (produc
     <div id="fragrance-lab-title" className="grid overflow-hidden rounded-[24px] border border-[#eadfe0] bg-white shadow-[0_24px_70px_rgba(75,39,53,.10)] lg:grid-cols-[.92fr_1.08fr]">
           <div className="relative overflow-visible bg-black px-5 py-7 text-white sm:px-10 sm:py-10">
             <div className="relative">
-              <p className="max-w-[320px] text-[15px] font-semibold leading-7 text-white/80 sm:text-base">Choose your preferences and we'll recommend the closest fragrance.</p>
-              <div className="mt-6"><PreferenceVisual family={preferenceFamily} body={preferenceBody} moment={preferenceMoment} season={preferenceSeason} step={step} choices={activeChoices} activeValue={activeValue} onChoose={choose} /></div>
-              {step === "result" && <button type="button" onClick={reset} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-white/15"><RotateCcw size={14} /> Choose new preferences</button>}
+              <p className="max-w-[320px] text-[15px] font-semibold leading-7 text-white/80 sm:text-base">{isArabic ? "اختر تفضيلاتك لنرشح لك العطر الأقرب." : "Choose your preferences and we'll recommend the closest fragrance."}</p>
+              <div className="mt-6"><PreferenceVisual family={preferenceFamily} body={preferenceBody} moment={preferenceMoment} season={preferenceSeason} step={step} choices={activeChoices} activeValue={activeValue} onChoose={choose} isArabic={isArabic} /></div>
+              {step === "result" && <button type="button" onClick={reset} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-white/15"><RotateCcw size={14} /> {isArabic ? "اختر تفضيلات جديدة" : "Choose new preferences"}</button>}
             </div>
           </div>
 
           <div className="flex min-h-[440px] flex-col justify-between p-5 sm:p-8">
             <div>{step !== "result" ? <>
-              <div className="flex items-center justify-between gap-4"><span className="text-[10px] font-bold tracking-[.12em] text-[#a35a71]">Step {progress} of 4</span><button type="button" onClick={goBack} disabled={step === "notes"} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8d3150] transition-opacity disabled:pointer-events-none disabled:opacity-0"><ArrowRight size={12} /> Back</button></div>
-              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{step === "notes" ? "Which character do you prefer?" : step === "body" ? "How would you like it to wear?" : step === "moment" ? "What occasion are you shopping for?" : "Which atmosphere feels like you?"}</h3>
-              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">{step === "notes" ? "Choose the style closest to your taste." : step === "body" ? "Set the presence you prefer." : step === "moment" ? "Choose the occasion you are shopping for." : "Choose the atmosphere that suits you."}</p>
+              <div className="flex items-center justify-between gap-4"><span className="text-[10px] font-bold tracking-[.12em] text-[#a35a71]">{isArabic ? `الخطوة ${progress} من ٤` : `Step ${progress} of 4`}</span><button type="button" onClick={goBack} disabled={step === "notes"} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8d3150] transition-opacity disabled:pointer-events-none disabled:opacity-0"><ArrowRight size={12} /> {isArabic ? "رجوع" : "Back"}</button></div>
+              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{step === "notes" ? (isArabic ? "أي شخصية تفضل؟" : "Which character do you prefer?") : step === "body" ? (isArabic ? "كيف تفضل حضور العطر؟" : "How would you like it to wear?") : step === "moment" ? (isArabic ? "لأي مناسبة تبحث عن عطرك؟" : "What occasion are you shopping for?") : (isArabic ? "أي أجواء تشبهك؟" : "Which atmosphere feels like you?")}</h3>
+              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">{step === "notes" ? (isArabic ? "اختر الأسلوب الأقرب إلى ذوقك." : "Choose the style closest to your taste.") : step === "body" ? (isArabic ? "حدد الحضور الذي تفضله." : "Set the presence you prefer.") : step === "moment" ? (isArabic ? "اختر المناسبة التي تبحث عنها." : "Choose the occasion you are shopping for.") : (isArabic ? "اختر الأجواء التي تناسبك." : "Choose the atmosphere that suits you.")}</p>
             </> : <>
-              <div className="flex items-center gap-2 text-[#8d3150]"><span className="grid h-8 w-8 place-items-center rounded-full bg-[#f7e8ed]"><Check size={15} /></span><p className="text-[10px] font-bold tracking-[.12em]">Your picks are ready</p></div>
-              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">Three fragrances for your taste</h3>
-              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">From hundreds of fragrances, we selected the closest matches based on your character, presence, occasion and atmosphere.</p>
-              <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#f7e8ed] px-3 py-2 text-[10px] font-semibold text-[#8d3150]">{noteChoices.find(choice => choice.value === family)?.sublabel}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">Presence {bodyChoices.find(choice => choice.value === body)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{momentChoices.find(choice => choice.value === moment)?.label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">Atmosphere {seasonChoices.find(choice => choice.value === season)?.label}</span></div>
-              <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">{products.map(profile => <FavoriteStyleProductCard key={profile.product.name} product={profile.product} label={profile.label} fit={profile.fit} signature={profile.signature} favorite={favorites.includes(profile.product.name)} onFavorite={() => onFavorite(profile.product)} />)}</div>
+              <div className="flex items-center gap-2 text-[#8d3150]"><span className="grid h-8 w-8 place-items-center rounded-full bg-[#f7e8ed]"><Check size={15} /></span><p className="text-[10px] font-bold tracking-[.12em]">{isArabic ? "اختياراتك جاهزة" : "Your picks are ready"}</p></div>
+              <h3 className="mt-4 text-2xl font-medium tracking-[-.04em] text-[#2d1b23] sm:text-3xl">{isArabic ? "ثلاثة عطور تناسب ذوقك" : "Three fragrances for your taste"}</h3>
+              <p className="mt-2 max-w-[430px] text-xs leading-5 text-[#806b72]">{isArabic ? "من بين مئات العطور اخترنا لك الأقرب بناءً على شخصيتك وحضورك ومناسبتك والأجواء التي تفضلها." : "From hundreds of fragrances, we selected the closest matches based on your character, presence, occasion and atmosphere."}</p>
+              <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#f7e8ed] px-3 py-2 text-[10px] font-semibold text-[#8d3150]">{localizeLabChoice(noteChoices.find(choice => choice.value === family) ?? noteChoices[0], isArabic).sublabel}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{isArabic ? "الحضور" : "Presence"} {localizeLabChoice(bodyChoices.find(choice => choice.value === body) ?? bodyChoices[1], isArabic).label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{localizeLabChoice(momentChoices.find(choice => choice.value === moment) ?? momentChoices[0], isArabic).label}</span><span className="rounded-full bg-[#f5efec] px-3 py-2 text-[10px] font-semibold text-[#6f555e]">{isArabic ? "الأجواء" : "Atmosphere"} {localizeLabChoice(seasonChoices.find(choice => choice.value === season) ?? seasonChoices[1], isArabic).label}</span></div>
+              <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">{products.map(profile => <ProductCard key={profile.product.name} product={profile.product} layout="grid" direction={direction} favorite={favorites.includes(profile.product.name)} onFavorite={() => onFavorite(profile.product)} onAddToCart={onAdd} matchLabel={isArabic ? labArabicResultLabels[profile.label] ?? profile.label : profile.label} matchScore={profile.fit} matchSignature={isArabic ? labArabicSignatures[profile.signature] ?? profile.signature : profile.signature} />)}</div>
             </>}</div>
 
-            {step !== "result" && <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee2e0] pt-5"><span className="text-[10px] text-[#9a858b]">{activeValue ? "Tap a point to continue." : "Start by choosing a point on the circle."}</span><span className="flex items-center gap-1.5">{[1, 2, 3, 4].map(item => <i key={item} className={`h-1.5 rounded-full transition-all ${item < progress || (item === progress && Boolean(activeValue)) ? "w-7 bg-[#8d3150]" : "w-2 bg-[#eadfe0]"}`} />)}</span></div>}
+            {step !== "result" && <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee2e0] pt-5"><span className="text-[10px] text-[#9a858b]">{activeValue ? (isArabic ? "اضغط على نقطة للمتابعة." : "Tap a point to continue.") : (isArabic ? "ابدأ باختيار نقطة على الدائرة." : "Start by choosing a point on the circle.")}</span><span className="flex items-center gap-1.5">{[1, 2, 3, 4].map(item => <i key={item} className={`h-1.5 rounded-full transition-all ${item < progress || (item === progress && Boolean(activeValue)) ? "w-7 bg-[#8d3150]" : "w-2 bg-[#eadfe0]"}`} />)}</span></div>}
           </div>
     </div>
   </section>;

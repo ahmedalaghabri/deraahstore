@@ -10,15 +10,22 @@ export type StoreOrderItem = {
   quantity: number;
 };
 
+export type StoreOrderStatus = "Confirmed" | "Preparing" | "On the way" | "Delivered" | "Cancelled";
+
 export type StoreOrder = {
   id: string;
   placedAt: string;
-  status: "Delivered" | "On the way" | "Preparing";
+  status: StoreOrderStatus;
   items: StoreOrderItem[];
   giftSelections?: Record<string, string[]>;
   freeSample?: { name: string; image: string };
+  deliveryDate?: string;
   total: number;
 };
+
+export function canCancelStoreOrder(status: StoreOrderStatus) {
+  return status === "Confirmed" || status === "Preparing";
+}
 
 const demoOrders: StoreOrder[] = [
   {
@@ -54,13 +61,16 @@ function normalizeOrder(value: unknown): StoreOrder | null {
     };
   });
   if (!items.length && item.id !== "DRH-000000") return null;
-  const status = item.status === "Delivered" || item.status === "Preparing" ? item.status : "On the way";
+  const status = item.status === "Confirmed" || item.status === "Preparing" || item.status === "On the way" || item.status === "Delivered" || item.status === "Cancelled"
+    ? item.status
+    : "On the way";
   const giftSelections = item.giftSelections && typeof item.giftSelections === "object" && !Array.isArray(item.giftSelections)
     ? Object.fromEntries(Object.entries(item.giftSelections as Record<string, unknown>).map(([itemId, giftIds]) => [itemId, Array.isArray(giftIds) ? giftIds.filter((giftId): giftId is string => typeof giftId === "string") : []]))
     : undefined;
   const freeSample = item.freeSample && typeof item.freeSample === "object" && !Array.isArray(item.freeSample)
     ? { name: String((item.freeSample as Record<string, unknown>).name ?? "Free sample"), image: typeof (item.freeSample as Record<string, unknown>).image === "string" ? (item.freeSample as Record<string, unknown>).image as string : "" }
     : undefined;
+  const deliveryDate = typeof item.deliveryDate === "string" ? item.deliveryDate : undefined;
   return {
     id: item.id,
     placedAt: typeof item.placedAt === "string" ? item.placedAt : new Date().toISOString(),
@@ -68,6 +78,7 @@ function normalizeOrder(value: unknown): StoreOrder | null {
     items,
     ...(giftSelections ? { giftSelections } : {}),
     ...(freeSample ? { freeSample } : {}),
+    ...(deliveryDate ? { deliveryDate } : {}),
     total: Number(item.total) || 0,
   };
 }
@@ -88,6 +99,8 @@ function readOrders(): StoreOrder[] {
 type StoreOrdersContextValue = {
   orders: StoreOrder[];
   addOrder: (order: unknown) => void;
+  cancelOrder: (orderId: string) => void;
+  updateOrder: (orderId: string, changes: Pick<StoreOrder, "deliveryDate">) => void;
 };
 
 const StoreOrdersContext = createContext<StoreOrdersContextValue | null>(null);
@@ -116,7 +129,59 @@ export function StoreOrdersProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const value = useMemo(() => ({ orders, addOrder }), [orders, addOrder]);
+  const cancelOrder = useCallback((orderId: string) => {
+    setOrders(current => {
+      let target = current.find(order => order.id === orderId);
+      if (!target) {
+        try {
+          target = normalizeOrder(JSON.parse(window.localStorage.getItem("deraah-last-order") ?? "null")) ?? undefined;
+        } catch {
+          target = undefined;
+        }
+      }
+      if (!target || !canCancelStoreOrder(target.status)) return current;
+      const next = current.some(order => order.id === orderId)
+        ? current.map(order => order.id === orderId ? { ...order, status: "Cancelled" as const } : order)
+        : [{ ...target, status: "Cancelled" as const }, ...current];
+      window.localStorage.setItem(STORE_ORDERS_KEY, JSON.stringify(next));
+      try {
+        const lastOrder = JSON.parse(window.localStorage.getItem("deraah-last-order") ?? "null");
+        if (lastOrder?.id === orderId) window.localStorage.setItem("deraah-last-order", JSON.stringify({ ...lastOrder, status: "Cancelled" }));
+      } catch {
+        // Keep the order list usable if the last-order snapshot is unavailable.
+      }
+      window.dispatchEvent(new Event("deraah-orders-updated"));
+      return next;
+    });
+  }, []);
+
+  const updateOrder = useCallback((orderId: string, changes: Pick<StoreOrder, "deliveryDate">) => {
+    setOrders(current => {
+      let target = current.find(order => order.id === orderId);
+      if (!target) {
+        try {
+          target = normalizeOrder(JSON.parse(window.localStorage.getItem("deraah-last-order") ?? "null")) ?? undefined;
+        } catch {
+          target = undefined;
+        }
+      }
+      if (!target) return current;
+      const next = current.some(order => order.id === orderId)
+        ? current.map(order => order.id === orderId ? { ...order, ...changes } : order)
+        : [{ ...target, ...changes }, ...current];
+      window.localStorage.setItem(STORE_ORDERS_KEY, JSON.stringify(next));
+      try {
+        const lastOrder = JSON.parse(window.localStorage.getItem("deraah-last-order") ?? "null");
+        if (lastOrder?.id === orderId) window.localStorage.setItem("deraah-last-order", JSON.stringify({ ...lastOrder, ...changes }));
+      } catch {
+        // Keep the order list usable if the last-order snapshot is unavailable.
+      }
+      window.dispatchEvent(new Event("deraah-orders-updated"));
+      return next;
+    });
+  }, []);
+
+  const value = useMemo(() => ({ orders, addOrder, cancelOrder, updateOrder }), [orders, addOrder, cancelOrder, updateOrder]);
   return <StoreOrdersContext.Provider value={value}>{children}</StoreOrdersContext.Provider>;
 }
 
