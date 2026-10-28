@@ -184,6 +184,7 @@ export type DeraahBlogPost = {
   intro: string;
   introAr: string;
   image: string;
+  featureImage?: string;
   alt: string;
   readTime: string;
   readTimeAr: string;
@@ -205,6 +206,7 @@ export const deraahBlogPosts: DeraahBlogPost[] = [
     intro: "The best fragrance is not always the loudest one. It is the scent that settles naturally into your day and becomes part of the way people remember you.",
     introAr: "أفضل عطر ليس بالضرورة الأقوى حضوراً، بل هو العطر الذي ينسجم مع يومك ويصبح جزءاً من الطريقة التي يتذكرك بها الآخرون.",
     image: "/product-assets/story/raw-05.png",
+    featureImage: "/product-assets/story/blog-signature-scent-lifestyle.webp",
     alt: "A fragrance bottle resting on textured grass",
     readTime: "5 min read",
     readTimeAr: "قراءة خلال 5 دقائق",
@@ -337,6 +339,7 @@ export const deraahBlogPosts: DeraahBlogPost[] = [
     intro: "Your fragrance wardrobe can be as personal as your clothes. A considered edit gives every day, mood and occasion its own finishing touch.",
     introAr: "يمكن لخزانة عطرك أن تكون شخصية مثل ملابسك. مجموعة مختارة بعناية تمنح كل يوم ومزاج ومناسبة لمستها الأخيرة.",
     image: "/product-assets/story/raw-10.jpeg",
+    featureImage: "/product-assets/story/blog-scent-wardrobe-lifestyle.webp",
     alt: "A collection of black fragrance bottles",
     readTime: "4 min read",
     readTimeAr: "قراءة خلال 4 دقائق",
@@ -439,7 +442,7 @@ export function DeraahBlogFeatureSlider() {
           className="blog-feature-slider relative mb-8 grid overflow-hidden rounded-[24px] bg-[#171515] text-white shadow-[0_20px_50px_rgba(33,23,18,.12)] lg:grid-cols-[1.08fr_.92fr]"
         >
           <div className="relative min-h-[280px] overflow-hidden sm:min-h-[380px] lg:min-h-[430px]">
-            <img key={activePost.image} src={activePost.image} alt={activePost.alt} className="absolute inset-0 h-full w-full object-cover" />
+            <img key={activePost.featureImage || activePost.image} src={activePost.featureImage || activePost.image} alt={activePost.alt} className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/10" />
             <span className="absolute bottom-5 left-5 rounded-full border border-white/40 bg-black/20 px-3 py-1 text-[9px] font-medium uppercase tracking-[.16em] text-white backdrop-blur-sm sm:bottom-7 sm:left-7">{activeCategory}</span>
           </div>
