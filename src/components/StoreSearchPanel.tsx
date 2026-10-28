@@ -6,7 +6,7 @@ import { MobileSheetHandle, useMobileSheetDrag } from "./MobileSheet";
 import PromptBar from "./PromptBar";
 import { useStoreLocale } from "./StoreLocaleContext";
 
-type SearchProduct = {
+export type SearchProduct = {
   name: string;
   nameAr: string;
   brand: string;
@@ -21,7 +21,7 @@ type SearchProduct = {
   badgeAr?: string;
 };
 
-const SEARCH_PRODUCTS: SearchProduct[] = [
+export const SEARCH_PRODUCTS: SearchProduct[] = [
   { name: "Link White Limited Edition 150ml", nameAr: "لينك وايت إصدار محدود 150 مل", brand: "LINK", brandAr: "لينك", price: 288, oldPrice: 500, image: "/product-assets/real-products/link-white.png", category: "Perfumes", categoryAr: "العطور", tags: ["white", "limited", "link"], badge: "1+2 Free", badgeAr: "1+2 مجانًا" },
   { name: "Green Woods Eau de Parfum", nameAr: "جرين وودز أو دو بارفان", brand: "LINK", brandAr: "لينك", price: 258, oldPrice: 600, image: "/product-assets/real-products/green-woods.png", category: "Perfumes", categoryAr: "العطور", tags: ["green", "woods", "link"], badge: "1+2 Free", badgeAr: "1+2 مجانًا" },
   { name: "Black Woods Eau de Toilette", nameAr: "بلاك وودز أو دو تواليت", brand: "LINK", brandAr: "لينك", price: 208, oldPrice: 500, image: "/product-assets/real-products/black-woods.png", category: "Perfumes", categoryAr: "العطور", tags: ["black", "woody", "link"] },

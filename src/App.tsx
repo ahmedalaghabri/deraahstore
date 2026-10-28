@@ -16,6 +16,10 @@ import MukafaatiPage from "./components/MukafaatiPage";
 import DesignSystemPage from "./components/DesignSystemPage";
 import UserFlowPage from "./components/UserFlowPage";
 import WorkProjectsPage from "./components/WorkProjectsPage";
+import StoreSearchPage from "./components/StoreSearchPage";
+import StoreAskAiPage from "./components/StoreAskAiPage";
+import DeraahGiftCardsPage from "./components/DeraahGiftCardsPage";
+import PaymentLinkPage from "./components/PaymentLinkPage";
 
 function getStorePage() {
   const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -31,6 +35,22 @@ function getStorePage() {
 
   if (pathname === "/work-projects" || pathname === "/projects") {
     return <WorkProjectsPage />;
+  }
+
+  if (pathname === "/search") {
+    return <StoreSearchPage />;
+  }
+
+  if (pathname === "/ask-ai") {
+    return <StoreAskAiPage />;
+  }
+
+  if (pathname === "/gifts/cards") {
+    return <DeraahGiftCardsPage />;
+  }
+
+  if (pathname === "/payment-link") {
+    return <PaymentLinkPage />;
   }
 
   if (pathname === "/enjoy" || pathname === "/enjoy-landing") {
